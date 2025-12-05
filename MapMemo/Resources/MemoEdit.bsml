@@ -8,7 +8,7 @@
       </vertical>
     </scroll-view>
     <!-- タブ切り替えキーボード -->
-    <tab-selector tab-tag="keyboard-tabs" />
+    <tab-selector tab-tag="keyboard-tabs"/>
     <tab tags="keyboard-tabs" tab-name="ABC">
       <vertical spacing="1">
       <!-- 英字キーボード -->
@@ -76,7 +76,7 @@
       </vertical>
     </tab>
     <tab tags="keyboard-tabs" tab-name="あ">
-      <horizontal spacing="0.5">
+      <horizontal spacing="0.5" anchor-pos-y="-10" anchor-pos-x="-5">
         <!-- 左端: 小文字・長音列 → 濁点列（ぱ/ば/だ/ざ/が） → 基本行（わ→ら→や→ま→は→な→た→さ→か→あ） -->
         <!-- 小文字・長音列 -->
       <vertical spacing="0.5">
@@ -197,7 +197,7 @@
     </horizontal>
     </tab>
     <tab tags="keyboard-tabs" tab-name="ア">
-      <horizontal spacing="0.5">
+      <horizontal spacing="0.5" anchor-pos-y="-10" anchor-pos-x="-5">
       <!-- 左端: 小文字/長音 → 濁点列（パ/バ/ダ/ザ/ガ） → 基本行（ワ→ラ→ヤ→マ→ハ→ナ→タ→サ→カ→ア） -->
       <!-- 小文字・長音列 -->
       <vertical spacing="0.5">
@@ -317,16 +317,19 @@
       </vertical>
     </horizontal>
     </tab>
+
     <!-- 共通操作ボタン(全タブ共通) -->
-    <horizontal spacing="2" pad-top="1">
+    <horizontal spacing="2" pad-top="1" anchor-pos-y="-40">
       <button text="Space" on-click="on-char-space" pref-width="20" />
       <button text="Del" on-click="on-char-backspace" pref-width="15" />
       <button text="⏎" on-click="on-char-newline" pref-width="15" />
     </horizontal>
+
     <!-- Save/Closeボタン（最下部） -->
-    <horizontal spacing="4" pad-top="1">
+    <horizontal spacing="4" pad-top="1" anchor-pos-y="-10">
       <button text="Save" on-click="on-save" pref-width="20" />
       <button text="Close" on-click="on-cancel" pref-width="20" />
     </horizontal>
+  
   </vertical>
 </modal>
