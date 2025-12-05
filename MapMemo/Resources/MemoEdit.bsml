@@ -1,0 +1,134 @@
+<modal id="modal" size-delta-x="100" size-delta-y="100">
+  <vertical spacing="2" pad-left="2" pad-right="2" pad-top="2" pad-bottom="2">
+    <text text="メモを編集" align="Center" />
+    <!-- メモ表示（スクロール可）: かな/英数字入力で ~memo を即時反映 -->
+    <scroll-view pref-height="65" pref-width="90">
+      <vertical>
+        <text id="memoText" text="~memo" align="TopLeft" font-size="3.0" enable-word-wrapping="true" rich-text="false" preferred-height="18" />
+      </vertical>
+    </scroll-view>
+    <!-- 簡易かなキーボード（ひらがな） -->
+    <vertical spacing="1">
+      <!-- 英字キーボード -->
+      <horizontal spacing="1">
+        <button text="A" on-click="on-char-A" pref-width="8" />
+        <button text="B" on-click="on-char-B" pref-width="8" />
+        <button text="C" on-click="on-char-C" pref-width="8" />
+        <button text="D" on-click="on-char-D" pref-width="8" />
+        <button text="E" on-click="on-char-E" pref-width="8" />
+        <button text="F" on-click="on-char-F" pref-width="8" />
+        <button text="G" on-click="on-char-G" pref-width="8" />
+        <button text="H" on-click="on-char-H" pref-width="8" />
+        <button text="I" on-click="on-char-I" pref-width="8" />
+        <button text="J" on-click="on-char-J" pref-width="8" />
+      </horizontal>
+      <horizontal spacing="1">
+        <button text="K" on-click="on-char-K" pref-width="8" />
+        <button text="L" on-click="on-char-L" pref-width="8" />
+        <button text="M" on-click="on-char-M" pref-width="8" />
+        <button text="N" on-click="on-char-N" pref-width="8" />
+        <button text="O" on-click="on-char-O" pref-width="8" />
+        <button text="P" on-click="on-char-P" pref-width="8" />
+        <button text="Q" on-click="on-char-Q" pref-width="8" />
+        <button text="R" on-click="on-char-R" pref-width="8" />
+        <button text="S" on-click="on-char-S" pref-width="8" />
+        <button text="T" on-click="on-char-T" pref-width="8" />
+      </horizontal>
+      <horizontal spacing="1">
+        <button text="U" on-click="on-char-U" pref-width="8" />
+        <button text="V" on-click="on-char-V" pref-width="8" />
+        <button text="W" on-click="on-char-W" pref-width="8" />
+        <button text="X" on-click="on-char-X" pref-width="8" />
+        <button text="Y" on-click="on-char-Y" pref-width="8" />
+        <button text="Z" on-click="on-char-Z" pref-width="8" />
+        <button text="," on-click="on-char-comma" pref-width="8" />
+        <button text="." on-click="on-char-period" pref-width="8" />
+        <button text="!" on-click="on-char-exclam" pref-width="8" />
+        <button text="?" on-click="on-char-question" pref-width="8" />
+      </horizontal>
+      <!-- 数字 -->
+      <horizontal spacing="1">
+        <button text="0" on-click="on-char-0" pref-width="8" />
+        <button text="1" on-click="on-char-1" pref-width="8" />
+        <button text="2" on-click="on-char-2" pref-width="8" />
+        <button text="3" on-click="on-char-3" pref-width="8" />
+        <button text="4" on-click="on-char-4" pref-width="8" />
+        <button text="5" on-click="on-char-5" pref-width="8" />
+        <button text="6" on-click="on-char-6" pref-width="8" />
+        <button text="7" on-click="on-char-7" pref-width="8" />
+        <button text="8" on-click="on-char-8" pref-width="8" />
+        <button text="9" on-click="on-char-9" pref-width="8" />
+      </horizontal>
+      <horizontal spacing="1">
+        <button text="あ" on-click="on-char-a" pref-width="10" />
+        <button text="い" on-click="on-char-i" pref-width="10" />
+        <button text="う" on-click="on-char-u" pref-width="10" />
+        <button text="え" on-click="on-char-e" pref-width="10" />
+        <button text="お" on-click="on-char-o" pref-width="10" />
+      </horizontal>
+      <horizontal spacing="1">
+        <button text="か" on-click="on-char-ka" pref-width="10" />
+        <button text="き" on-click="on-char-ki" pref-width="10" />
+        <button text="く" on-click="on-char-ku" pref-width="10" />
+        <button text="け" on-click="on-char-ke" pref-width="10" />
+        <button text="こ" on-click="on-char-ko" pref-width="10" />
+      </horizontal>
+      <horizontal spacing="1">
+        <button text="さ" on-click="on-char-sa" pref-width="10" />
+        <button text="し" on-click="on-char-shi" pref-width="10" />
+        <button text="す" on-click="on-char-su" pref-width="10" />
+        <button text="せ" on-click="on-char-se" pref-width="10" />
+        <button text="そ" on-click="on-char-so" pref-width="10" />
+      </horizontal>
+      <horizontal spacing="1">
+        <button text="た" on-click="on-char-ta" pref-width="10" />
+        <button text="ち" on-click="on-char-chi" pref-width="10" />
+        <button text="つ" on-click="on-char-tsu" pref-width="10" />
+        <button text="て" on-click="on-char-te" pref-width="10" />
+        <button text="と" on-click="on-char-to" pref-width="10" />
+      </horizontal>
+      <horizontal spacing="1">
+        <button text="な" on-click="on-char-na" pref-width="10" />
+        <button text="に" on-click="on-char-ni" pref-width="10" />
+        <button text="ぬ" on-click="on-char-nu" pref-width="10" />
+        <button text="ね" on-click="on-char-ne" pref-width="10" />
+        <button text="の" on-click="on-char-no" pref-width="10" />
+      </horizontal>
+      <horizontal spacing="1">
+        <button text="は" on-click="on-char-ha" pref-width="10" />
+        <button text="ひ" on-click="on-char-hi" pref-width="10" />
+        <button text="ふ" on-click="on-char-fu" pref-width="10" />
+        <button text="へ" on-click="on-char-he" pref-width="10" />
+        <button text="ほ" on-click="on-char-ho" pref-width="10" />
+      </horizontal>
+      <horizontal spacing="1">
+        <button text="ま" on-click="on-char-ma" pref-width="10" />
+        <button text="み" on-click="on-char-mi" pref-width="10" />
+        <button text="む" on-click="on-char-mu" pref-width="10" />
+        <button text="め" on-click="on-char-me" pref-width="10" />
+        <button text="も" on-click="on-char-mo" pref-width="10" />
+      </horizontal>
+      <horizontal spacing="1">
+        <button text="や" on-click="on-char-ya" pref-width="10" />
+        <button text="ゆ" on-click="on-char-yu" pref-width="10" />
+        <button text="よ" on-click="on-char-yo" pref-width="10" />
+        <button text="わ" on-click="on-char-wa" pref-width="10" />
+        <button text="を" on-click="on-char-wo" pref-width="10" />
+      </horizontal>
+      <horizontal spacing="1">
+        <button text="ん" on-click="on-char-n" pref-width="10" />
+        <button text="ー" on-click="on-char-long" pref-width="10" />
+        <button text="・" on-click="on-char-dot" pref-width="10" />
+        <button text="Space" on-click="on-char-space" pref-width="12" />
+        <button text="Del" on-click="on-char-backspace" pref-width="12" />
+      </horizontal>
+      <horizontal spacing="1">
+        <button text="⏎" on-click="on-char-newline" pref-width="24" />
+      </horizontal>
+    </vertical>
+    <horizontal spacing="2" alignment="Right">
+      <button text="Save" on-click="on-save" pref-width="16" />
+      <button text="Close" on-click="on-cancel" pref-width="16" />
+    </horizontal>
+  </vertical>
+</modal>

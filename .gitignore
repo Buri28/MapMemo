@@ -1,0 +1,25 @@
+# Build outputs
+bin/
+obj/
+/*.dll
+/*.pdb
+/*.user
+
+# VSCode
+.vscode/.history
+.vscode/*.code-workspace
+
+# User logs
+*.log
+
+# Other
+*.tmp
+
+# ignore build/version helper scripts
+build_versions.ps1
+build_versions.bat
+deploy_instances.json
+
+# ignore GitHub configuration/workflow folder
+.github/
+.vscode/script/makerule.md
