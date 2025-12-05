@@ -1,0 +1,7 @@
+<vertical pref-width="80" spacing="2" pad="2">
+  <horizontal spacing="2" child-align="LowerLeft">
+    <text text="~memo-summary" font-size="4" align="Left" />
+    <button text="✎" on-click="on-edit-click" hover-hint="メモを編集" pref-width="10" pref-height="10" />
+  </horizontal>
+  <text text="~updated-local" font-size="3" color="#888888" />
+</vertical>

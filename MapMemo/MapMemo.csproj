@@ -1,0 +1,126 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <AssemblyName>MapMemo</AssemblyName>
+    <RootNamespace>MapMemo</RootNamespace>
+    <!-- 出力DLL名 -->
+    <OutDir>bin\</OutDir>
+    <!-- 既定のBeat Saber パス（要求に合わせたプロパティ構成） -->
+    <BeatSaberPath>D:\BSManager\BSInstances\1.40.8</BeatSaberPath>
+    <BeatSaberManagedPath>$(BeatSaberPath)\Beat Saber_Data\Managed</BeatSaberManagedPath>
+    <BeatSaberPluginsPath>$(BeatSaberPath)\Plugins</BeatSaberPluginsPath>
+  </PropertyGroup>
+
+  <!-- Beat Saber本体/依存MODへの参照。HintPathは環境に合わせて調整してください。 -->
+  <ItemGroup>
+        <!-- Harmony from Libs -->
+        <Reference Include="0Harmony">
+          <HintPath>$(BeatSaberPath)\Libs\0Harmony.dll</HintPath>
+          <Private>false</Private>
+        </Reference>
+    <!-- IPA.Loader のみ参照（IPA/IPA.Configは未配置のため外す） -->
+    <Reference Include="IPA.Loader">
+      <HintPath>$(BeatSaberManagedPath)\IPA.Loader.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <!-- Unity / TMPro -->
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(BeatSaberManagedPath)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(BeatSaberManagedPath)\UnityEngine.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>$(BeatSaberManagedPath)\Unity.TextMeshPro.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <!-- Harmony は未使用（ファイル除外済み）なので参照も外す -->
+
+    <!-- Newtonsoft.Json -->
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(BeatSaberManagedPath)\Newtonsoft.Json.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <!-- BeatSaber ViewSystem (BSML ViewController のベース) -->
+    <Reference Include="BeatSaber.ViewSystem">
+      <HintPath>$(BeatSaberManagedPath)\BeatSaber.ViewSystem.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- HMUI (ViewControllerBase 定義) -->
+    <Reference Include="HMUI">
+      <HintPath>$(BeatSaberManagedPath)\HMUI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <!-- Zenject（SiraUtil依存） -->
+    <Reference Include="Zenject">
+      <HintPath>$(BeatSaberManagedPath)\Zenject.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+
+    <!-- SiraUtil / BSML / BS Utils（BepInEx/Plugins などの配置に応じて修正） -->
+    <Reference Include="SiraUtil">
+      <HintPath>$(BeatSaberPluginsPath)\SiraUtil.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="BSML">
+      <HintPath>$(BeatSaberPluginsPath)\BSML.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="BS_Utils">
+      <HintPath>$(BeatSaberPluginsPath)\BS_Utils.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- HarmonyPatches をビルド対象に復帰 -->
+
+  <!-- Libs 配下のDLLを優先的に参照する条件付き設定（存在する場合） -->
+  <!-- Libs条件ブロックは削除し、Plugins/Managedを明示参照 -->
+
+  <ItemGroup>
+    <!-- Embed manifest.json into DLL as MapMemo.manifest.json (Resources folder is implied) -->
+    <EmbeddedResource Include="manifest.json">
+      <LogicalName>MapMemo.manifest.json</LogicalName>
+    </EmbeddedResource>
+
+    <!-- Embed BSML views with explicit logical names (moved to Resources) -->
+    <EmbeddedResource Include="Resources\MemoPanel.bsml">
+      <LogicalName>MapMemo.Resources.MemoPanel.bsml</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\MemoEdit.bsml">
+      <LogicalName>MapMemo.Resources.MemoEdit.bsml</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.ValueTuple" Version="4.6.1" />
+  </ItemGroup>
+
+  <!-- BeatSaberPath をユーザーの環境に合わせて設定してください -->
+  <Target Name="EchoBeatSaberPaths" BeforeTargets="Build">
+    <Message Importance="high" Text="BeatSaberPath = '$(BeatSaberPath)'" />
+    <Message Importance="high" Text="BeatSaberManagedPath = '$(BeatSaberManagedPath)'" />
+    <Message Importance="high" Text="BeatSaberPluginsPath = '$(BeatSaberPluginsPath)'" />
+  </Target>
+
+  <!-- ビルド後にPluginsへ配置（WallHitSoundに近い構成） -->
+  <Target Name="CopyToBeatSaberPlugins" AfterTargets="Build">
+    <ItemGroup>
+      <PluginFiles Include="$(OutDir)\*.dll" />
+    </ItemGroup>
+    <Message Importance="high" Text="Copying to $(BeatSaberPluginsPath)" />
+    <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(BeatSaberPluginsPath)\%(RecursiveDir)" SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>
