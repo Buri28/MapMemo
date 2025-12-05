@@ -89,6 +89,17 @@ namespace MapMemo.UI
             try
             {
                 BSMLParser.Instance.Parse(content, host, modalCtrl);
+
+                // memoTextコンポーネントの初期化
+                if (modalCtrl.memoText != null)
+                {
+                    modalCtrl.memoText.text = modalCtrl.memo;
+                    MapMemo.Plugin.Log?.Info($"MemoEditModal.Show: memoText initialized with {modalCtrl.memo.Length} chars");
+                }
+                else
+                {
+                    MapMemo.Plugin.Log?.Warn("MemoEditModal.Show: memoText component is null after parse");
+                }
             }
             catch (System.Exception ex)
             {
@@ -97,7 +108,7 @@ namespace MapMemo.UI
             if (modalCtrl.modal != null)
             {
                 MapMemo.Plugin.Log?.Info("MemoEditModal.Show: modal component bound; showing");
-                modalCtrl.modal.Show(true);
+                modalCtrl.modal.Show(true, true);
             }
             else
             {
@@ -107,7 +118,7 @@ namespace MapMemo.UI
                 if (anyModal != null)
                 {
                     MapMemo.Plugin.Log?.Info($"MemoEditModal.Show: found ModalView '{anyModal.name}'; showing");
-                    anyModal.Show(true);
+                    anyModal.Show(true, true);
                 }
                 else
                 {
@@ -302,5 +313,142 @@ namespace MapMemo.UI
         [UIAction("on-char-period")] private void OnCharPeriod() => Append(".");
         [UIAction("on-char-exclam")] private void OnCharExclam() => Append("!");
         [UIAction("on-char-question")] private void OnCharQuestion() => Append("?");
+
+        // 追加記号
+        [UIAction("on-char-hyphen")] private void OnCharHyphen() => Append("-");
+        [UIAction("on-char-slash")] private void OnCharSlash() => Append("/");
+        [UIAction("on-char-colon")] private void OnCharColon() => Append(":");
+        [UIAction("on-char-semicolon")] private void OnCharSemicolon() => Append(";");
+        [UIAction("on-char-lparen")] private void OnCharLParen() => Append("(");
+        [UIAction("on-char-rparen")] private void OnCharRParen() => Append(")");
+        [UIAction("on-char-ampersand")] private void OnCharAmpersand() => Append("&");
+        [UIAction("on-char-at")] private void OnCharAt() => Append("@");
+        [UIAction("on-char-hash")] private void OnCharHash() => Append("#");
+        [UIAction("on-char-plus")] private void OnCharPlus() => Append("+");
+
+        // ら行
+        [UIAction("on-char-ra")] private void OnCharRa() => Append("ら");
+        [UIAction("on-char-ri")] private void OnCharRi() => Append("り");
+        [UIAction("on-char-ru")] private void OnCharRu() => Append("る");
+        [UIAction("on-char-re")] private void OnCharRe() => Append("れ");
+        [UIAction("on-char-ro")] private void OnCharRo() => Append("ろ");
+
+        // 濁点
+        [UIAction("on-char-ga")] private void OnCharGa() => Append("が");
+        [UIAction("on-char-gi")] private void OnCharGi() => Append("ぎ");
+        [UIAction("on-char-gu")] private void OnCharGu() => Append("ぐ");
+        [UIAction("on-char-ge")] private void OnCharGe() => Append("げ");
+        [UIAction("on-char-go")] private void OnCharGo() => Append("ご");
+        [UIAction("on-char-za")] private void OnCharZa() => Append("ざ");
+        [UIAction("on-char-ji")] private void OnCharJi() => Append("じ");
+        [UIAction("on-char-zu")] private void OnCharZu() => Append("ず");
+        [UIAction("on-char-ze")] private void OnCharZe() => Append("ぜ");
+        [UIAction("on-char-zo")] private void OnCharZo() => Append("ぞ");
+        [UIAction("on-char-da")] private void OnCharDa() => Append("だ");
+        [UIAction("on-char-di")] private void OnCharDi() => Append("ぢ");
+        [UIAction("on-char-du")] private void OnCharDu() => Append("づ");
+        [UIAction("on-char-de")] private void OnCharDe() => Append("で");
+        [UIAction("on-char-do")] private void OnCharDo() => Append("ど");
+        [UIAction("on-char-ba")] private void OnCharBa() => Append("ば");
+        [UIAction("on-char-bi")] private void OnCharBi() => Append("び");
+        [UIAction("on-char-bu")] private void OnCharBu() => Append("ぶ");
+        [UIAction("on-char-be")] private void OnCharBe() => Append("べ");
+        [UIAction("on-char-bo")] private void OnCharBo() => Append("ぼ");
+
+        // 半濁点
+        [UIAction("on-char-pa")] private void OnCharPa() => Append("ぱ");
+        [UIAction("on-char-pi")] private void OnCharPi() => Append("ぴ");
+        [UIAction("on-char-pu")] private void OnCharPu() => Append("ぷ");
+        [UIAction("on-char-pe")] private void OnCharPe() => Append("ぺ");
+        [UIAction("on-char-po")] private void OnCharPo() => Append("ぽ");
+
+        // 小文字（ひらがな）
+        [UIAction("on-char-xtu")] private void OnCharXtu() => Append("っ");
+        [UIAction("on-char-xya")] private void OnCharXya() => Append("ゃ");
+        [UIAction("on-char-xyu")] private void OnCharXyu() => Append("ゅ");
+        [UIAction("on-char-xyo")] private void OnCharXyo() => Append("ょ");
+
+        // カタカナ基本
+        [UIAction("on-char-ka-a")] private void OnCharKaA() => Append("ア");
+        [UIAction("on-char-ka-i")] private void OnCharKaI() => Append("イ");
+        [UIAction("on-char-ka-u")] private void OnCharKaU() => Append("ウ");
+        [UIAction("on-char-ka-e")] private void OnCharKaE() => Append("エ");
+        [UIAction("on-char-ka-o")] private void OnCharKaO() => Append("オ");
+        [UIAction("on-char-ka-ka")] private void OnCharKaKa() => Append("カ");
+        [UIAction("on-char-ka-ki")] private void OnCharKaKi() => Append("キ");
+        [UIAction("on-char-ka-ku")] private void OnCharKaKu() => Append("ク");
+        [UIAction("on-char-ka-ke")] private void OnCharKaKe() => Append("ケ");
+        [UIAction("on-char-ka-ko")] private void OnCharKaKo() => Append("コ");
+        [UIAction("on-char-ka-sa")] private void OnCharKaSa() => Append("サ");
+        [UIAction("on-char-ka-shi")] private void OnCharKaShi() => Append("シ");
+        [UIAction("on-char-ka-su")] private void OnCharKaSu() => Append("ス");
+        [UIAction("on-char-ka-se")] private void OnCharKaSe() => Append("セ");
+        [UIAction("on-char-ka-so")] private void OnCharKaSo() => Append("ソ");
+        [UIAction("on-char-ka-ta")] private void OnCharKaTa() => Append("タ");
+        [UIAction("on-char-ka-chi")] private void OnCharKaChi() => Append("チ");
+        [UIAction("on-char-ka-tsu")] private void OnCharKaTsu() => Append("ツ");
+        [UIAction("on-char-ka-te")] private void OnCharKaTe() => Append("テ");
+        [UIAction("on-char-ka-to")] private void OnCharKaTo() => Append("ト");
+        [UIAction("on-char-ka-na")] private void OnCharKaNa() => Append("ナ");
+        [UIAction("on-char-ka-ni")] private void OnCharKaNi() => Append("ニ");
+        [UIAction("on-char-ka-nu")] private void OnCharKaNu() => Append("ヌ");
+        [UIAction("on-char-ka-ne")] private void OnCharKaNe() => Append("ネ");
+        [UIAction("on-char-ka-no")] private void OnCharKaNo() => Append("ノ");
+        [UIAction("on-char-ka-ha")] private void OnCharKaHa() => Append("ハ");
+        [UIAction("on-char-ka-hi")] private void OnCharKaHi() => Append("ヒ");
+        [UIAction("on-char-ka-fu")] private void OnCharKaFu() => Append("フ");
+        [UIAction("on-char-ka-he")] private void OnCharKaHe() => Append("ヘ");
+        [UIAction("on-char-ka-ho")] private void OnCharKaHo() => Append("ホ");
+        [UIAction("on-char-ka-ma")] private void OnCharKaMa() => Append("マ");
+        [UIAction("on-char-ka-mi")] private void OnCharKaMi() => Append("ミ");
+        [UIAction("on-char-ka-mu")] private void OnCharKaMu() => Append("ム");
+        [UIAction("on-char-ka-me")] private void OnCharKaMe() => Append("メ");
+        [UIAction("on-char-ka-mo")] private void OnCharKaMo() => Append("モ");
+        [UIAction("on-char-ka-ya")] private void OnCharKaYa() => Append("ヤ");
+        [UIAction("on-char-ka-yu")] private void OnCharKaYu() => Append("ユ");
+        [UIAction("on-char-ka-yo")] private void OnCharKaYo() => Append("ヨ");
+        [UIAction("on-char-ka-wa")] private void OnCharKaWa() => Append("ワ");
+        [UIAction("on-char-ka-wo")] private void OnCharKaWo() => Append("ヲ");
+        [UIAction("on-char-ka-ra")] private void OnCharKaRa() => Append("ラ");
+        [UIAction("on-char-ka-ri")] private void OnCharKaRi() => Append("リ");
+        [UIAction("on-char-ka-ru")] private void OnCharKaRu() => Append("ル");
+        [UIAction("on-char-ka-re")] private void OnCharKaRe() => Append("レ");
+        [UIAction("on-char-ka-ro")] private void OnCharKaRo() => Append("ロ");
+        [UIAction("on-char-ka-n")] private void OnCharKaN() => Append("ン");
+
+        // カタカナ濁点
+        [UIAction("on-char-ka-ga")] private void OnCharKaGa() => Append("ガ");
+        [UIAction("on-char-ka-gi")] private void OnCharKaGi() => Append("ギ");
+        [UIAction("on-char-ka-gu")] private void OnCharKaGu() => Append("グ");
+        [UIAction("on-char-ka-ge")] private void OnCharKaGe() => Append("ゲ");
+        [UIAction("on-char-ka-go")] private void OnCharKaGo() => Append("ゴ");
+        [UIAction("on-char-ka-za")] private void OnCharKaZa() => Append("ザ");
+        [UIAction("on-char-ka-ji")] private void OnCharKaJi() => Append("ジ");
+        [UIAction("on-char-ka-zu")] private void OnCharKaZu() => Append("ズ");
+        [UIAction("on-char-ka-ze")] private void OnCharKaZe() => Append("ゼ");
+        [UIAction("on-char-ka-zo")] private void OnCharKaZo() => Append("ゾ");
+        [UIAction("on-char-ka-da")] private void OnCharKaDa() => Append("ダ");
+        [UIAction("on-char-ka-di")] private void OnCharKaDi() => Append("ヂ");
+        [UIAction("on-char-ka-du")] private void OnCharKaDu() => Append("ヅ");
+        [UIAction("on-char-ka-de")] private void OnCharKaDe() => Append("デ");
+        [UIAction("on-char-ka-do")] private void OnCharKaDo() => Append("ド");
+        [UIAction("on-char-ka-ba")] private void OnCharKaBa() => Append("バ");
+        [UIAction("on-char-ka-bi")] private void OnCharKaBi() => Append("ビ");
+        [UIAction("on-char-ka-bu")] private void OnCharKaBu() => Append("ブ");
+        [UIAction("on-char-ka-be")] private void OnCharKaBe() => Append("ベ");
+        [UIAction("on-char-ka-bo")] private void OnCharKaBo() => Append("ボ");
+
+        // カタカナ半濁点
+        [UIAction("on-char-ka-pa")] private void OnCharKaPa() => Append("パ");
+        [UIAction("on-char-ka-pi")] private void OnCharKaPi() => Append("ピ");
+        [UIAction("on-char-ka-pu")] private void OnCharKaPu() => Append("プ");
+        [UIAction("on-char-ka-pe")] private void OnCharKaPe() => Append("ペ");
+        [UIAction("on-char-ka-po")] private void OnCharKaPo() => Append("ポ");
+
+        // カタカナ小文字
+        [UIAction("on-char-ka-xtu")] private void OnCharKaXtu() => Append("ッ");
+        [UIAction("on-char-ka-xya")] private void OnCharKaXya() => Append("ャ");
+        [UIAction("on-char-ka-xyu")] private void OnCharKaXyu() => Append("ュ");
+        [UIAction("on-char-ka-xyo")] private void OnCharKaXyo() => Append("ョ");
     }
 }
