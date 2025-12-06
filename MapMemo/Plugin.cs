@@ -8,6 +8,10 @@ namespace MapMemo
     public class Plugin
     {
         internal static Logger Log;
+        // Global runtime flags to reduce noisy logging in release runs.
+        // Set these to true during debugging when you need extra information.
+        public static bool VerboseLogs = false;
+        public static bool Diagnostics = false;
 
         [Init]
         public void Init(Logger logger)

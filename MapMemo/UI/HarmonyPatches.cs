@@ -137,7 +137,10 @@ namespace MapMemo.UI
                                           try { val = p.GetValue(__instance) as string ?? "<null>"; } catch { }
                                           return $"P:{p.Name}='{val}'";
                                       });
-                        foreach (var s in fields.Concat(props)) MapMemo.Plugin.Log?.Info($"MapMemo: {s}");
+                        if (MapMemo.Plugin.VerboseLogs)
+                        {
+                            foreach (var s in fields.Concat(props)) MapMemo.Plugin.Log?.Info($"MapMemo: {s}");
+                        }
                     }
                     catch { }
                 }

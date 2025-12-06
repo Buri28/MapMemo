@@ -41,7 +41,8 @@ namespace MapMemo.UI
                 MapMemo.Plugin.Log?.Error("MemoEditModal.Show: BSML content not found for MapMemo.Resources.MemoEdit.bsml");
                 return;
             }
-            // フォールバック: parent が null の場合は現在のコントローラを検索してメニュー右パネルに挿入
+
+            // ホスト決定 (優先: parent -> existing panel -> LevelDetailInjector -> named LevelDetail -> Canvas)
             GameObject host = null;
             if (parent != null)
             {
@@ -58,7 +59,7 @@ namespace MapMemo.UI
                     host = LevelDetailInjector.LastHostGameObject;
                 }
             }
-            // 標準レベル詳細ビュー（名前ベース）を優先してホストに使用（型参照なし）
+
             if (host == null)
             {
                 MapMemo.Plugin.Log?.Warn("MemoEditModal.Show: host not found from panel; attempting LevelDetail container lookup (name-based)");
@@ -67,12 +68,11 @@ namespace MapMemo.UI
                                          x.name.IndexOf("LevelDetail", System.StringComparison.OrdinalIgnoreCase) >= 0);
                 host = t != null ? t.gameObject : null;
             }
-            // 最終フォールバック: シーン内の任意の Canvas を持つ GameObject を探索（型名で検索）
+
             if (host == null)
             {
                 var allObjects = Resources.FindObjectsOfTypeAll<GameObject>();
                 var canvasObj = allObjects.FirstOrDefault(go => go.GetComponent("Canvas") != null);
-                // MainMenu を含む名前を優先
                 var mainMenuCanvasObj = allObjects.FirstOrDefault(go => go.name.IndexOf("MainMenu", System.StringComparison.OrdinalIgnoreCase) >= 0 && go.GetComponent("Canvas") != null);
                 host = (mainMenuCanvasObj ?? canvasObj);
                 if (host != null)
@@ -80,12 +80,83 @@ namespace MapMemo.UI
                     MapMemo.Plugin.Log?.Warn($"MemoEditModal.Show: using canvas host '{host.name}'");
                 }
             }
+
             if (host == null)
             {
                 MapMemo.Plugin.Log?.Error("MemoEditModal.Show: could not resolve host GameObject for modal");
                 return;
             }
+
+            // デバッグ: シーン内の ModalView の状態を列挙してログ出力（クリックブロックの原因調査用）
+            try
+            {
+                var allModals = Resources.FindObjectsOfTypeAll<HMUI.ModalView>();
+                if (allModals != null && allModals.Length > 0)
+                {
+                    var names = allModals.Select(m => m != null ? m.name + "(active=" + m.gameObject.activeInHierarchy + ")" : "null");
+                    MapMemo.Plugin.Log?.Info($"MemoEditModal.Show: found {allModals.Length} ModalView(s): {string.Join(",", names)}");
+                }
+                else
+                {
+                    MapMemo.Plugin.Log?.Info("MemoEditModal.Show: no ModalView instances found in scene");
+                }
+            }
+            catch (System.Exception ex)
+            {
+                MapMemo.Plugin.Log?.Warn($"MemoEditModal.Show: ModalView enumerate failed: {ex}");
+            }
+
             MapMemo.Plugin.Log?.Info($"MemoEditModal.Show: parsing BSML on host '{host.name}'");
+
+            // 診断: シーン内の blocksRaycasts/raycastTarget を列挙してログ出力（クリック遮断原因調査用）
+            if (MapMemo.Plugin.Diagnostics)
+            {
+                try
+                {
+                    MapMemo.Plugin.Log?.Info("MemoEditModal.Show: beginning scene raycast diagnostics");
+                    var allComps = Resources.FindObjectsOfTypeAll(typeof(UnityEngine.Component)) as UnityEngine.Component[];
+                    int cgCount = 0;
+                    int graphicCount = 0;
+                    if (allComps != null)
+                    {
+                        foreach (var c in allComps)
+                        {
+                            if (c == null) continue;
+                            var t2 = c.GetType();
+                            try
+                            {
+                                var blocksProp = t2.GetProperty("blocksRaycasts");
+                                if (blocksProp != null && blocksProp.PropertyType == typeof(bool))
+                                {
+                                    var val = (bool)blocksProp.GetValue(c, null);
+                                    if (val)
+                                    {
+                                        cgCount++;
+                                        MapMemo.Plugin.Log?.Info($"MemoEditModal.Diag: CanvasGroup true on '{c.gameObject.name}' (type={t2.Name})");
+                                    }
+                                }
+                                var rayProp = t2.GetProperty("raycastTarget");
+                                if (rayProp != null && rayProp.PropertyType == typeof(bool))
+                                {
+                                    var val2 = (bool)rayProp.GetValue(c, null);
+                                    if (val2)
+                                    {
+                                        graphicCount++;
+                                        MapMemo.Plugin.Log?.Info($"MemoEditModal.Diag: Graphic raycastTarget true on '{c.gameObject.name}' (type={t2.Name})");
+                                    }
+                                }
+                            }
+                            catch { }
+                        }
+                    }
+                    MapMemo.Plugin.Log?.Info($"MemoEditModal.Diag: found {cgCount} CanvasGroup(s) with blocksRaycasts=true and {graphicCount} Graphic(s) with raycastTarget=true in scene");
+                }
+                catch (System.Exception ex)
+                {
+                    MapMemo.Plugin.Log?.Warn($"MemoEditModal.Diag: diagnostics failed: {ex}");
+                }
+            }
+
             try
             {
                 BSMLParser.Instance.Parse(content, host, modalCtrl);
@@ -105,10 +176,12 @@ namespace MapMemo.UI
             {
                 MapMemo.Plugin.Log?.Error($"MemoEditModal.Show: BSML parse failed: {ex}");
             }
+
             if (modalCtrl.modal != null)
             {
                 MapMemo.Plugin.Log?.Info("MemoEditModal.Show: modal component bound; showing");
                 modalCtrl.modal.Show(true, true);
+                MapMemo.Plugin.Log?.Info("MemoEditModal.Show: runtime raycast adjustments are currently disabled for stability");
             }
             else
             {
@@ -191,11 +264,11 @@ namespace MapMemo.UI
         {
             if (string.IsNullOrEmpty(s)) return;
             if (memo == null) memo = "";
-            MapMemo.Plugin.Log?.Info($"MemoEditModal.Append: add='{s}' code={(int)s[0]} len-before={memo.Length}");
+            if (MapMemo.Plugin.VerboseLogs) MapMemo.Plugin.Log?.Info($"MemoEditModal.Append: add='{s}' code={(int)s[0]} len-before={memo.Length}");
             var appended = memo + s;
             if (appended.Length > 256) appended = appended.Substring(0, 256);
             memo = appended;
-            MapMemo.Plugin.Log?.Info($"MemoEditModal.Append: len-after={memo.Length}");
+            if (MapMemo.Plugin.VerboseLogs) MapMemo.Plugin.Log?.Info($"MemoEditModal.Append: len-after={memo.Length}");
             NotifyPropertyChanged("memo");
             if (memoText != null)
             {
