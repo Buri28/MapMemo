@@ -4,6 +4,7 @@ using BeatSaberMarkupLanguage.Tags;
 using IPA.Logging;
 using MapMemo.UI;
 using UnityEngine;
+using UnityEngine.UI;
 using System.Linq;
 
 namespace MapMemo.UI
@@ -13,16 +14,19 @@ namespace MapMemo.UI
     {
         public static GameObject LastHostGameObject { get; private set; }
         // parent: 詳細パネルのTransform（説明文下が望ましい）
-        public static MemoPanelController AttachTo(Transform parent, string key, string songName, string songAuthor)
+        public static MemoPanelController AttachTo(Transform parent,
+            string key, string songName, string songAuthor)
         {
             try
             {
                 // 取り付け判定はHarmony側で十分に抑制しているため、ここでは親チェックを行わず取り付ける
                 var parentName = parent?.name ?? "<null>";
                 MapMemo.Plugin.Log?.Info($"LevelDetailInjector: proceeding attach on parent '{parentName}'");
+
                 var ctrl = new MemoPanelController();
                 // 通常のパネル（説明文下）を生成
-                var bsmlContent = Utilities.GetResourceContent(typeof(MemoPanelController).Assembly, "MapMemo.Resources.MemoPanel.bsml");
+                var bsmlContent = Utilities.GetResourceContent(
+                    typeof(MemoPanelController).Assembly, "MapMemo.Resources.MemoPanel.bsml");
                 if (string.IsNullOrEmpty(bsmlContent))
                 {
                     MapMemo.Plugin.Log?.Error("LevelDetailInjector: MemoPanel.bsml content not found");
@@ -60,7 +64,8 @@ namespace MapMemo.UI
                         var last = parentRt.GetChild(parentRt.childCount - 1) as RectTransform;
                         if (last != null)
                         {
-                            last.SetParent(higher, worldPositionStays: false);
+                            // worldPositionStays: true により位置維持、falseにすると透明な当たり判定が背後を覆ってしまう
+                            last.SetParent(higher, worldPositionStays: true);
                             last.SetAsLastSibling();
                             // 一段上に付け替えた後も末尾へ配置（レイアウト任せ）
                             MapMemo.Plugin.Log?.Info($"LevelDetailInjector: reparented last child '{last.name}' to '{higher.name}' due to parent='{pn}'");
