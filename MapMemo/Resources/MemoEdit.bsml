@@ -1,21 +1,18 @@
-﻿<modal id="modal" size-delta-x="120" size-delta-y="110" anchor-pos-y="25">
+﻿<modal id="modal" size-delta-x="130" size-delta-y="110" anchor-pos-y="25">
   <vertical spacing="0.5" pad="1">
     <text text="メモを編集" align="Center" font-size="3.5" />
     <!-- メモ表示エリア(スクロール可能) -->
-    <scroll-view pref-height="15" pref-width="90">
+    <scroll-view pref-height="6" pref-width="90">
       <vertical>
         <text id="memoText" text="~memo" align="TopLeft" font-size="2.5" 
           enable-word-wrapping="true" rich-text="false" />
       </vertical>
     </scroll-view>
-    <text text="────────────────────────────────────────────────────────────" font-size="2" align="Center" />
+    <!-- <text text="────────────────────────────────────────────────────────────" font-size="2" align="Center" /> -->
     <!-- タブ切り替えキーボード -->
-    <tab-selector tab-tag="keyboard-tabs"/>
-    <!--
-    <tab-select tab-tag='keyboard-tabs' anchor-pos-y='0' size-delta-y='10' size-delta-x='-10' child-expand-width='true'/>
-    -->
+    <!-- <tab-selector tab-tag="keyboard-tabs" pref-height="8"/>-->
     <tab tags="keyboard-tabs" tab-name="ABC" > 
-      <vertical spacing="2" pad="2" anchor-pos-y="-10" anchor-pos-x="0">
+      <vertical spacing="2" pad="2" pref-height="64" anchor-pos-y="10">
       <!-- 英字キーボード -->
       <horizontal spacing="1">
         <button text="A" on-click="on-char-A" pref-width="8" />
@@ -78,10 +75,16 @@
         <button text="#" on-click="on-char-hash" pref-width="8" />
         <button text="+" on-click="on-char-plus" pref-width="8" />
       </horizontal>
+      <horizontal spacing="2" pad-top="1">
+        <button text="Space" on-click="on-char-space" pref-width="20" />
+        <button text="Del" on-click="on-char-backspace" pref-width="15" />
+        <button text="⏎" on-click="on-char-newline" pref-width="15" />
+      </horizontal>
       </vertical>
     </tab>
     <tab tags="keyboard-tabs" tab-name="あ" child-align='TopCenter'>
-      <horizontal spacing="0.5" anchor-pos-y="-20" anchor-pos-x="-5">
+      <vertical pref-height="64" anchor-pos-y="5">
+        <horizontal spacing="0.5">
         <!-- 左端: 小文字・長音列 → 濁点列（ぱ/ば/だ/ざ/が） → 基本行（わ→ら→や→ま→は→な→た→さ→か→あ） -->
         <!-- 小文字・長音列 -->
       <vertical spacing="0.5">
@@ -199,11 +202,18 @@
         <button text="え" on-click="on-char-e" pref-width="6" pref-height="5" />
         <button text="お" on-click="on-char-o" pref-width="6" pref-height="5" />
       </vertical>
-
+      <vertical spacing="0.5">
+        <button text="Space" on-click="on-char-space" pref-width="20" />
+        <button text="Del" on-click="on-char-backspace" pref-width="15" />
+        <button text="⏎" on-click="on-char-newline" pref-width="15" />
+      </vertical>
     </horizontal>
+      </vertical>
     </tab>
+
     <tab tags="keyboard-tabs" tab-name="ア" child-align='TopCenter'>
-      <horizontal spacing="0.5" anchor-pos-y="-20" anchor-pos-x="-5">
+      <vertical pref-height="64" anchor-pos-y="5">
+        <horizontal spacing="0.5">
       <!-- 左端: 小文字/長音 → 濁点列（パ/バ/ダ/ザ/ガ） → 基本行（ワ→ラ→ヤ→マ→ハ→ナ→タ→サ→カ→ア） -->
       <!-- 小文字・長音列 -->
       <vertical spacing="0.5">
@@ -321,27 +331,37 @@
         <button text="エ" on-click="on-char-ka-e" pref-width="6" pref-height="5" />
         <button text="オ" on-click="on-char-ka-o" pref-width="6" pref-height="5" />
       </vertical>
+      <vertical spacing="0.5">
+        <button text="Space" on-click="on-char-space" pref-width="20" />
+        <button text="Del" on-click="on-char-backspace" pref-width="15" />
+        <button text="⏎" on-click="on-char-newline" pref-width="15" />
+      </vertical>
     </horizontal>
+      </vertical>
     </tab>
-    
+    <tab-select tab-tag='keyboard-tabs' anchor-pos-y='0' size-delta-y='10' size-delta-x='-10' child-expand-width='true'/>
     <!-- 
     <text text="     " />
-    -->
     <text text="     " />
     <text text="     " />
     <text text="     " />
-    <text text="     " />
+    <text text="     " rectTransformZ="-1"/>
+      -->
+    <!-- 
     <text text="────────────────────────────────────────────────────────────" font-size="2" align="Center" />
-    
+    -->
     <!-- 共通操作ボタン(全タブ共通) -->
-    <horizontal spacing="2" pad-top="1" anchor-pos-y="-60">
+    <!--
+    <horizontal spacing="2" pad-top="1">
       <button text="Space" on-click="on-char-space" pref-width="20" />
       <button text="Del" on-click="on-char-backspace" pref-width="15" />
       <button text="⏎" on-click="on-char-newline" pref-width="15" />
     </horizontal>
+
     <text text="────────────────────────────────────────────────────────────" font-size="2" align="Center" />
+    -->
     <!-- Save/Closeボタン（最下部） -->
-    <horizontal spacing="4" pad-top="1" anchor-pos-y="-10">
+    <horizontal spacing="4" pad-top="1">
       <button text="Save" on-click="on-save" pref-width="20" />
       <button text="Close" on-click="on-cancel" pref-width="20" />
     </horizontal>
