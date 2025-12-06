@@ -46,12 +46,15 @@ namespace MapMemo.UI
                     // レイアウトは親の垂直レイアウトに従わせる（末尾へ）
                     last?.SetAsLastSibling();
                     if (last != null) last.gameObject.SetActive(true);
-                    MapMemo.Plugin.Log?.Info($"LevelDetailInjector: added child='{last?.name}', after children={parentRt.childCount}");
-                    // 子一覧をデバッグ出力
-                    for (int i = 0; i < parentRt.childCount; i++)
+                    if (MapMemo.Plugin.VerboseLogs) MapMemo.Plugin.Log?.Info($"LevelDetailInjector: added child='{last?.name}', after children={parentRt.childCount}");
+                    // 子一覧をデバッグ出力（冗長なため VerboseLogs 有効時のみ）
+                    if (MapMemo.Plugin.VerboseLogs)
                     {
-                        var c = parentRt.GetChild(i);
-                        MapMemo.Plugin.Log?.Info($"LevelDetailInjector: child[{i}]='{c.name}' active={c.gameObject.activeSelf}");
+                        for (int i = 0; i < parentRt.childCount; i++)
+                        {
+                            var c = parentRt.GetChild(i);
+                            MapMemo.Plugin.Log?.Info($"LevelDetailInjector: child[{i}]='{c.name}' active={c.gameObject.activeSelf}");
+                        }
                     }
                 }
                 // 親が『NoAllowedBeatmapInfoText』『NoDataInfoContainer』等の情報テキストの場合、表示が制御されることがあるため一段上へ退避
