@@ -26,6 +26,7 @@ namespace MapMemo.UI
         protected override async void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
+            MapMemo.Plugin.Log?.Info($"MemoPanelController.DidActivate: firstActivation={firstActivation} addedToHierarchy={addedToHierarchy} screenSystemEnabling={screenSystemEnabling}");
             LastInstance = this;
             if (HostGameObject == null)
             {
@@ -33,6 +34,7 @@ namespace MapMemo.UI
             }
 
             await RefreshAsync();
+            MapMemo.Plugin.Log?.Info($"MemoPanelController.DidActivate: RefreshAsync completed; memoSummary='{(memoSummary ?? "")}' updatedLocal='{(updatedLocal ?? "")}'");
         }
 
         [UIAction("on-edit-click")]

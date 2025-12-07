@@ -13,10 +13,12 @@ namespace MapMemo.UI
         // 候補メソッド名（バージョン差分に対応するため複数）
         private static readonly List<CandidateInfo> Candidates = new List<CandidateInfo>
         {
-            new CandidateInfo("StandardLevelDetailView", new[]{"RefreshContent", "SetData", "Setup"}),
-            new CandidateInfo("LevelSelectionNavigationController", new[]{"DidSelectLevel", "HandleLevelSelection"}),
-            new CandidateInfo("StandardLevelDetailViewController", new[]{"RefreshContent", "SetData", "Setup", "HandleDifficultyBeatmapSelected", "HandleDifficultyBeatmapChange"}),
-            new CandidateInfo("LevelCollectionNavigationController", new[]{"HandleLevelCollectionViewControllerDidSelectLevel", "HandleLevelCollectionViewControllerDidChangeLevelSelection", "DidSelectLevel"})
+            // Navigation controller: detail/content changes (observed in this runtime)
+            new CandidateInfo("LevelSelectionNavigationController", new[]{"HandleLevelCollectionNavigationControllerDidChangeLevelDetailContent", "DidActivate", "RefreshDetail"}),
+            // Table cell used in lists on this runtime (exact name from DumpRelevantTypes)
+            new CandidateInfo("LevelListTableCell", new[]{"SetData", "DidActivate", "RefreshCell", "Select"}),
+            // Detail view controller (right-side detail panel)
+            new CandidateInfo("StandardLevelDetailViewController", new[]{"RefreshContent", "SetData", "Setup", "HandleDifficultyBeatmapSelected", "DidActivate"})
         };
 
         private class CandidateInfo
@@ -33,20 +35,34 @@ namespace MapMemo.UI
 
         public static void TryApplyPatches(Harmony harmony)
         {
+            MapMemo.Plugin.Log?.Info("HarmonyPatches: TryApplyPatches start");
+            // デバッグ: ロード済みアセンブリから候補になりそうな型名を列挙しておく
+            DumpRelevantTypes();
             foreach (var candidate in Candidates)
             {
                 var t = FindType(candidate.TypeName);
-                if (t == null) continue;
+                if (t == null)
+                {
+                    MapMemo.Plugin.Log?.Warn($"HarmonyPatches: Type not found for candidate '{candidate.TypeName}'");
+                    continue;
+                }
+                MapMemo.Plugin.Log?.Info($"HarmonyPatches: Found type for candidate '{candidate.TypeName}' => {t.FullName}");
+                int patchedCount = 0;
                 foreach (var mName in candidate.MethodNames)
                 {
                     var mb = t.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                               .FirstOrDefault(mi => mi.Name == mName);
-                    if (mb == null) continue;
+                    if (mb == null)
+                    {
+                        MapMemo.Plugin.Log?.Warn($"HarmonyPatches: Method '{mName}' not found on type '{t.FullName}'");
+                        continue;
+                    }
                     try
                     {
                         var postfix = new HarmonyMethod(typeof(HarmonyPatches).GetMethod(nameof(Postfix), BindingFlags.Static | BindingFlags.NonPublic));
                         harmony.Patch(mb, postfix: postfix);
                         MapMemo.Plugin.Log?.Info($"Patched {t.FullName}.{mName} Postfix");
+                        patchedCount++;
                         // 複数パッチを許可（バージョン差分でどれかが走るようにする）
                     }
                     catch (Exception e)
@@ -55,32 +71,71 @@ namespace MapMemo.UI
                     }
                 }
 
-                // 追加: 難易度/レベルを引数に取るメソッドを包括的にパッチ
-                try
+                // 候補メソッドが一つも見つからなかった場合、対象型のメソッド名の一部をログに出して手動で候補を決められるようにする
+                if (patchedCount == 0)
                 {
-                    var dynTargets = t.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                        .Where(mi => mi.GetParameters().Any(p => p.ParameterType.Name.IndexOf("Beatmap", StringComparison.OrdinalIgnoreCase) >= 0 || p.ParameterType.Name.IndexOf("Level", StringComparison.OrdinalIgnoreCase) >= 0))
-                        .ToArray();
-                    foreach (var mb in dynTargets)
+                    try
                     {
-                        try
+                        var interest = new[] { "Select", "Activate", "Did", "Handle", "Refresh", "Change", "Setup", "DidActivate", "DidSelect" };
+                        var methods = t.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                            .Where(mi => interest.Any(k => mi.Name.IndexOf(k, StringComparison.OrdinalIgnoreCase) >= 0))
+                            .Select(mi => mi.Name)
+                            .Distinct()
+                            .Take(30)
+                            .ToArray();
+                        if (methods.Length > 0)
                         {
-                            var postfix = new HarmonyMethod(typeof(HarmonyPatches).GetMethod(nameof(Postfix), BindingFlags.Static | BindingFlags.NonPublic));
-                            harmony.Patch(mb, postfix: postfix);
-                            MapMemo.Plugin.Log?.Info($"Patched dynamic {t.FullName}.{mb.Name} Postfix (beatmap/level param)");
+                            MapMemo.Plugin.Log?.Info($"HarmonyPatches: Candidate methods on {t.FullName}: {string.Join(", ", methods)}");
                         }
-                        catch (Exception e)
+                        else
                         {
-                            MapMemo.Plugin.Log?.Warn($"Dynamic patch failed {t.FullName}.{mb.Name}: {e.Message}");
+                            // それでも見つからなければメソッドの簡易一覧を少数出す
+                            var all = t.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                                .Select(mi => mi.Name).Distinct().Take(30).ToArray();
+                            MapMemo.Plugin.Log?.Info($"HarmonyPatches: Some methods on {t.FullName}: {string.Join(", ", all)}");
                         }
                     }
+                    catch (Exception e)
+                    {
+                        MapMemo.Plugin.Log?.Warn($"HarmonyPatches: failed to enumerate methods on {t.FullName}: {e.Message}");
+                    }
                 }
-                catch (Exception e)
+
+                // NOTE: 動的な包括パッチは非常に広範囲に当たるためデフォルトでは無効。
+                // デバッグ目的でのみ有効化する（MapMemo.Plugin.VerboseLogs == true）
+                if (MapMemo.Plugin.VerboseLogs == true)
                 {
-                    MapMemo.Plugin.Log?.Warn($"Dynamic target scan failed on {t.FullName}: {e.Message}");
+                    try
+                    {
+                        var dynTargets = t.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                            .Where(mi => !mi.Name.StartsWith("get_") && !mi.Name.StartsWith("set_"))
+                            .Where(mi => mi.GetParameters().Any(p => p.ParameterType.Name.IndexOf("Beatmap", StringComparison.OrdinalIgnoreCase) >= 0 || p.ParameterType.Name.IndexOf("Level", StringComparison.OrdinalIgnoreCase) >= 0))
+                            .ToArray();
+                        foreach (var mb in dynTargets)
+                        {
+                            try
+                            {
+                                var postfix = new HarmonyMethod(typeof(HarmonyPatches).GetMethod(nameof(Postfix), BindingFlags.Static | BindingFlags.NonPublic));
+                                harmony.Patch(mb, postfix: postfix);
+                                MapMemo.Plugin.Log?.Info($"Patched dynamic {t.FullName}.{mb.Name} Postfix (beatmap/level param)");
+                            }
+                            catch (Exception e)
+                            {
+                                MapMemo.Plugin.Log?.Warn($"Dynamic patch failed {t.FullName}.{mb.Name}: {e.Message}");
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        MapMemo.Plugin.Log?.Warn($"Dynamic target scan failed on {t.FullName}: {e.Message}");
+                    }
+                }
+                else
+                {
+                    MapMemo.Plugin.Log?.Info($"HarmonyPatches: Skipping dynamic patch scan for {t.FullName} (VerboseLogs=false)");
                 }
             }
-            MapMemo.Plugin.Log?.Warn("No target method found for MapMemo patches. Running without auto-attach.");
+            MapMemo.Plugin.Log?.Info("HarmonyPatches: TryApplyPatches end");
         }
 
         private static Type FindType(string simpleName)
@@ -91,6 +146,35 @@ namespace MapMemo.UI
                 if (t != null) return t;
             }
             return null;
+        }
+
+        // デバッグ: ロード済みアセンブリから候補となりそうな型名を列挙してログ出力
+        private static void DumpRelevantTypes()
+        {
+            try
+            {
+                var keywords = new[] { "Level", "List", "Selection", "Navigation", "Cell", "Detail", "ViewController" };
+                var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+                foreach (var kw in keywords)
+                {
+                    var matches = assemblies.SelectMany(a =>
+                    {
+                        try { return a.GetTypes(); } catch { return new Type[0]; }
+                    }).Where(t => t.Name.IndexOf(kw, StringComparison.OrdinalIgnoreCase) >= 0)
+                      .Select(t => t.FullName)
+                      .Distinct()
+                      .Take(50)
+                      .ToArray();
+                    if (matches.Length > 0)
+                    {
+                        MapMemo.Plugin.Log?.Info($"HarmonyPatches: Types matching '{kw}': {string.Join(", ", matches)}");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                MapMemo.Plugin.Log?.Warn($"HarmonyPatches: DumpRelevantTypes error: {e.Message}");
+            }
         }
 
         // Postfix本体：選曲後の右パネル更新直後に呼ばれる想定

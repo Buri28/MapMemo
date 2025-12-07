@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 // Note: Avoid UnityEngine.UI dependency; use UnityEngine.Canvas explicitly
 using HMUI;
 
@@ -108,57 +109,12 @@ namespace MapMemo.UI
 
             MapMemo.Plugin.Log?.Info($"MemoEditModal.Show: parsing BSML on host '{host.name}'");
 
-            // 診断: シーン内の blocksRaycasts/raycastTarget を列挙してログ出力（クリック遮断原因調査用）
-            if (MapMemo.Plugin.Diagnostics)
-            {
-                try
-                {
-                    MapMemo.Plugin.Log?.Info("MemoEditModal.Show: beginning scene raycast diagnostics");
-                    var allComps = Resources.FindObjectsOfTypeAll(typeof(UnityEngine.Component)) as UnityEngine.Component[];
-                    int cgCount = 0;
-                    int graphicCount = 0;
-                    if (allComps != null)
-                    {
-                        foreach (var c in allComps)
-                        {
-                            if (c == null) continue;
-                            var t2 = c.GetType();
-                            try
-                            {
-                                var blocksProp = t2.GetProperty("blocksRaycasts");
-                                if (blocksProp != null && blocksProp.PropertyType == typeof(bool))
-                                {
-                                    var val = (bool)blocksProp.GetValue(c, null);
-                                    if (val)
-                                    {
-                                        cgCount++;
-                                        MapMemo.Plugin.Log?.Info($"MemoEditModal.Diag: CanvasGroup true on '{c.gameObject.name}' (type={t2.Name})");
-                                    }
-                                }
-                                var rayProp = t2.GetProperty("raycastTarget");
-                                if (rayProp != null && rayProp.PropertyType == typeof(bool))
-                                {
-                                    var val2 = (bool)rayProp.GetValue(c, null);
-                                    if (val2)
-                                    {
-                                        graphicCount++;
-                                        MapMemo.Plugin.Log?.Info($"MemoEditModal.Diag: Graphic raycastTarget true on '{c.gameObject.name}' (type={t2.Name})");
-                                    }
-                                }
-                            }
-                            catch { }
-                        }
-                    }
-                    MapMemo.Plugin.Log?.Info($"MemoEditModal.Diag: found {cgCount} CanvasGroup(s) with blocksRaycasts=true and {graphicCount} Graphic(s) with raycastTarget=true in scene");
-                }
-                catch (System.Exception ex)
-                {
-                    MapMemo.Plugin.Log?.Warn($"MemoEditModal.Diag: diagnostics failed: {ex}");
-                }
-            }
+            // Note: simple Unity fallback UI removed by request — no fallback will be created here.
 
             try
             {
+                // Parse BSML into the resolved host (original behaviour). Avoid creating overlay containers here —
+                // keep parse target as the host so BSML modal and bindings match expected context.
                 BSMLParser.Instance.Parse(content, host, modalCtrl);
 
                 // memoTextコンポーネントの初期化
@@ -180,22 +136,156 @@ namespace MapMemo.UI
             if (modalCtrl.modal != null)
             {
                 MapMemo.Plugin.Log?.Info("MemoEditModal.Show: modal component bound; showing");
-                modalCtrl.modal.Show(true, true);
-                MapMemo.Plugin.Log?.Info("MemoEditModal.Show: runtime raycast adjustments are currently disabled for stability");
+                try
+                {
+                    modalCtrl.modal.Show(true, true);
+                    MapMemo.Plugin.Log?.Info("MemoEditModal.Show: runtime raycast adjustments are currently disabled for stability");
+                }
+                catch (System.Exception exShow)
+                {
+                    MapMemo.Plugin.Log?.Warn($"MemoEditModal.Show: modal.Show threw: {exShow.Message}; attempting to directly display parsed modal or fallback");
+                    // First try: directly move the parsed modal GameObject to an overlay canvas and enable it
+                    try
+                    {
+                        var parsedModalGo = modalCtrl.modal != null ? modalCtrl.modal.gameObject : null;
+                        if (parsedModalGo != null)
+                        {
+                            Canvas canvas = host.GetComponentInParent<Canvas>() ?? Resources.FindObjectsOfTypeAll<Canvas>().FirstOrDefault(c => c != null && c.isActiveAndEnabled && c.renderMode != RenderMode.WorldSpace);
+                            if (canvas == null)
+                            {
+                                var canvasGo = new GameObject("MapMemo_OverlayCanvas");
+                                canvas = canvasGo.AddComponent<Canvas>();
+                                canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+                                canvas.sortingOrder = 1000;
+                                canvasGo.AddComponent<CanvasScaler>();
+                                canvasGo.AddComponent<GraphicRaycaster>();
+                                MapMemo.Plugin.Log?.Warn("MemoEditModal.Show: created overlay Canvas to host parsed BSML modal");
+                            }
+
+                            parsedModalGo.transform.SetParent(canvas.transform, false);
+                            parsedModalGo.SetActive(true);
+                            // Ensure it's placed on top
+                            parsedModalGo.transform.SetAsLastSibling();
+                            var rt = parsedModalGo.GetComponent<RectTransform>();
+                            if (rt != null)
+                            {
+                                rt.anchorMin = new Vector2(0.5f, 0.5f);
+                                rt.anchorMax = new Vector2(0.5f, 0.5f);
+                                rt.anchoredPosition = Vector2.zero;
+                            }
+                            // Ensure it receives input
+                            var cg = parsedModalGo.GetComponent<CanvasGroup>() ?? parsedModalGo.AddComponent<CanvasGroup>();
+                            cg.interactable = true; cg.blocksRaycasts = true; cg.alpha = 1f;
+
+                            MapMemo.Plugin.Log?.Info("MemoEditModal.Show: displayed parsed BSML modal by reparenting to overlay Canvas");
+                            // Diagnostic: enumerate components and child hierarchy to detect pointer-follow behaviour
+                            try
+                            {
+                                var allChildren = parsedModalGo.GetComponentsInChildren<Transform>(true)
+                                    .Select(t => t.gameObject).ToArray();
+                                MapMemo.Plugin.Log?.Info($"MemoEditModal.Show: parsed modal hierarchy count={allChildren.Length}");
+                                foreach (var go in allChildren)
+                                {
+                                    var comps = go.GetComponents<MonoBehaviour>();
+                                    if (comps == null || comps.Length == 0) continue;
+                                    var names = comps.Select(c => c != null ? c.GetType().FullName : "null");
+                                    MapMemo.Plugin.Log?.Info($"  GO='{go.name}' comps=[{string.Join(",", names)}]");
+                                }
+
+                                // Heuristic: disable suspicious follow/pointer scripts that may make the modal track the VR cursor
+                                var suspect = parsedModalGo.GetComponentsInChildren<MonoBehaviour>(true)
+                                    .Where(mb => mb != null)
+                                    .ToArray();
+                                int disabledCount = 0;
+                                foreach (var mb in suspect)
+                                {
+                                    var tn = mb.GetType().Name ?? "";
+                                    var tl = tn.ToLowerInvariant();
+                                    if (tl.Contains("follow") || tl.Contains("follower") || tl.Contains("pointer") || tl.Contains("cursor") || tl.Contains("vr") || tl.Contains("worldspace"))
+                                    {
+                                        try
+                                        {
+                                            mb.enabled = false;
+                                            disabledCount++;
+                                            MapMemo.Plugin.Log?.Warn($"MemoEditModal.Show: disabled suspected follower component '{mb.GetType().FullName}' on '{mb.gameObject.name}'");
+                                        }
+                                        catch { }
+                                    }
+                                }
+                                MapMemo.Plugin.Log?.Info($"MemoEditModal.Show: disabled {disabledCount} suspected follow/pointer components (if any)");
+                            }
+                            catch (System.Exception exDiag)
+                            {
+                                MapMemo.Plugin.Log?.Warn($"MemoEditModal.Show: diagnostics on parsed modal failed: {exDiag}");
+                            }
+                        }
+                        else
+                        {
+                            MapMemo.Plugin.Log?.Warn("MemoEditModal.Show: parsed modal GameObject is null; creating simple UI fallback");
+                            MapMemo.Plugin.Log?.Warn("MemoEditModal.Show: simple fallback UI removed; no fallback created");
+                        }
+                    }
+                    catch (System.Exception exDirect)
+                    {
+                        MapMemo.Plugin.Log?.Error($"MemoEditModal.Show: direct parsed-modal display failed: {exDirect}");
+                        // Second fallback: try to find active ModalView instances and call Show
+                        try
+                        {
+                            var modalCandidates = Resources.FindObjectsOfTypeAll<HMUI.ModalView>();
+                            var anyModal = modalCandidates == null
+                                ? null
+                                : modalCandidates.FirstOrDefault(m => m != null && m.gameObject != null && m.gameObject.activeInHierarchy);
+
+                            if (anyModal != null)
+                            {
+                                MapMemo.Plugin.Log?.Info($"MemoEditModal.Show: found active ModalView '{anyModal.name}'; attempting to show");
+                                try
+                                {
+                                    anyModal.Show(true, true);
+                                }
+                                catch (System.Exception exInner)
+                                {
+                                    MapMemo.Plugin.Log?.Error($"MemoEditModal.Show: active ModalView.Show threw: {exInner}");
+                                    MapMemo.Plugin.Log?.Warn("MemoEditModal.Show: simple fallback UI removed; no fallback created");
+                                }
+                            }
+                            else
+                            {
+                                MapMemo.Plugin.Log?.Warn("MemoEditModal.Show: no active ModalView instance available for fallback; creating simple UI");
+                                MapMemo.Plugin.Log?.Warn("MemoEditModal.Show: simple fallback UI removed; no fallback created");
+                            }
+                        }
+                        catch (System.Exception ex2)
+                        {
+                            MapMemo.Plugin.Log?.Error($"MemoEditModal.Show: fallback modal show also failed: {ex2}");
+                            MapMemo.Plugin.Log?.Warn("MemoEditModal.Show: simple fallback UI removed; no fallback created");
+                        }
+                    }
+                }
             }
             else
             {
                 MapMemo.Plugin.Log?.Warn("MemoEditModal.Show: modal component is null after parse; attempting fallback lookup");
                 var anyModal = Resources.FindObjectsOfTypeAll<HMUI.ModalView>()
-                    .FirstOrDefault(m => m.name == "modal" || m.name.IndexOf("MemoEdit", System.StringComparison.OrdinalIgnoreCase) >= 0);
+                    .FirstOrDefault();
                 if (anyModal != null)
                 {
-                    MapMemo.Plugin.Log?.Info($"MemoEditModal.Show: found ModalView '{anyModal.name}'; showing");
-                    anyModal.Show(true, true);
+                    // Only use an active ModalView instance; avoid invoking Show on inactive/prefab instances which may trigger internal NREs
+                    if (anyModal.gameObject != null && anyModal.gameObject.activeInHierarchy)
+                    {
+                        MapMemo.Plugin.Log?.Info($"MemoEditModal.Show: found active ModalView '{anyModal.name}'; showing");
+                        try { anyModal.Show(true, true); }
+                        catch (System.Exception exAny) { MapMemo.Plugin.Log?.Error($"MemoEditModal.Show: anyModal.Show threw: {exAny}"); MapMemo.Plugin.Log?.Warn("MemoEditModal.Show: simple fallback UI removed; no fallback created"); }
+                    }
+                    else
+                    {
+                        MapMemo.Plugin.Log?.Warn($"MemoEditModal.Show: found ModalView '{anyModal.name}' but it's not active; creating simple UI fallback");
+                        MapMemo.Plugin.Log?.Warn("MemoEditModal.Show: simple fallback UI removed; no fallback created");
+                    }
                 }
                 else
                 {
-                    MapMemo.Plugin.Log?.Error("MemoEditModal.Show: could not find ModalView to show");
+                    MapMemo.Plugin.Log?.Warn("MemoEditModal.Show: simple fallback UI removed; no fallback created");
                 }
             }
         }

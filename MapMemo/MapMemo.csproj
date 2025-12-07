@@ -38,6 +38,10 @@
       <HintPath>$(BeatSaberManagedPath)\UnityEngine.UI.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="UnityEngine.UIModule">
+      <HintPath>$(BeatSaberManagedPath)\UnityEngine.UIModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="Unity.TextMeshPro">
       <HintPath>$(BeatSaberManagedPath)\Unity.TextMeshPro.dll</HintPath>
       <Private>false</Private>
