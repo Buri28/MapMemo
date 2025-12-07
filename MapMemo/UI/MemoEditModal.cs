@@ -3,6 +3,7 @@ using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.Components.Settings;
 using BeatSaberMarkupLanguage.ViewControllers;
+using System;
 using System.Threading.Tasks;
 using System.Linq;
 using UnityEngine;
@@ -24,6 +25,7 @@ namespace MapMemo.UI
         [UIValue("memo")] private string memo = "";
         [UIComponent("modal")] private ModalView modal;
         [UIComponent("memoText")] private TextMeshProUGUI memoText;
+        [UIValue("last-updated")] private string lastUpdated = "";
 
 
 
@@ -36,6 +38,11 @@ namespace MapMemo.UI
             // 既存メモの読み込み
             var existing = await MemoRepository.LoadAsync(key, songName, songAuthor);
             modalCtrl.memo = existing?.memo ?? "";
+            // 更新日時をローカル表記に変換して表示
+            if (existing != null)
+            {
+                modalCtrl.lastUpdated = "Updated:" + FormatLocal(existing.updatedAt);
+            }
             var content = Utilities.GetResourceContent(typeof(MemoEditModal).Assembly, "MapMemo.Resources.MemoEdit.bsml");
             if (string.IsNullOrEmpty(content))
             {
@@ -127,6 +134,8 @@ namespace MapMemo.UI
                 {
                     MapMemo.Plugin.Log?.Warn("MemoEditModal.Show: memoText component is null after parse");
                 }
+                // 更新日時の反映
+                modalCtrl.NotifyPropertyChanged("last-updated");
             }
             catch (System.Exception ex)
             {
@@ -300,6 +309,9 @@ namespace MapMemo.UI
                 var entry = new MemoEntry { key = key ?? "unknown", songName = songName ?? "unknown", songAuthor = songAuthor ?? "unknown", memo = text };
                 MapMemo.Plugin.Log?.Info($"MemoEditModal.OnSave: key='{entry.key}' song='{entry.songName}' author='{entry.songAuthor}' len={text.Length}");
                 await MemoRepository.SaveAsync(entry);
+                // 保存直後に表示を更新（ローカル時刻で秒まで表示）
+                lastUpdated = FormatLocal(DateTime.UtcNow);
+                NotifyPropertyChanged("last-updated");
                 // 表示更新（transform未参照で安全にフォールバック）
                 var parentPanel = MemoPanelController.LastInstance;
                 if (parentPanel != null)
@@ -367,6 +379,12 @@ namespace MapMemo.UI
             }
         }
 
+        private static string FormatLocal(DateTime utc)
+        {
+            var local = utc.ToLocalTime();
+            return $"{local:yyyy/MM/dd HH:mm:ss}";
+        }
+
         [UIAction("on-char-a")] private void OnCharA() => Append("あ");
         [UIAction("on-char-i")] private void OnCharI() => Append("い");
         [UIAction("on-char-u")] private void OnCharU() => Append("う");
@@ -417,6 +435,10 @@ namespace MapMemo.UI
 
         [UIAction("on-char-n")] private void OnCharN() => Append("ん");
         [UIAction("on-char-long")] private void OnCharLong() => Append("ー");
+        // BSML 上では長音記号ボタンに複数の on-click 名が使われているため
+        // 互換のためにエイリアスを用意する
+        [UIAction("on-char-cho")] private void OnCharCho() => Append("ー");
+        [UIAction("on-char-ka-cho")] private void OnCharKaCho() => Append("ー");
         [UIAction("on-char-dot")] private void OnCharDot() => Append("・");
         [UIAction("on-char-space")] private void OnCharSpace() => Append(" ");
         [UIAction("on-char-newline")] private void OnCharNewline() => Append("\n");
