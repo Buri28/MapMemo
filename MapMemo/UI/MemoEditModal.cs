@@ -26,12 +26,16 @@ namespace MapMemo.UI
         [UIComponent("modal")] private ModalView modal;
         [UIComponent("memoText")] private TextMeshProUGUI memoText;
         [UIValue("last-updated")] private string lastUpdated = "";
+        // Show() から渡された親パネル参照を保持して、保存後に正しいパネルを更新できるようにする
+        private MemoPanelController parentPanel = null;
 
 
 
         public static async void Show(MemoPanelController parent, string key, string songName, string songAuthor)
         {
             var modalCtrl = new MemoEditModal();
+            // 親パネル参照を保存（null 可）
+            modalCtrl.parentPanel = parent;
             modalCtrl.key = key;
             modalCtrl.songName = songName;
             modalCtrl.songAuthor = songAuthor;
@@ -149,6 +153,38 @@ namespace MapMemo.UI
                 {
                     modalCtrl.modal.Show(true, true);
                     MapMemo.Plugin.Log?.Info("MemoEditModal.Show: runtime raycast adjustments are currently disabled for stability");
+
+                    // 画面のだいたい左半分あたりに表示する（Canvas 幅を優先して計算）
+                    try
+                    {
+                        var rt = modalCtrl.modal.gameObject.GetComponent<RectTransform>();
+                        if (rt != null)
+                        {
+                            // アンカー/ピボットは変更せずに、現在の anchoredPosition にオフセットを加算して移動する。
+                            float offsetX = 0f;
+                            var parentCanvas = modalCtrl.modal.gameObject.GetComponentInParent<Canvas>();
+                            if (parentCanvas != null)
+                            {
+                                var canvasRt = parentCanvas.GetComponent<RectTransform>();
+                                if (canvasRt != null)
+                                {
+                                    offsetX = -1f * (canvasRt.rect.width * 0.5f);
+                                }
+                            }
+                            if (offsetX == 0f)
+                            {
+                                offsetX = -1f * (UnityEngine.Screen.width * 0.5f);
+                            }
+                            var current = rt.anchoredPosition;
+                            rt.anchoredPosition = new Vector2(current.x + offsetX, current.y);
+                            MapMemo.Plugin.Log?.Info($"MemoEditModal.Show: shifted modal anchoredPosition by {offsetX} (newX={rt.anchoredPosition.x})");
+                        }
+                    }
+                    catch (System.Exception exPos)
+                    {
+                        MapMemo.Plugin.Log?.Warn($"MemoEditModal.Show: failed to reposition modal: {exPos}");
+                    }
+
                 }
                 catch (System.Exception exShow)
                 {
@@ -178,9 +214,17 @@ namespace MapMemo.UI
                             var rt = parsedModalGo.GetComponent<RectTransform>();
                             if (rt != null)
                             {
-                                rt.anchorMin = new Vector2(0.5f, 0.5f);
-                                rt.anchorMax = new Vector2(0.5f, 0.5f);
-                                rt.anchoredPosition = Vector2.zero;
+                                // フォールバックでオーバーレイに移した場合もアンカー/ピボットは変更せずに移動量を加える方式を使う
+                                float offsetX = 0f;
+                                var canvasRt = canvas.GetComponent<RectTransform>();
+                                if (canvasRt != null)
+                                {
+                                    offsetX = -1f * (canvasRt.rect.width * 0.5f);
+                                }
+                                if (offsetX == 0f) offsetX = -1f * (UnityEngine.Screen.width * 0.5f);
+                                var current = rt.anchoredPosition;
+                                rt.anchoredPosition = new Vector2(current.x + offsetX, current.y);
+                                MapMemo.Plugin.Log?.Info($"MemoEditModal.Show: shifted parsed modal anchoredPosition by {offsetX} (newX={rt.anchoredPosition.x})");
                             }
                             // Ensure it receives input
                             var cg = parsedModalGo.GetComponent<CanvasGroup>() ?? parsedModalGo.AddComponent<CanvasGroup>();
@@ -308,16 +352,25 @@ namespace MapMemo.UI
                 if (text.Length > 256) text = text.Substring(0, 256);
                 var entry = new MemoEntry { key = key ?? "unknown", songName = songName ?? "unknown", songAuthor = songAuthor ?? "unknown", memo = text };
                 MapMemo.Plugin.Log?.Info($"MemoEditModal.OnSave: key='{entry.key}' song='{entry.songName}' author='{entry.songAuthor}' len={text.Length}");
-                await MemoRepository.SaveAsync(entry);
-                // 保存直後に表示を更新（ローカル時刻で秒まで表示）
+                // UI は Unity のメインスレッドで描画されるため、保存待ちの await によって
+                // 続きがスレッドプールで実行されると NotifyPropertyChanged が効かない場合があります。
+                // そのため、まず表示上の更新日時を先に反映してからファイル保存を行います。
+                // TODO　: Saveボタンを押しても画面上で更新されない 
                 lastUpdated = FormatLocal(DateTime.UtcNow);
                 NotifyPropertyChanged("last-updated");
+                await MemoRepository.SaveAsync(entry);
                 // 表示更新（transform未参照で安全にフォールバック）
-                var parentPanel = MemoPanelController.LastInstance;
-                if (parentPanel != null)
+                var parentPanelLocal = this.parentPanel ?? MemoPanelController.LastInstance;
+                if (parentPanelLocal != null)
                 {
+                    // Save ボタンで反映すべきは親パネルの表示上の更新日時のみ。
+                    try
+                    {
+                        parentPanelLocal.SetUpdatedLocal(DateTime.UtcNow);
+                    }
+                    catch { }
                     MapMemo.Plugin.Log?.Info("MemoEditModal.OnSave: refreshing MemoPanelController");
-                    await parentPanel.RefreshAsync();
+                    await parentPanelLocal.RefreshAsync();
                 }
                 else
                 {
