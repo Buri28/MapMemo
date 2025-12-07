@@ -1,6 +1,10 @@
 ﻿<modal id="modal" size-delta-x="130" size-delta-y="110" anchor-pos-y="25">
   <vertical spacing="0.5" pad="1">
-    <text text="メモを編集" align="Center" font-size="3.5" />
+    <horizontal child-expand-width="true" pad-top="0">
+      <text text="Memo Memo" align="Left" font-size="4.5" />
+      <!-- 更新日時をメモ表示エリアの上に表示 -->
+      <text text="~last-updated" font-size="3" color="#888888" align="Right" />
+    </horizontal>
     <!-- メモ表示エリア(スクロール可能) -->
     <scroll-view pref-height="6" pref-width="90">
       <vertical>
