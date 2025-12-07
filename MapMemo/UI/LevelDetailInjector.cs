@@ -13,14 +13,220 @@ namespace MapMemo.UI
     public static class LevelDetailInjector
     {
         public static GameObject LastHostGameObject { get; private set; }
+
+        // ...existing code...
+
+        // 一度だけ LevelDetail の適切な親を検索して AttachTo を呼ぶユーティリティ
+        // 目的: 浮遊ボタンを廃止し、右側詳細パネルの安定したホストへ一度だけ付ける
+        public static MemoPanelController AttachOnceToLevelDetailRoot()
+        {
+            try
+            {
+                // 既にインスタンスが存在すれば再利用
+                if (MemoPanelController.LastInstance != null) return MemoPanelController.LastInstance;
+
+                // 既に LastHostGameObject が登録されていてコントローラが存在すれば再利用
+                if (LastHostGameObject != null)
+                {
+                    try
+                    {
+                        var existingCtrl = LastHostGameObject.GetComponentInChildren<MemoPanelController>(true) ?? LastHostGameObject.GetComponent<MemoPanelController>();
+                        if (existingCtrl != null)
+                        {
+                            MemoPanelController.LastInstance = existingCtrl;
+                            return existingCtrl;
+                        }
+                    }
+                    catch { }
+                }
+
+                // シーン内で右側詳細ビューっぽいオブジェクトを名前ベースで探索する
+                var t = Resources.FindObjectsOfTypeAll<Transform>()
+                    .FirstOrDefault(x => x.name.IndexOf("StandardLevelDetailView", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                         x.name.IndexOf("LevelDetail", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                         x.name.IndexOf("LevelDetails", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                         x.name.IndexOf("LevelDetailView", System.StringComparison.OrdinalIgnoreCase) >= 0);
+
+                if (t == null)
+                {
+                    // 広めのフォールバック: 説明や詳細を含むノードを探す
+                    t = Resources.FindObjectsOfTypeAll<Transform>()
+                        .FirstOrDefault(x => x.name.IndexOf("Description", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                             x.name.IndexOf("Details", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                             x.name.IndexOf("Info", System.StringComparison.OrdinalIgnoreCase) >= 0);
+                }
+
+                if (t == null)
+                {
+                    MapMemo.Plugin.Log?.Warn("AttachOnceToLevelDetailRoot: could not find LevelDetail-like transform in scene");
+                    return null;
+                }
+
+                // 発見した Transform を親として AttachTo を呼ぶ（キー等は空で後から更新される想定）
+                MapMemo.Plugin.Log?.Info($"AttachOnceToLevelDetailRoot: found candidate '{t.name}', attaching panel");
+                var attached = AttachTo(t, key: string.Empty, songName: string.Empty, songAuthor: string.Empty);
+                return attached;
+            }
+            catch (System.Exception e)
+            {
+                MapMemo.Plugin.Log?.Warn($"AttachOnceToLevelDetailRoot error: {e.Message}");
+                return null;
+            }
+        }
+        // フローティング表示は廃止：代わりに LevelDetail の親を探して一度だけ AttachTo を呼ぶ
+        public static MemoPanelController AttachFloatingNearAnchor(Transform anchor, Vector2 screenOffset)
+        {
+            try
+            {
+                if (anchor == null) return null;
+                string anchorName;
+                try { anchorName = anchor.name; } catch { anchorName = "<destroyed>"; }
+                MapMemo.Plugin.Log?.Info($"AttachFloatingNearAnchor: floating UI disabled; attempting to attach to LevelDetail parent for anchor='{anchorName}'");
+
+                // Ensure we attach once to the global LevelDetail root (not per-anchor). This prefers an existing attachment
+                // if present, otherwise finds a LevelDetail root anywhere in the scene and attaches there once.
+                try
+                {
+                    return AttachOnceToLevelDetailRoot();
+                }
+                catch (System.Exception ex)
+                {
+                    MapMemo.Plugin.Log?.Warn($"AttachFloatingNearAnchor: AttachOnceToLevelDetailRoot failed: {ex.Message}");
+                    return null;
+                }
+            }
+            catch (System.Exception e)
+            {
+                MapMemo.Plugin.Log?.Error($"LevelDetailInjector.AttachFloatingNearAnchor error: {e}");
+                return null;
+            }
+        }
+
+        // anchor の World 位置（またはアンカーの RectTransform をスクリーン変換）から
+        // Canvas ローカル座標へ変換して ctrl の RectTransform を配置するユーティリティ
+        private static void PositionFloating(MemoPanelController ctrl, Transform anchor, Vector2 screenOffset)
+        {
+            try
+            {
+                if (ctrl == null || anchor == null) return;
+                GameObject ctrlGo = null;
+                try { ctrlGo = ctrl.gameObject; } catch { ctrlGo = null; }
+                if (ctrlGo == null) return;
+                var canvas = ctrlGo.GetComponentInParent<Canvas>();
+                if (canvas == null) return;
+                var canvasRt = canvas.transform as RectTransform;
+                if (canvasRt == null) return;
+                MapMemo.Plugin.Log?.Info($"PositionFloating: canvas='{canvas.name}' worldCamera={(canvas.worldCamera == null ? "<null>" : canvas.worldCamera.name)}");
+
+                // World -> Screen
+                // Use null camera for ScreenSpaceOverlay canvases (RectTransformUtility expects null there)
+                Camera cam = (canvas.renderMode == RenderMode.ScreenSpaceOverlay) ? null : (canvas.worldCamera ?? Camera.main);
+                Vector3 worldPos = anchor.position;
+                // If the anchor is a RectTransform, nudge the worldPos to the top of the rect so the floating panel doesn't land centered on the anchor
+                var anchorRt = anchor as RectTransform;
+                if (anchorRt != null)
+                {
+                    try
+                    {
+                        var up = anchorRt.up;
+                        var heightWorld = (anchorRt.rect.height * anchorRt.lossyScale.y) * 0.5f;
+                        worldPos = anchorRt.position + up * heightWorld;
+                    }
+                    catch { }
+                }
+                Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(cam, worldPos);
+
+                // Apply offset in screen space
+                screenPoint += screenOffset;
+
+                // Screen -> Canvas local point
+                Vector2 localPoint;
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRt, screenPoint, cam, out localPoint);
+                MapMemo.Plugin.Log?.Info($"PositionFloating: worldPos={worldPos} screenPoint={screenPoint} localPoint={localPoint}");
+
+                // set anchoredPosition on ctrl's RectTransform
+                var ctrlRt = ctrlGo.GetComponent<RectTransform>();
+                if (ctrlRt == null)
+                {
+                    MapMemo.Plugin.Log?.Warn("PositionFloating: ctrl has no RectTransform");
+                    return;
+                }
+                ctrlRt.SetParent(canvasRt, worldPositionStays: false);
+                ctrlRt.anchorMin = ctrlRt.anchorMax = ctrlRt.pivot = new Vector2(0.5f, 0.5f);
+                ctrlRt.anchoredPosition = localPoint;
+                MapMemo.Plugin.Log?.Info($"PositionFloating: ctrlRt.size={ctrlRt.rect.size} anchoredPosition={ctrlRt.anchoredPosition}");
+            }
+            catch (System.Exception e)
+            {
+                MapMemo.Plugin.Log?.Warn($"PositionFloating error: {e.Message}");
+            }
+        }
+
+        // 安全版: 事前に計算したワールド座標から配置する。anchor が破棄される可能性があるときに使用する。
+        private static void PositionFloatingByWorldPos(MemoPanelController ctrl, Vector3 worldPos, Vector2 screenOffset)
+        {
+            try
+            {
+                if (ctrl == null) return;
+                GameObject ctrlGo = null;
+                try { ctrlGo = ctrl.gameObject; } catch { ctrlGo = null; }
+                if (ctrlGo == null)
+                {
+                    MapMemo.Plugin.Log?.Warn("PositionFloatingByWorldPos: ctrl.gameObject is null");
+                    return;
+                }
+                var canvas = ctrlGo.GetComponentInParent<Canvas>();
+                if (canvas == null)
+                {
+                    MapMemo.Plugin.Log?.Warn("PositionFloatingByWorldPos: no Canvas found for ctrl");
+                    return;
+                }
+                var canvasRt = canvas.transform as RectTransform;
+                if (canvasRt == null) return;
+                MapMemo.Plugin.Log?.Info($"PositionFloatingByWorldPos: canvas='{canvas.name}' worldCamera={(canvas.worldCamera == null ? "<null>" : canvas.worldCamera.name)}");
+
+                Camera cam = (canvas.renderMode == RenderMode.ScreenSpaceOverlay) ? null : (canvas.worldCamera ?? Camera.main);
+                Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(cam, worldPos);
+                screenPoint += screenOffset;
+                Vector2 localPoint;
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRt, screenPoint, cam, out localPoint);
+                MapMemo.Plugin.Log?.Info($"PositionFloatingByWorldPos: worldPos={worldPos} screenPoint={screenPoint} localPoint={localPoint}");
+
+                var ctrlRt = ctrlGo.GetComponent<RectTransform>();
+                if (ctrlRt == null)
+                {
+                    MapMemo.Plugin.Log?.Warn("PositionFloatingByWorldPos: ctrl has no RectTransform");
+                    return;
+                }
+                ctrlRt.SetParent(canvasRt, worldPositionStays: false);
+                ctrlRt.anchorMin = ctrlRt.anchorMax = ctrlRt.pivot = new Vector2(0.5f, 0.5f);
+                ctrlRt.anchoredPosition = localPoint;
+                MapMemo.Plugin.Log?.Info($"PositionFloatingByWorldPos: ctrlRt.size={ctrlRt.rect.size} anchoredPosition={ctrlRt.anchoredPosition}");
+            }
+            catch (System.Exception e)
+            {
+                MapMemo.Plugin.Log?.Warn($"PositionFloatingByWorldPos error: {e.Message}");
+            }
+        }
+        // ...existing code...
+
         // parent: 詳細パネルのTransform（説明文下が望ましい）
         public static MemoPanelController AttachTo(Transform parent,
             string key, string songName, string songAuthor)
         {
             try
             {
-                // 取り付け判定はHarmony側で十分に抑制しているため、ここでは親チェックを行わず取り付ける
                 var parentName = parent?.name ?? "<null>";
+                MapMemo.Plugin.Log?.Info($"LevelDetailInjector: proceeding attach on parent '{parentName}' (minimal mode)");
+
+                // 既に同じ親に取り付け済みなら何もしない（LastInstance があればそれを返す）
+                if (LastHostGameObject == parent?.gameObject)
+                {
+                    MapMemo.Plugin.Log?.Info($"LevelDetailInjector: already attached to parent '{parentName}', skipping attach");
+                    return MemoPanelController.LastInstance;
+                }
+
+                // 取り付け判定はHarmony側で十分に抑制しているため、ここでは親チェックを行わず取り付ける
                 MapMemo.Plugin.Log?.Info($"LevelDetailInjector: proceeding attach on parent '{parentName}'");
 
                 var ctrl = new MemoPanelController();

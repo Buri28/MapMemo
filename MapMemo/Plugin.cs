@@ -12,6 +12,9 @@ namespace MapMemo
         // Set these to true during debugging when you need extra information.
         public static bool VerboseLogs = false;
         public static bool Diagnostics = false;
+        // When true, prefer attaching the panel to the LevelDetail root via AttachTo().
+        // If AttachTo fails at runtime, SelectionHook will fall back to the floating attach.
+        public static bool PreferAttachTo = true;
 
         [Init]
         public void Init(Logger logger)

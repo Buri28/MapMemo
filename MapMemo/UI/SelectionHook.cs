@@ -25,7 +25,25 @@ namespace MapMemo.UI
             if (currentPanel == null)
             {
                 MapMemo.Plugin.Log?.Info("SelectionHook: Attaching new MemoPanelController");
-                currentPanel = LevelDetailInjector.AttachTo(detailDescriptionParent, key, songName, songAuthor);
+                // Attachment strategy controlled by runtime flag for easy switching
+                if (MapMemo.Plugin.PreferAttachTo)
+                {
+                    MapMemo.Plugin.Log?.Info("SelectionHook: PreferAttachTo=true; attempting AttachTo");
+                    currentPanel = LevelDetailInjector.AttachTo(detailDescriptionParent, key, songName, songAuthor);
+                    if (currentPanel != null)
+                        MapMemo.Plugin.Log?.Info("SelectionHook: attached panel via AttachTo successfully");
+                    else
+                        MapMemo.Plugin.Log?.Warn("SelectionHook: AttachTo returned null; panel not attached");
+                }
+                else
+                {
+                    MapMemo.Plugin.Log?.Info("SelectionHook: PreferAttachTo=false; attempting floating attach");
+                    currentPanel = LevelDetailInjector.AttachFloatingNearAnchor(detailDescriptionParent, new UnityEngine.Vector2(40f, -10f));
+                    if (currentPanel != null)
+                        MapMemo.Plugin.Log?.Info("SelectionHook: attached via AttachFloatingNearAnchor");
+                    else
+                        MapMemo.Plugin.Log?.Warn("SelectionHook: AttachFloatingNearAnchor also returned null");
+                }
             }
             else
             {
