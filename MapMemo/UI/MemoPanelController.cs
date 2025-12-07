@@ -84,6 +84,17 @@ namespace MapMemo.UI
             return $"{local:yyyy/MM/dd HH:mm}";
         }
 
+        // Save ボタン押下時に親パネルの表示上の更新日時を更新するための公開メソッド
+        public void SetUpdatedLocal(DateTime utc)
+        {
+            try
+            {
+                updatedLocal = "Updated: " + FormatLocal(utc);
+                NotifyPropertyChanged("updated-local");
+            }
+            catch { }
+        }
+
         private static string MakeTooltipLine(string text, int max)
         {
             if (string.IsNullOrEmpty(text)) return "";
