@@ -81,10 +81,10 @@ namespace MapMemo.UI
                 if (anchor == null) return null;
                 string anchorName;
                 try { anchorName = anchor.name; } catch { anchorName = "<destroyed>"; }
-                MapMemo.Plugin.Log?.Info($"AttachFloatingNearAnchor: floating UI disabled; attempting to attach to LevelDetail parent for anchor='{anchorName}'");
+                MapMemo.Plugin.Log?.Info($"AttachFloatingNearAnchor: 浮動UIは無効。アンカー='{anchorName}' の親LevelDetailへのアタッチを試行します");
 
-                // Ensure we attach once to the global LevelDetail root (not per-anchor). This prefers an existing attachment
-                // if present, otherwise finds a LevelDetail root anywhere in the scene and attaches there once.
+                // LevelDetail のルートに一度だけアタッチするようにする（アンカーごとではなくグローバルに一度）
+                // 既に存在する添付があればそれを優先し、なければシーン内で適当な LevelDetail ルートを探して一度だけ取り付けます。
                 try
                 {
                     return AttachOnceToLevelDetailRoot();
@@ -119,7 +119,7 @@ namespace MapMemo.UI
                 MapMemo.Plugin.Log?.Info($"PositionFloating: canvas='{canvas.name}' worldCamera={(canvas.worldCamera == null ? "<null>" : canvas.worldCamera.name)}");
 
                 // World -> Screen
-                // Use null camera for ScreenSpaceOverlay canvases (RectTransformUtility expects null there)
+                // 注意: ScreenSpaceOverlay の Canvas の場合、RectTransformUtility はカメラに null を期待します
                 Camera cam = (canvas.renderMode == RenderMode.ScreenSpaceOverlay) ? null : (canvas.worldCamera ?? Camera.main);
                 Vector3 worldPos = anchor.position;
                 // If the anchor is a RectTransform, nudge the worldPos to the top of the rect so the floating panel doesn't land centered on the anchor
@@ -136,15 +136,15 @@ namespace MapMemo.UI
                 }
                 Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(cam, worldPos);
 
-                // Apply offset in screen space
+                // スクリーン空間でオフセットを適用
                 screenPoint += screenOffset;
 
-                // Screen -> Canvas local point
+                // スクリーン座標 -> Canvas のローカル座標へ変換
                 Vector2 localPoint;
                 RectTransformUtility.ScreenPointToLocalPointInRectangle(canvasRt, screenPoint, cam, out localPoint);
                 MapMemo.Plugin.Log?.Info($"PositionFloating: worldPos={worldPos} screenPoint={screenPoint} localPoint={localPoint}");
 
-                // set anchoredPosition on ctrl's RectTransform
+                // コントローラの RectTransform にアンカー位置をセット
                 var ctrlRt = ctrlGo.GetComponent<RectTransform>();
                 if (ctrlRt == null)
                 {
@@ -185,6 +185,7 @@ namespace MapMemo.UI
                 if (canvasRt == null) return;
                 MapMemo.Plugin.Log?.Info($"PositionFloatingByWorldPos: canvas='{canvas.name}' worldCamera={(canvas.worldCamera == null ? "<null>" : canvas.worldCamera.name)}");
 
+                // 注意: ScreenSpaceOverlay の Canvas では Camera を null にする
                 Camera cam = (canvas.renderMode == RenderMode.ScreenSpaceOverlay) ? null : (canvas.worldCamera ?? Camera.main);
                 Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(cam, worldPos);
                 screenPoint += screenOffset;
@@ -226,9 +227,8 @@ namespace MapMemo.UI
                     return MemoPanelController.LastInstance;
                 }
 
-                // 取り付け判定はHarmony側で十分に抑制しているため、ここでは親チェックを行わず取り付ける
-                MapMemo.Plugin.Log?.Info($"LevelDetailInjector: proceeding attach on parent '{parentName}'");
-
+                // 取り付け判定はHarmony側で十分に抑制しているため、この場では再チェックを最小限にします
+                // コントローラの新規インスタンスを作成して BSML パースに渡します
                 var ctrl = new MemoPanelController();
                 // 通常のパネル（説明文下）を生成
                 var bsmlContent = Utilities.GetResourceContent(
