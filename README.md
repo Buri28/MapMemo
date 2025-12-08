@@ -5,13 +5,13 @@
 
 - 日本語は漢字が無理なので平仮名とかカタカナで対応予定。
 
-- 2025/12/4 開発中の画面  
+- 2025/12/4  
   - とりあえずAIに依頼してベースを作成中
   - 何か違和感があると思ったら平仮名が横に並んでる…ら行とか濁点はどこ？   
   - まだ作り始めて1日なので、これから作りこんでいく予定  
   <img width="40%" height="40%" alt="image" src="https://github.com/user-attachments/assets/d8dee17d-23d2-4586-980d-e86c3941ed1f" />
 
-- 2025/12/8 開発中の画面  
+- 2025/12/8  
   <img width="40%" height="40%" alt="image" src="https://github.com/user-attachments/assets/7e95ee1b-23cb-4dc8-b99d-9c99cd2edd60" />
   - レイアウトに苦戦中。BSMLでタブのコンテンツ領域を認識しなくて他のコンポーネントと重なっちゃう
     文字切り替えのタブセレクターを下にするなど無理やり高さ調整
