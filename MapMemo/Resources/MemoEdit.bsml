@@ -1,7 +1,7 @@
 ﻿<modal id="modal" size-delta-x="130" size-delta-y="110" anchor-pos-y="25">
   <vertical spacing="0.5" pad="1">
     <horizontal child-expand-width="true" pad-top="0">
-      <text text="Memo Memo" align="Left" font-size="4.5" />
+      <text text="Map Memo" align="Left" font-size="4.5" />
       <!-- 更新日時をメモ表示エリアの上に表示 -->
       <text text="~last-updated" font-size="3" color="#888888" align="Right" />
     </horizontal>
