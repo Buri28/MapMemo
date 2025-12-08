@@ -1,7 +1,21 @@
 <vertical pref-width="80" spacing="2" pad="2">
   <horizontal spacing="2" child-align="LowerLeft">
-    <text text="~memo-summary" font-size="4" align="Left" />
-    <button text="✎" on-click="on-edit-click" hover-hint="メモを編集" pref-width="10" pref-height="10" />
+    <!-- <text text="~memo-summary" font-size="4" align="Left" /> -->
+    <clickable-text 
+      id="pen-text"
+      text="✎" 
+      font-size="5" 
+      align="TopLeft"
+      color="#009999" 
+      on-click="on-edit-click"
+      hover-hint=""/>
+    
+    <!--
+    <button text="✎" id="edit-button" on-click="on-edit-click" 
+      hover-hint="~tooltip-line" color="~pen-color" pref-width="10" pref-height="10" background="false"/>
+    -->
   </horizontal>
+  <!--
   <text text="~updated-local" font-size="3" color="#888888" />
+  -->
 </vertical>

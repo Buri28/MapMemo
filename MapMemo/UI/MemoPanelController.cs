@@ -5,6 +5,8 @@ using System;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
+using System.Linq;
+using BeatSaberMarkupLanguage.Components;
 
 namespace MapMemo.UI
 {
@@ -17,17 +19,28 @@ namespace MapMemo.UI
         public string SongName { get; set; }
         public string SongAuthor { get; set; }
 
-        [UIValue("memo-summary")] private string memoSummary = "";
+        [UIComponent("pen-text")]
+        private TMPro.TextMeshProUGUI penText;
         [UIValue("updated-local")] private string updatedLocal = "";
-        [UIValue("tooltip-line")] private string tooltipLine = "";
 
         public string ResourceName => "MapMemo.Resources.MemoPanel.bsml";
 
+        public static MemoPanelController GetRefreshViewInstance(
+            string key, string songName, string songAuthor)
+        {
+            LastInstance.Key = key;
+            LastInstance.SongName = songName;
+            LastInstance.SongAuthor = songAuthor;
 
+            LastInstance.Refresh();
+            return LastInstance;
+        }
 
         protected override async void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
+            if (!firstActivation) return;
+
             MapMemo.Plugin.Log?.Info($"MemoPanelController.DidActivate: firstActivation={firstActivation} addedToHierarchy={addedToHierarchy} screenSystemEnabling={screenSystemEnabling}");
             LastInstance = this;
             if (HostGameObject == null)
@@ -35,8 +48,7 @@ namespace MapMemo.UI
                 HostGameObject = this.transform != null ? this.transform.gameObject : null;
             }
 
-            await RefreshAsync();
-            MapMemo.Plugin.Log?.Info($"MemoPanelController.DidActivate: RefreshAsync completed; memoSummary='{(memoSummary ?? "")}' updatedLocal='{(updatedLocal ?? "")}'");
+            await Refresh();
         }
 
         [UIAction("on-edit-click")]
@@ -50,29 +62,42 @@ namespace MapMemo.UI
             }
             MemoEditModal.Show(parentCtrl, Key ?? "unknown", SongName ?? "", SongAuthor ?? "");
         }
+        public void SetHoverHint(GameObject go, string hint)
+        {
+            // HoverHint が無ければ追加
+            var hover = go.GetComponent<HMUI.HoverHint>();
+            if (hover == null)
+                hover = go.AddComponent<HMUI.HoverHint>();
 
-        public async Task RefreshAsync()
+            hover.text = hint;
+        }
+        public Task Refresh()
         {
             // 同期ロードを使って確実に現在の Key に紐づくデータを取得する
             var entry = MemoRepository.Load(Key, SongName, SongAuthor);
 
             if (entry == null)
             {
-                memoSummary = "メモなし";
-                updatedLocal = "";
-                tooltipLine = "";
+                MapMemo.Plugin.Log?.Warn("MemoPanel: No memo entry found for key='" + Key + "'");
+                penText.color = Color.white;
+                penText.text = " 🖊　";
+                penText.alpha = 0.5f;
+
+                SetHoverHint(penText.gameObject, "メモを追加");
             }
             else
             {
-                memoSummary = MakeSummary(entry.memo, 30);
-                updatedLocal = FormatLocal(entry.updatedAt);
-                tooltipLine = MakeTooltipLine(entry.memo, 30);
-            }
+                MapMemo.Plugin.Log?.Info("MemoPanel: Memo entry found for key='" + Key + "'");
 
-            NotifyPropertyChanged("memo-summary");
+                penText.text = " 📝　";
+                penText.color = Color.yellow;
+                penText.fontStyle = FontStyles.Bold;
+
+                SetHoverHint(penText.gameObject, MakeTooltipLine(entry.memo, 30) + " (" + FormatLocal(entry.updatedAt) + ")");
+            }
+            NotifyPropertyChanged("pen-text");
             NotifyPropertyChanged("updated-local");
-            NotifyPropertyChanged("tooltip-line");
-            await Task.CompletedTask;
+            return Task.CompletedTask;
         }
 
         private static string MakeSummary(string text, int max)
