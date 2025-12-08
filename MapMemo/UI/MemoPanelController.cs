@@ -23,6 +23,8 @@ namespace MapMemo.UI
 
         public string ResourceName => "MapMemo.Resources.MemoPanel.bsml";
 
+
+
         protected override async void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
@@ -51,7 +53,8 @@ namespace MapMemo.UI
 
         public async Task RefreshAsync()
         {
-            var entry = await MemoRepository.LoadAsync(Key, SongName, SongAuthor);
+            // 同期ロードを使って確実に現在の Key に紐づくデータを取得する
+            var entry = MemoRepository.Load(Key, SongName, SongAuthor);
 
             if (entry == null)
             {
@@ -69,6 +72,7 @@ namespace MapMemo.UI
             NotifyPropertyChanged("memo-summary");
             NotifyPropertyChanged("updated-local");
             NotifyPropertyChanged("tooltip-line");
+            await Task.CompletedTask;
         }
 
         private static string MakeSummary(string text, int max)
