@@ -56,7 +56,7 @@ namespace MapMemo.UI
             if (currentPanel != null)
             {
                 MapMemo.Plugin.Log?.Info("SelectionHook: RefreshAsync begin");
-                await currentPanel.RefreshAsync();
+                await currentPanel.Refresh();
                 MapMemo.Plugin.Log?.Info("SelectionHook: RefreshAsync end");
             }
         }

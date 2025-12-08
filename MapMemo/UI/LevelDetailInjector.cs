@@ -6,6 +6,7 @@ using MapMemo.UI;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Linq;
+using System.ComponentModel;
 
 namespace MapMemo.UI
 {
@@ -115,13 +116,15 @@ namespace MapMemo.UI
 
                 // LastIndstanceではだめ、インスタンスはキーで分けて管理しないといけない
                 // 既に同じ親に取り付け済みなら何もしない（LastInstance があればそれを返す）
-                // if (LastHostGameObject == parent?.gameObject)
-                // {
-                //     MapMemo.Plugin.Log?.Info($"LevelDetailInjector: already attached to parent '{parentName}', skipping attach");
-                //     return MemoPanelController.LastInstance;
-                // }
+                if (LastHostGameObject == parent?.gameObject)
+                {
+                    MapMemo.Plugin.Log?.Info($"LevelDetailInjector: already attached to parent '{parentName}', skipping attach");
+                    var instance = MemoPanelController.GetRefreshViewInstance(
+                        key, songName, songAuthor);
+                    return instance;
+                }
 
-                // 取り付け判定はHarmony側で十分に抑制しているため、この場では再チェックを最小限にします
+                // 取り付け判定はHarmony側で十分に抑制しているため、この場では再チェックを最限にします
                 // コントローラの新規インスタンスを作成して BSML パースに渡します
                 var ctrl = new MemoPanelController();
                 // 通常のパネル（説明文下）を生成
@@ -132,7 +135,7 @@ namespace MapMemo.UI
                     MapMemo.Plugin.Log?.Error("LevelDetailInjector: MemoPanel.bsml content not found");
                     return null;
                 }
-                var parserParams = BSMLParser.Instance.Parse(
+                BSMLParser.Instance.Parse(
                     bsmlContent,
                     parent.gameObject,
                     ctrl
@@ -181,7 +184,7 @@ namespace MapMemo.UI
                 ctrl.SongName = songName;
                 ctrl.SongAuthor = songAuthor;
                 // 直ちに表示更新（DidActivate待ちの間のプレースホルダ回避）
-                _ = ctrl.RefreshAsync();
+                _ = ctrl.Refresh();
                 return ctrl;
             }
             catch (System.Exception e)

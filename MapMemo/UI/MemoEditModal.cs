@@ -249,7 +249,7 @@ namespace MapMemo.UI
                     }
                     catch { }
                     MapMemo.Plugin.Log?.Info("MemoEditModal.OnSave: refreshing MemoPanelController");
-                    await parentPanelLocal.RefreshAsync();
+                    await parentPanelLocal.Refresh();
                 }
                 else
                 {
