@@ -14,11 +14,12 @@ namespace MapMemo.UI
         private static readonly List<CandidateInfo> Candidates = new List<CandidateInfo>
         {
             // Navigation controller: detail/content changes (observed in this runtime)
-            new CandidateInfo("LevelSelectionNavigationController", new[]{"HandleLevelCollectionNavigationControllerDidChangeLevelDetailContent", "DidActivate", "RefreshDetail"}),
+             // new CandidateInfo("LevelSelectionNavigationController", new[]{"HandleLevelCollectionNavigationControllerDidChangeLevelDetailContent", "DidActivate", "RefreshDetail"}),
             // Table cell used in lists on this runtime (exact name from DumpRelevantTypes)
-            new CandidateInfo("LevelListTableCell", new[]{"SetData", "DidActivate", "RefreshCell", "Select"}),
+            //new CandidateInfo("LevelListTableCell", new[]{"SetData", "DidActivate", "RefreshCell", "Select"}),
             // Detail view controller (right-side detail panel)
-            new CandidateInfo("StandardLevelDetailViewController", new[]{"RefreshContent", "SetData", "Setup", "HandleDifficultyBeatmapSelected", "DidActivate"})
+            new CandidateInfo("StandardLevelDetailViewController",
+                new[]{"RefreshContent", "SetData", "Setup", "HandleDifficultyBeatmapSelected", "DidActivate"}),
         };
 
         private class CandidateInfo
@@ -71,69 +72,31 @@ namespace MapMemo.UI
                     }
                 }
 
-                // 候補メソッドが一つも見つからなかった場合、対象型のメソッド名の一部をログに出して手動で候補を決められるようにする
-                if (patchedCount == 0)
+                try
                 {
-                    try
+                    var dynTargets = t.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                        .Where(mi => !mi.Name.StartsWith("get_") && !mi.Name.StartsWith("set_"))
+                        .Where(mi => mi.GetParameters().Any(p => p.ParameterType.Name.IndexOf("Beatmap", StringComparison.OrdinalIgnoreCase) >= 0 || p.ParameterType.Name.IndexOf("Level", StringComparison.OrdinalIgnoreCase) >= 0))
+                        .ToArray();
+                    foreach (var mb in dynTargets)
                     {
-                        var interest = new[] { "Select", "Activate", "Did", "Handle", "Refresh", "Change", "Setup", "DidActivate", "DidSelect" };
-                        var methods = t.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                            .Where(mi => interest.Any(k => mi.Name.IndexOf(k, StringComparison.OrdinalIgnoreCase) >= 0))
-                            .Select(mi => mi.Name)
-                            .Distinct()
-                            .Take(30)
-                            .ToArray();
-                        if (methods.Length > 0)
+                        try
                         {
-                            MapMemo.Plugin.Log?.Info($"HarmonyPatches: Candidate methods on {t.FullName}: {string.Join(", ", methods)}");
+                            var postfix = new HarmonyMethod(typeof(HarmonyPatches).GetMethod(nameof(Postfix), BindingFlags.Static | BindingFlags.NonPublic));
+                            harmony.Patch(mb, postfix: postfix);
+                            MapMemo.Plugin.Log?.Info($"Patched dynamic {t.FullName}.{mb.Name} Postfix (beatmap/level param)");
                         }
-                        else
+                        catch (Exception e)
                         {
-                            // それでも見つからなければメソッドの簡易一覧を少数出す
-                            var all = t.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                                .Select(mi => mi.Name).Distinct().Take(30).ToArray();
-                            MapMemo.Plugin.Log?.Info($"HarmonyPatches: Some methods on {t.FullName}: {string.Join(", ", all)}");
+                            MapMemo.Plugin.Log?.Warn($"Dynamic patch failed {t.FullName}.{mb.Name}: {e.Message}");
                         }
                     }
-                    catch (Exception e)
-                    {
-                        MapMemo.Plugin.Log?.Warn($"HarmonyPatches: failed to enumerate methods on {t.FullName}: {e.Message}");
-                    }
+                }
+                catch (Exception e)
+                {
+                    MapMemo.Plugin.Log?.Warn($"Dynamic target scan failed on {t.FullName}: {e.Message}");
                 }
 
-                // NOTE: 動的な包括パッチは非常に広範囲に当たるためデフォルトでは無効。
-                // デバッグ目的でのみ有効化する（MapMemo.Plugin.VerboseLogs == true）
-                if (MapMemo.Plugin.VerboseLogs == true)
-                {
-                    try
-                    {
-                        var dynTargets = t.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                            .Where(mi => !mi.Name.StartsWith("get_") && !mi.Name.StartsWith("set_"))
-                            .Where(mi => mi.GetParameters().Any(p => p.ParameterType.Name.IndexOf("Beatmap", StringComparison.OrdinalIgnoreCase) >= 0 || p.ParameterType.Name.IndexOf("Level", StringComparison.OrdinalIgnoreCase) >= 0))
-                            .ToArray();
-                        foreach (var mb in dynTargets)
-                        {
-                            try
-                            {
-                                var postfix = new HarmonyMethod(typeof(HarmonyPatches).GetMethod(nameof(Postfix), BindingFlags.Static | BindingFlags.NonPublic));
-                                harmony.Patch(mb, postfix: postfix);
-                                MapMemo.Plugin.Log?.Info($"Patched dynamic {t.FullName}.{mb.Name} Postfix (beatmap/level param)");
-                            }
-                            catch (Exception e)
-                            {
-                                MapMemo.Plugin.Log?.Warn($"Dynamic patch failed {t.FullName}.{mb.Name}: {e.Message}");
-                            }
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        MapMemo.Plugin.Log?.Warn($"Dynamic target scan failed on {t.FullName}: {e.Message}");
-                    }
-                }
-                else
-                {
-                    MapMemo.Plugin.Log?.Info($"HarmonyPatches: Skipping dynamic patch scan for {t.FullName} (VerboseLogs=false)");
-                }
             }
             MapMemo.Plugin.Log?.Info("HarmonyPatches: TryApplyPatches end");
         }
@@ -182,7 +145,8 @@ namespace MapMemo.UI
         {
             try
             {
-                MapMemo.Plugin.Log?.Info("MapMemo: Postfix entered");
+                var t1 = __instance.GetType();
+                MapMemo.Plugin.Log?.Info("MapMemo: Postfix entered:" + t1.FullName); ;
                 var inst = __instance as Component;
                 Transform root = inst != null ? inst.transform : null;
                 if (root == null) return;
@@ -207,95 +171,11 @@ namespace MapMemo.UI
                 if (levelObj == null)
                 {
                     MapMemo.Plugin.Log?.Warn("MapMemo: levelObj is null; enumerating string fields/properties on instance for diagnostics");
-                    try
-                    {
-                        var t = __instance.GetType();
-                        var fields = t.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                                      .Where(f => f.FieldType == typeof(string))
-                                      .Select(f => $"F:{f.Name}='{(f.GetValue(__instance) as string) ?? "<null>"}'");
-                        var props = t.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                                      .Where(p => p.PropertyType == typeof(string))
-                                      .Select(p =>
-                                      {
-                                          string val = "<ex>";
-                                          try { val = p.GetValue(__instance) as string ?? "<null>"; } catch { }
-                                          return $"P:{p.Name}='{val}'";
-                                      });
-                        if (MapMemo.Plugin.VerboseLogs)
-                        {
-                            foreach (var s in fields.Concat(props)) MapMemo.Plugin.Log?.Info($"MapMemo: {s}");
-                        }
-                    }
-                    catch { }
-                }
-
-                // まず、以前の選曲キャッシュから補完（SongPlayHistory的な状態キャッシュ）
-                if ((string.IsNullOrEmpty(songName) && string.IsNullOrEmpty(songAuthor)) || (string.IsNullOrEmpty(levelId) && string.IsNullOrEmpty(hash)))
-                {
-                    if (SelectedLevelState.TryGet(out var st))
-                    {
-                        songName = string.IsNullOrEmpty(songName) ? st.SongName : songName;
-                        songAuthor = string.IsNullOrEmpty(songAuthor) ? st.SongAuthor : songAuthor;
-                        levelId = string.IsNullOrEmpty(levelId) ? st.LevelId : levelId;
-                        hash = string.IsNullOrEmpty(hash) ? st.Hash : hash;
-                        MapMemo.Plugin.Log?.Info($"MapMemo: Filled from SelectedLevelState => name='{songName}' author='{songAuthor}' levelId='{levelId}' hash='{hash}'");
-                    }
                 }
 
                 // 説明文直下の親Transformを探索（曲名/著者をヒントに右パネルコンテナを選ぶ）
                 var parent = FindDescriptionParent(root, songName, songAuthor);
                 if (parent == null) return;
-
-                // 追加推測: UIからタイトル/作者を補完
-                if (string.IsNullOrEmpty(songName) || string.IsNullOrEmpty(songAuthor))
-                {
-                    TryInferTitleAuthor(root, ref songName, ref songAuthor);
-                }
-                // 強化: LevelBarBig と BeatmapParamsPanel からの推論
-                if (string.IsNullOrEmpty(songName) || string.IsNullOrEmpty(songAuthor))
-                {
-                    TryInferFromLevelBarAndParams(root, ref songName, ref songAuthor);
-                }
-                // さらに強いフォールバック: 画面内のTextから上位2つの非空テキストを採用
-                if (string.IsNullOrEmpty(songName) || string.IsNullOrEmpty(songAuthor))
-                {
-                    try
-                    {
-                        var textsAll = root.GetComponentsInChildren<TMPro.TextMeshProUGUI>(true)
-                                           .Where(x => !string.IsNullOrWhiteSpace(x.text))
-                                           .OrderByDescending(x => x.fontSize).ToList();
-                        if (string.IsNullOrEmpty(songName) && textsAll.Count > 0)
-                        {
-                            songName = textsAll[0].text.Trim();
-                        }
-                        if (string.IsNullOrEmpty(songAuthor))
-                        {
-                            var authorCandidate = textsAll.Skip(1).FirstOrDefault(x => (x.name?.IndexOf("Author", StringComparison.OrdinalIgnoreCase) ?? -1) >= 0 || (x.text?.IndexOf("by ", StringComparison.OrdinalIgnoreCase) ?? -1) >= 0) ?? textsAll.ElementAtOrDefault(1);
-                            if (authorCandidate != null)
-                            {
-                                var txt = authorCandidate.text.Trim();
-                                var idx = txt.IndexOf("by ", StringComparison.OrdinalIgnoreCase);
-                                songAuthor = idx >= 0 ? txt.Substring(idx + 3).Trim() : txt;
-                            }
-                        }
-                    }
-                    catch { }
-                }
-                // StandardLevelDetailViewController.selectedDifficultyBeatmap?.level からの直接取得を試みる（DIなし）
-                if (string.IsNullOrEmpty(songName) || string.IsNullOrEmpty(songAuthor) || string.IsNullOrEmpty(levelId) || string.IsNullOrEmpty(hash))
-                {
-                    TryGetFromDetailViewController(root, ref songName, ref songAuthor, ref levelId, ref hash);
-                }
-                // LevelSelectionNavigationController.selectedBeatmapLevel 経路も試す
-                if (string.IsNullOrEmpty(songName) || string.IsNullOrEmpty(songAuthor) || string.IsNullOrEmpty(levelId))
-                {
-                    TryGetFromNavigationController(root, ref songName, ref songAuthor, ref levelId, ref hash);
-                }
-                // LevelCollectionNavigationController.beatmapLevel/beatmapKey 経路も試す
-                if (string.IsNullOrEmpty(songName) || string.IsNullOrEmpty(songAuthor) || string.IsNullOrEmpty(levelId) || string.IsNullOrEmpty(hash))
-                {
-                    TryGetFromLevelCollectionController(root, ref songName, ref songAuthor, ref levelId, ref hash);
-                }
 
                 // 取得できたらキャッシュを更新
                 if (!string.IsNullOrEmpty(songName) || !string.IsNullOrEmpty(songAuthor) || !string.IsNullOrEmpty(levelId) || !string.IsNullOrEmpty(hash))
@@ -308,14 +188,6 @@ namespace MapMemo.UI
                 if (string.IsNullOrEmpty(songName) || string.IsNullOrEmpty(songAuthor))
                 {
                     TryGetFromDetailViewFields(root, ref songName, ref songAuthor, ref levelId, ref hash);
-                }
-                // パック/カテゴリなどプレイ不可コンテキストを除外（levelId/hashどちらも欠落ならスキップ）
-                bool hasPlayableId = !string.IsNullOrEmpty(levelId) && !levelId.Equals("unknown", StringComparison.OrdinalIgnoreCase);
-                bool hasPlayableHash = !string.IsNullOrEmpty(hash) && !hash.Equals("unknown", StringComparison.OrdinalIgnoreCase);
-                if (!hasPlayableId && !hasPlayableHash)
-                {
-                    MapMemo.Plugin.Log?.Warn("MapMemo: Skipping non-playable context (no levelId/hash)");
-                    return;
                 }
                 if (string.IsNullOrEmpty(key))
                 {
@@ -385,33 +257,6 @@ namespace MapMemo.UI
             return trimmed;
         }
 
-        // タイトル/作者の推測（UIテキストから）
-        private static void TryInferTitleAuthor(Transform root, ref string songName, ref string songAuthor)
-        {
-            try
-            {
-                var texts = root.GetComponentsInChildren<TMPro.TextMeshProUGUI>(true);
-                if (string.IsNullOrEmpty(songName))
-                {
-                    var titleCandidate = texts.FirstOrDefault(x => (x.name?.IndexOf("SongName", StringComparison.OrdinalIgnoreCase) ?? -1) >= 0) ??
-                                          texts.OrderByDescending(x => x.fontSize).FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.text));
-                    if (titleCandidate != null) songName = titleCandidate.text;
-                }
-                if (string.IsNullOrEmpty(songAuthor))
-                {
-                    var authorCandidate = texts.FirstOrDefault(x => (x.name?.IndexOf("Author", StringComparison.OrdinalIgnoreCase) ?? -1) >= 0 ||
-                                                                     (x.text?.IndexOf("by ", StringComparison.OrdinalIgnoreCase) ?? -1) >= 0);
-                    if (authorCandidate != null)
-                    {
-                        var txt = authorCandidate.text;
-                        var idx = txt.IndexOf("by ", StringComparison.OrdinalIgnoreCase);
-                        songAuthor = idx >= 0 ? txt.Substring(idx + 3).Trim() : txt;
-                    }
-                }
-            }
-            catch { }
-        }
-
         // StandardLevelDetailViewの非公開フィールドからTextを直接引く
         private static void TryGetFromDetailViewFields(Transform root, ref string songName, ref string songAuthor, ref string levelId, ref string hash)
         {
@@ -444,197 +289,6 @@ namespace MapMemo.UI
                         var nameLower = f.Name.ToLowerInvariant();
                         if (string.IsNullOrEmpty(levelId) && nameLower.Contains("levelid")) levelId = s;
                         if (string.IsNullOrEmpty(hash) && (nameLower.Contains("hash") || nameLower.Contains("levelhash"))) hash = s;
-                    }
-                }
-            }
-            catch { }
-        }
-
-        // StandardLevelDetailViewController.selectedDifficultyBeatmap?.level から取得（Zenject未使用のためリフレクション）
-        private static void TryGetFromDetailViewController(Transform root, ref string songName, ref string songAuthor, ref string levelId, ref string hash)
-        {
-            try
-            {
-                var ctrl = root.GetComponentsInParent<Component>(true).FirstOrDefault(c => c.GetType().Name == "StandardLevelDetailViewController") ??
-                           root.GetComponents<Component>().FirstOrDefault(c => c.GetType().Name == "StandardLevelDetailViewController") ??
-                           Resources.FindObjectsOfTypeAll<Component>().FirstOrDefault(c => c.GetType().Name == "StandardLevelDetailViewController");
-                if (ctrl == null)
-                {
-                    MapMemo.Plugin.Log?.Warn("MapMemo: DetailViewController not found in parents or Resources");
-                    return;
-                }
-                var t = ctrl.GetType();
-                object sdb = null;
-                var p = t.GetProperty("selectedDifficultyBeatmap", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                if (p != null) { try { sdb = p.GetValue(ctrl); } catch { } }
-                if (sdb == null)
-                {
-                    var f = t.GetField("selectedDifficultyBeatmap", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                    if (f != null) { try { sdb = f.GetValue(ctrl); } catch { } }
-                }
-                if (sdb == null)
-                {
-                    MapMemo.Plugin.Log?.Warn("MapMemo: selectedDifficultyBeatmap was null on DetailViewController");
-                    return;
-                }
-                var sdbType = sdb.GetType();
-                object level = null;
-                var levelProp = sdbType.GetProperty("level", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                if (levelProp != null) { try { level = levelProp.GetValue(sdb); } catch { } }
-                if (level == null)
-                {
-                    var levelField = sdbType.GetField("level", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                    if (levelField != null) { try { level = levelField.GetValue(sdb); } catch { } }
-                }
-                if (level == null)
-                {
-                    MapMemo.Plugin.Log?.Warn("MapMemo: level was null on selectedDifficultyBeatmap");
-                    return;
-                }
-                songName = string.IsNullOrEmpty(songName) ? TryGetStringProp(level, new[] { "songName", "_songName", "Name" }) ?? songName : songName;
-                songAuthor = string.IsNullOrEmpty(songAuthor) ? TryGetStringProp(level, new[] { "songAuthorName", "_songAuthorName", "AuthorName" }) ?? songAuthor : songAuthor;
-                levelId = string.IsNullOrEmpty(levelId) ? TryGetStringProp(level, new[] { "levelID", "_levelID", "LevelID" }) ?? levelId : levelId;
-                hash = string.IsNullOrEmpty(hash) ? TryGetStringProp(level, new[] { "levelHash", "_levelHash", "hash", "LevelHash" }) ?? hash : hash;
-                MapMemo.Plugin.Log?.Info($"MapMemo: DetailViewController extraction name='{songName}' author='{songAuthor}' levelId='{levelId}' hash='{hash}'");
-            }
-            catch { }
-        }
-
-        // LevelSelectionNavigationController.selectedBeatmapLevel から取得
-        private static void TryGetFromNavigationController(Transform root, ref string songName, ref string songAuthor, ref string levelId, ref string hash)
-        {
-            try
-            {
-                var ctrl = root.GetComponentsInParent<Component>(true).FirstOrDefault(c => c.GetType().Name == "LevelSelectionNavigationController") ??
-                           Resources.FindObjectsOfTypeAll<Component>().FirstOrDefault(c => c.GetType().Name == "LevelSelectionNavigationController");
-                if (ctrl == null) return;
-                var t = ctrl.GetType();
-                object beatmap = null;
-                // プロパティ候補
-                var p = t.GetProperty("selectedBeatmapLevel", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic) ??
-                        t.GetProperty("selectedPreviewBeatmapLevel", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic) ??
-                        t.GetProperty("selectedLevel", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic) ??
-                        t.GetProperty("currentLevel", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                if (p != null) { try { beatmap = p.GetValue(ctrl); } catch { } }
-                if (beatmap == null)
-                {
-                    // フィールド候補
-                    var f = t.GetField("selectedBeatmapLevel", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic) ??
-                            t.GetField("selectedPreviewBeatmapLevel", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic) ??
-                            t.GetField("selectedLevel", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic) ??
-                            t.GetField("currentLevel", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                    if (f != null) { try { beatmap = f.GetValue(ctrl); } catch { } }
-                }
-                if (beatmap == null)
-                {
-                    MapMemo.Plugin.Log?.Warn("MapMemo: selectedBeatmapLevel/selectedLevel was null on LevelSelectionNavigationController");
-                    // 診断用にフィールド/プロパティ名を列挙
-                    try
-                    {
-                        var fields = t.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).Select(x => x.Name);
-                        var props = t.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).Select(x => x.Name);
-                        MapMemo.Plugin.Log?.Info($"MapMemo: LevelSelectionNavigationController fields: {string.Join(", ", fields)}");
-                        MapMemo.Plugin.Log?.Info($"MapMemo: LevelSelectionNavigationController props: {string.Join(", ", props)}");
-                    }
-                    catch { }
-                    return;
-                }
-                // 候補名で取得
-                songName = string.IsNullOrEmpty(songName) ? TryGetStringProp(beatmap, new[] { "songName", "_songName", "Name", "SongName" }) ?? songName : songName;
-                songAuthor = string.IsNullOrEmpty(songAuthor) ? TryGetStringProp(beatmap, new[] { "songAuthorName", "_songAuthorName", "AuthorName", "songAuthor" }) ?? songAuthor : songAuthor;
-                levelId = string.IsNullOrEmpty(levelId) ? TryGetStringProp(beatmap, new[] { "levelID", "_levelID", "LevelID", "levelId" }) ?? levelId : levelId;
-                hash = string.IsNullOrEmpty(hash) ? TryGetStringProp(beatmap, new[] { "levelHash", "_levelHash", "hash", "LevelHash" }) ?? hash : hash;
-                MapMemo.Plugin.Log?.Info($"MapMemo: NavigationController extraction name='{songName}' author='{songAuthor}' levelId='{levelId}' hash='{hash}'");
-            }
-            catch { }
-        }
-
-        // LevelCollectionNavigationController.beatmapLevel/beatmapKey から取得
-        private static void TryGetFromLevelCollectionController(Transform root, ref string songName, ref string songAuthor, ref string levelId, ref string hash)
-        {
-            try
-            {
-                var ctrl = Resources.FindObjectsOfTypeAll<Component>().FirstOrDefault(c => c.GetType().Name == "LevelCollectionNavigationController") ??
-                           root.GetComponentsInParent<Component>(true).FirstOrDefault(c => c.GetType().Name == "LevelCollectionNavigationController");
-                if (ctrl == null)
-                {
-                    MapMemo.Plugin.Log?.Warn("MapMemo: LevelCollectionNavigationController not found");
-                    return;
-                }
-                var t = ctrl.GetType();
-                object beatmapLevel = null;
-                object beatmapKey = null;
-                // まずプロパティを試す
-                var pLevel = t.GetProperty("beatmapLevel", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                var pKey = t.GetProperty("beatmapKey", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                if (pLevel != null) { try { beatmapLevel = pLevel.GetValue(ctrl); } catch { } }
-                if (pKey != null) { try { beatmapKey = pKey.GetValue(ctrl); } catch { } }
-                // フィールドのフォールバック
-                if (beatmapLevel == null)
-                {
-                    var fLevel = t.GetField("beatmapLevel", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                    if (fLevel != null) { try { beatmapLevel = fLevel.GetValue(ctrl); } catch { } }
-                }
-                if (beatmapKey == null)
-                {
-                    var fKey = t.GetField("beatmapKey", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-                    if (fKey != null) { try { beatmapKey = fKey.GetValue(ctrl); } catch { } }
-                }
-                if (beatmapLevel == null)
-                {
-                    MapMemo.Plugin.Log?.Warn("MapMemo: LevelCollectionNavigationController.beatmapLevel is null");
-                    // 診断用にフィールド/プロパティ名を列挙
-                    try
-                    {
-                        var fields = t.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).Select(x => x.Name);
-                        var props = t.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).Select(x => x.Name);
-                        MapMemo.Plugin.Log?.Info($"MapMemo: LevelCollectionNavigationController fields: {string.Join(", ", fields)}");
-                        MapMemo.Plugin.Log?.Info($"MapMemo: LevelCollectionNavigationController props: {string.Join(", ", props)}");
-                    }
-                    catch { }
-                    return;
-                }
-                // BeatmapLevel から直接取得
-                songName = string.IsNullOrEmpty(songName) ? TryGetStringProp(beatmapLevel, new[] { "songName" }) ?? songName : songName;
-                songAuthor = string.IsNullOrEmpty(songAuthor) ? TryGetStringProp(beatmapLevel, new[] { "songAuthorName" }) ?? songAuthor : songAuthor;
-                levelId = string.IsNullOrEmpty(levelId) ? TryGetStringProp(beatmapLevel, new[] { "levelID", "levelId", "LevelID" }) ?? levelId : levelId;
-                // BeatmapKeyからhashは直接は取れないことが多いが、文字列化や拡張メンバーがあれば拾う
-                if (beatmapKey != null && string.IsNullOrEmpty(hash))
-                {
-                    hash = TryGetStringProp(beatmapKey, new[] { "hash", "levelHash" }) ?? hash;
-                }
-                MapMemo.Plugin.Log?.Info($"MapMemo: LevelCollectionController extraction name='{songName}' author='{songAuthor}' levelId='{levelId}' hash='{hash}'");
-            }
-            catch { }
-        }
-
-        // UIの特定コンポーネントからタイトル/作者を推論
-        private static void TryInferFromLevelBarAndParams(Transform root, ref string songName, ref string songAuthor)
-        {
-            try
-            {
-                var levelBar = root.GetComponentsInChildren<Transform>(true).FirstOrDefault(t => t.name.Equals("LevelBarBig", StringComparison.OrdinalIgnoreCase));
-                if (levelBar != null && string.IsNullOrEmpty(songName))
-                {
-                    var texts = levelBar.GetComponentsInChildren<TMPro.TextMeshProUGUI>(true).Where(x => !string.IsNullOrWhiteSpace(x.text)).ToList();
-                    var title = texts.OrderByDescending(x => x.fontSize).FirstOrDefault();
-                    if (title != null)
-                    {
-                        songName = title.text.Trim();
-                        MapMemo.Plugin.Log?.Info($"MapMemo: Inferred title from LevelBarBig => '{songName}'");
-                    }
-                }
-                var paramsPanel = root.GetComponentsInChildren<Transform>(true).FirstOrDefault(t => t.name.IndexOf("BeatmapParamsPanel", StringComparison.OrdinalIgnoreCase) >= 0);
-                if (paramsPanel != null && string.IsNullOrEmpty(songAuthor))
-                {
-                    var texts = paramsPanel.GetComponentsInChildren<TMPro.TextMeshProUGUI>(true).Where(x => !string.IsNullOrWhiteSpace(x.text)).ToList();
-                    var authorCandidate = texts.FirstOrDefault(x => (x.name?.IndexOf("Author", StringComparison.OrdinalIgnoreCase) ?? -1) >= 0 || (x.text?.IndexOf("Mapper", StringComparison.OrdinalIgnoreCase) ?? -1) >= 0 || (x.text?.IndexOf("by ", StringComparison.OrdinalIgnoreCase) ?? -1) >= 0);
-                    if (authorCandidate != null)
-                    {
-                        var txt = authorCandidate.text.Trim();
-                        var idx = txt.IndexOf("by ", StringComparison.OrdinalIgnoreCase);
-                        songAuthor = idx >= 0 ? txt.Substring(idx + 3).Trim() : txt;
-                        MapMemo.Plugin.Log?.Info($"MapMemo: Inferred author from BeatmapParamsPanel => '{songAuthor}'");
                     }
                 }
             }

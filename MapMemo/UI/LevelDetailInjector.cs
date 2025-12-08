@@ -22,9 +22,6 @@ namespace MapMemo.UI
         {
             try
             {
-                // 既にインスタンスが存在すれば再利用
-                if (MemoPanelController.LastInstance != null) return MemoPanelController.LastInstance;
-
                 // 既に LastHostGameObject が登録されていてコントローラが存在すれば再利用
                 if (LastHostGameObject != null)
                 {
@@ -220,12 +217,13 @@ namespace MapMemo.UI
                 var parentName = parent?.name ?? "<null>";
                 MapMemo.Plugin.Log?.Info($"LevelDetailInjector: proceeding attach on parent '{parentName}' (minimal mode)");
 
+                // LastIndstanceではだめ、インスタンスはキーで分けて管理しないといけない
                 // 既に同じ親に取り付け済みなら何もしない（LastInstance があればそれを返す）
-                if (LastHostGameObject == parent?.gameObject)
-                {
-                    MapMemo.Plugin.Log?.Info($"LevelDetailInjector: already attached to parent '{parentName}', skipping attach");
-                    return MemoPanelController.LastInstance;
-                }
+                // if (LastHostGameObject == parent?.gameObject)
+                // {
+                //     MapMemo.Plugin.Log?.Info($"LevelDetailInjector: already attached to parent '{parentName}', skipping attach");
+                //     return MemoPanelController.LastInstance;
+                // }
 
                 // 取り付け判定はHarmony側で十分に抑制しているため、この場では再チェックを最小限にします
                 // コントローラの新規インスタンスを作成して BSML パースに渡します

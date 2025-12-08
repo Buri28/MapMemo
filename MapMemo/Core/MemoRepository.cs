@@ -59,27 +59,49 @@ namespace MapMemo
             return s;
         }
 
-        public static async Task<MemoEntry> LoadAsync(string key, string songName, string songAuthor)
+        // public static async Task<MemoEntry> LoadAsync(string key, string songName, string songAuthor)
+        // {
+        //     EnsureDir();
+        //     string path = BuildFileName(key, songName, songAuthor);
+        //     if (!File.Exists(path)) return null;
+        //     try
+        //     {
+        //         using (var sr = new StreamReader(path, Encoding.UTF8))
+        //         {
+        //             string json = await sr.ReadToEndAsync();
+        //             var entry = JsonConvert.DeserializeObject<MemoEntry>(json);
+        //             if (entry == null)
+        //             {
+        //                 return null;
+        //             }
+        //             // フィールドの補完（古いファイル形式等に備え）
+        //             entry.key = entry.key ?? key;
+        //             entry.songName = entry.songName ?? songName;
+        //             entry.songAuthor = entry.songAuthor ?? songAuthor;
+        //             return entry;
+        //         }
+        //     }
+        //     catch
+        //     {
+        //         return null;
+        //     }
+        // }
+
+        // 同期版ロード。UI スレッドでの利用を想定し、Show の同期表示に使います。
+        public static MemoEntry Load(string key, string songName, string songAuthor)
         {
             EnsureDir();
             string path = BuildFileName(key, songName, songAuthor);
             if (!File.Exists(path)) return null;
             try
             {
-                using (var sr = new StreamReader(path, Encoding.UTF8))
-                {
-                    string json = await sr.ReadToEndAsync();
-                    var entry = JsonConvert.DeserializeObject<MemoEntry>(json);
-                    if (entry == null)
-                    {
-                        return null;
-                    }
-                    // フィールドの補完（古いファイル形式等に備え）
-                    entry.key = entry.key ?? key;
-                    entry.songName = entry.songName ?? songName;
-                    entry.songAuthor = entry.songAuthor ?? songAuthor;
-                    return entry;
-                }
+                var json = File.ReadAllText(path, Encoding.UTF8);
+                var entry = JsonConvert.DeserializeObject<MemoEntry>(json);
+                if (entry == null) return null;
+                entry.key = entry.key ?? key;
+                entry.songName = entry.songName ?? songName;
+                entry.songAuthor = entry.songAuthor ?? songAuthor;
+                return entry;
             }
             catch
             {

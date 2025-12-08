@@ -16,6 +16,9 @@ namespace MapMemo.UI
 {
     public class MemoEditModal : BSMLAutomaticViewController
     {
+        // 最後にパースされた（表示された）インスタンスを保存して再利用可能にする
+        public static MemoEditModal LastInstance = null;
+
         public string ResourceName => "MapMemo.Resources.MemoEdit.bsml";
 
         private string key;
@@ -31,21 +34,48 @@ namespace MapMemo.UI
 
 
 
-        public static async void Show(MemoPanelController parent, string key, string songName, string songAuthor)
+        public static void Show(MemoPanelController parent, string key, string songName, string songAuthor)
         {
-            var modalCtrl = new MemoEditModal();
-            // 親パネル参照を保存（null 可）
-            modalCtrl.parentPanel = parent;
-            modalCtrl.key = key;
-            modalCtrl.songName = songName;
-            modalCtrl.songAuthor = songAuthor;
-            // 既存メモの読み込み
-            var existing = await MemoRepository.LoadAsync(key, songName, songAuthor);
-            modalCtrl.memo = existing?.memo ?? "";
-            // 更新日時をローカル表記に変換して表示
+            // 同期ロードを使って UI スレッドで確実に更新する
+            var existing = MemoRepository.Load(key, songName, songAuthor);
+
+            // まず、既にパース済みで有効なインスタンスがあれば再利用する（UI バインドは既にセット済み）
+            try
+            {
+                if (MemoEditModal.LastInstance != null && MemoEditModal.LastInstance.gameObject != null)
+                {
+                    var modalCtrl = MemoEditModal.LastInstance;
+                    modalCtrl.parentPanel = parent;
+                    modalCtrl.key = key;
+                    modalCtrl.songName = songName;
+                    modalCtrl.songAuthor = songAuthor;
+                    modalCtrl.memo = existing?.memo ?? "";
+                    modalCtrl.lastUpdated = existing != null ? "Updated:" + FormatLocal(existing.updatedAt) : "";
+                    modalCtrl.NotifyPropertyChanged("memo");
+                    modalCtrl.NotifyPropertyChanged("last-updated");
+                    if (modalCtrl.memoText != null)
+                    {
+                        modalCtrl.memoText.text = modalCtrl.memo;
+                        modalCtrl.memoText.ForceMeshUpdate();
+                    }
+                    MapMemo.Plugin.Log?.Info("MemoEditModal.Show: reusing existing parsed modal instance");
+                    // 表示は既にバインド済みの modal を利用して行う
+                    try { modalCtrl.modal?.Show(true, true); } catch { }
+                    return;
+                }
+            }
+            catch { }
+
+            // 再利用できなければこれまで通り新規に作成して BSML をパースするパス
+            var newCtrl = new MemoEditModal();
+            newCtrl.parentPanel = parent;
+            newCtrl.key = key;
+            newCtrl.songName = songName;
+            newCtrl.songAuthor = songAuthor;
+            newCtrl.memo = existing?.memo ?? "";
             if (existing != null)
             {
-                modalCtrl.lastUpdated = "Updated:" + FormatLocal(existing.updatedAt);
+                newCtrl.lastUpdated = "Updated:" + FormatLocal(existing.updatedAt);
             }
             var content = Utilities.GetResourceContent(typeof(MemoEditModal).Assembly, "MapMemo.Resources.MemoEdit.bsml");
             if (string.IsNullOrEmpty(content))
@@ -120,49 +150,46 @@ namespace MapMemo.UI
 
             MapMemo.Plugin.Log?.Info($"MemoEditModal.Show: parsing BSML on host '{host.name}'");
 
-            // Note: simple Unity fallback UI removed by request — no fallback will be created here.
-
+            // Parse and bind
             try
             {
-                // Parse BSML into the resolved host (original behaviour). Avoid creating overlay containers here —
-                // keep parse target as the host so BSML modal and bindings match expected context.
-                BSMLParser.Instance.Parse(content, host, modalCtrl);
-
-                // memoTextコンポーネントの初期化
-                if (modalCtrl.memoText != null)
+                BSMLParser.Instance.Parse(content, host, newCtrl);
+                if (newCtrl.memoText != null)
                 {
-                    modalCtrl.memoText.text = modalCtrl.memo;
-                    MapMemo.Plugin.Log?.Info($"MemoEditModal.Show: memoText initialized with {modalCtrl.memo.Length} chars");
+                    newCtrl.memoText.text = newCtrl.memo;
+                    MapMemo.Plugin.Log?.Info($"MemoEditModal.Show: memoText initialized with {newCtrl.memo.Length} chars");
                 }
                 else
                 {
                     MapMemo.Plugin.Log?.Warn("MemoEditModal.Show: memoText component is null after parse");
                 }
-                // 更新日時の反映
-                modalCtrl.NotifyPropertyChanged("last-updated");
+                newCtrl.NotifyPropertyChanged("last-updated");
+                // パース成功したので再利用インスタンスとして保存
+                try { MemoEditModal.LastInstance = newCtrl; } catch { }
             }
             catch (System.Exception ex)
             {
                 MapMemo.Plugin.Log?.Error($"MemoEditModal.Show: BSML parse failed: {ex}");
             }
 
-            if (modalCtrl.modal != null)
+            var modalCtrl2 = newCtrl;
+            if (modalCtrl2.modal != null)
             {
                 MapMemo.Plugin.Log?.Info("MemoEditModal.Show: modal component bound; showing");
                 try
                 {
-                    modalCtrl.modal.Show(true, true);
+                    modalCtrl2.modal.Show(true, true);
                     MapMemo.Plugin.Log?.Info("MemoEditModal.Show: runtime raycast adjustments are currently disabled for stability");
 
                     // 画面のだいたい左半分あたりに表示する（Canvas 幅を優先して計算）
                     try
                     {
-                        var rt = modalCtrl.modal.gameObject.GetComponent<RectTransform>();
+                        var rt = modalCtrl2.modal.gameObject.GetComponent<RectTransform>();
                         if (rt != null)
                         {
                             // アンカー/ピボットは変更せずに、現在の anchoredPosition にオフセットを加算して移動する。
                             float offsetX = 0f;
-                            var parentCanvas = modalCtrl.modal.gameObject.GetComponentInParent<Canvas>();
+                            var parentCanvas = modalCtrl2.modal.gameObject.GetComponentInParent<Canvas>();
                             if (parentCanvas != null)
                             {
                                 var canvasRt = parentCanvas.GetComponent<RectTransform>();
@@ -192,7 +219,7 @@ namespace MapMemo.UI
                     // First try: directly move the parsed modal GameObject to an overlay canvas and enable it
                     try
                     {
-                        var parsedModalGo = modalCtrl.modal != null ? modalCtrl.modal.gameObject : null;
+                        var parsedModalGo = modalCtrl2.modal != null ? modalCtrl2.modal.gameObject : null;
                         if (parsedModalGo != null)
                         {
                             Canvas canvas = host.GetComponentInParent<Canvas>() ?? Resources.FindObjectsOfTypeAll<Canvas>().FirstOrDefault(c => c != null && c.isActiveAndEnabled && c.renderMode != RenderMode.WorldSpace);
@@ -349,7 +376,7 @@ namespace MapMemo.UI
             try
             {
                 var text = memo ?? "";
-                if (text.Length > 256) text = text.Substring(0, 256);
+                //if (text.Length > 256) text = text.Substring(0, 256);
                 var entry = new MemoEntry { key = key ?? "unknown", songName = songName ?? "unknown", songAuthor = songAuthor ?? "unknown", memo = text };
                 MapMemo.Plugin.Log?.Info($"MemoEditModal.OnSave: key='{entry.key}' song='{entry.songName}' author='{entry.songAuthor}' len={text.Length}");
                 // UI は Unity のメインスレッドで描画されるため、保存待ちの await によって
