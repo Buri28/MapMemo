@@ -29,6 +29,11 @@ namespace MapMemo.UI
         [UIComponent("modal")] private ModalView modal;
         [UIComponent("memoText")] private TextMeshProUGUI memoText;
         [UIValue("last-updated")] private string lastUpdated = "";
+
+        [UIComponent("char-A")] private TextMeshProUGUI charAButton;
+
+
+
         // Show() から渡された親パネル参照を保持して、保存後に正しいパネルを更新できるようにする
         private MemoPanelController parentPanel = null;
 
@@ -45,6 +50,7 @@ namespace MapMemo.UI
                 if (MemoEditModal.LastInstance != null && MemoEditModal.LastInstance.gameObject != null)
                 {
                     var modalCtrl = MemoEditModal.LastInstance;
+                    // パネルのインスタンスを更新して再利用
                     modalCtrl.parentPanel = parent;
                     modalCtrl.key = key;
                     modalCtrl.songName = songName;
@@ -73,6 +79,7 @@ namespace MapMemo.UI
             newCtrl.songName = songName;
             newCtrl.songAuthor = songAuthor;
             newCtrl.memo = existing?.memo ?? "";
+
             if (existing != null)
             {
                 newCtrl.lastUpdated = "Updated:" + FormatLocal(existing.updatedAt);
@@ -164,8 +171,15 @@ namespace MapMemo.UI
                     MapMemo.Plugin.Log?.Warn("MemoEditModal.Show: memoText component is null after parse");
                 }
                 newCtrl.NotifyPropertyChanged("last-updated");
-                // パース成功したので再利用インスタンスとして保存
-                try { MemoEditModal.LastInstance = newCtrl; } catch { }
+                // パース成功したので再利用インスタンスとして保存 
+                MemoEditModal.LastInstance = newCtrl;
+                newCtrl.charAButton.text = "E";
+                newCtrl.charAButton.richText = true;
+                newCtrl.charAButton.fontMaterial.SetFloat("_OutlineWidth", 0.2f);
+                newCtrl.charAButton.fontMaterial.SetColor("_OutlineColor", Color.blue);
+                newCtrl.charAButton.fontStyle = TMPro.FontStyles.Italic;
+                newCtrl.charAButton.fontStyle |= TMPro.FontStyles.Bold;
+                newCtrl.charAButton.fontStyle |= TMPro.FontStyles.Underline;
             }
             catch (System.Exception ex)
             {
