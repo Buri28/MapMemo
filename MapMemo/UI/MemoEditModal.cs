@@ -6,11 +6,13 @@ using BeatSaberMarkupLanguage.ViewControllers;
 using System;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Reflection;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 // Note: Avoid UnityEngine.UI dependency; use UnityEngine.Canvas explicitly
 using HMUI;
+using IPA.Config.Data;
 
 namespace MapMemo.UI
 {
@@ -30,14 +32,35 @@ namespace MapMemo.UI
         [UIComponent("memoText")] private TextMeshProUGUI memoText;
         [UIValue("last-updated")] private string lastUpdated = "";
 
-        [UIComponent("char-A")] private TextMeshProUGUI charAButton;
-
-
+        [UIComponent("char-A")] private ClickableText charAButton;
+        [UIComponent("char-B")] private ClickableText charBButton;
+        [UIComponent("char-C")] private ClickableText charCButton;
+        [UIComponent("char-D")] private ClickableText charDButton;
+        [UIComponent("char-E")] private ClickableText charEButton;
+        [UIComponent("char-F")] private ClickableText charFButton;
+        [UIComponent("char-G")] private ClickableText charGButton;
+        [UIComponent("char-H")] private ClickableText charHButton;
+        [UIComponent("char-I")] private ClickableText charIButton;
+        [UIComponent("char-J")] private ClickableText charJButton;
+        [UIComponent("char-K")] private ClickableText charKButton;
+        [UIComponent("char-L")] private ClickableText charLButton;
+        [UIComponent("char-M")] private ClickableText charMButton;
+        [UIComponent("char-N")] private ClickableText charNButton;
+        [UIComponent("char-O")] private ClickableText charOButton;
+        [UIComponent("char-P")] private ClickableText charPButton;
+        [UIComponent("char-Q")] private ClickableText charQButton;
+        [UIComponent("char-R")] private ClickableText charRButton;
+        [UIComponent("char-S")] private ClickableText charSButton;
+        [UIComponent("char-T")] private ClickableText charTButton;
+        [UIComponent("char-U")] private ClickableText charUButton;
+        [UIComponent("char-V")] private ClickableText charVButton;
+        [UIComponent("char-W")] private ClickableText charWButton;
+        [UIComponent("char-X")] private ClickableText charXButton;
+        [UIComponent("char-Y")] private ClickableText charYButton;
+        [UIComponent("char-Z")] private ClickableText charZButton;
 
         // Show() から渡された親パネル参照を保持して、保存後に正しいパネルを更新できるようにする
         private MemoPanelController parentPanel = null;
-
-
 
         public static void Show(MemoPanelController parent, string key, string songName, string songAuthor)
         {
@@ -66,125 +89,49 @@ namespace MapMemo.UI
                     }
                     MapMemo.Plugin.Log?.Info("MemoEditModal.Show: reusing existing parsed modal instance");
                     // 表示は既にバインド済みの modal を利用して行う
-                    try { modalCtrl.modal?.Show(true, true); } catch { }
+                    try
+                    {
+                        modalCtrl.modal?.Show(true, true);
+                        // A〜Z ボタンの見た目を整えるヘルパーを呼び出す
+                        ApplyAlphaButtonCosmetics(modalCtrl);
+                    }
+                    catch (System.Exception ex)
+                    {
+                        MapMemo.Plugin.Log?.Warn($"MemoEditModal.Show: ModalView.Show failed: {ex.Message}; modal may not be visible");
+                    }
                     return;
                 }
             }
             catch { }
 
             // 再利用できなければこれまで通り新規に作成して BSML をパースするパス
-            var newCtrl = new MemoEditModal();
-            newCtrl.parentPanel = parent;
-            newCtrl.key = key;
-            newCtrl.songName = songName;
-            newCtrl.songAuthor = songAuthor;
-            newCtrl.memo = existing?.memo ?? "";
-
-            if (existing != null)
-            {
-                newCtrl.lastUpdated = "Updated:" + FormatLocal(existing.updatedAt);
-            }
-            var content = Utilities.GetResourceContent(typeof(MemoEditModal).Assembly, "MapMemo.Resources.MemoEdit.bsml");
+            var content = Utilities.GetResourceContent(
+                typeof(MemoEditModal).Assembly, "MapMemo.Resources.MemoEdit.bsml");
             if (string.IsNullOrEmpty(content))
             {
                 MapMemo.Plugin.Log?.Error("MemoEditModal.Show: BSML content not found for MapMemo.Resources.MemoEdit.bsml");
                 return;
             }
 
-            // ホスト決定 (優先: parent -> existing panel -> LevelDetailInjector -> named LevelDetail -> Canvas)
-            GameObject host = null;
-            if (parent != null)
-            {
-                host = parent.HostGameObject ?? (parent.transform != null ? parent.transform.gameObject : null);
-            }
-            else
-            {
-                MapMemo.Plugin.Log?.Warn("MemoEditModal.Show: parent is null; looking up existing MemoPanelController");
-                var existingPanel = MemoPanelController.LastInstance ?? Resources.FindObjectsOfTypeAll<MemoPanelController>().FirstOrDefault();
-                host = existingPanel != null ? (existingPanel.HostGameObject ?? existingPanel.transform.gameObject) : null;
-                if (host == null && LevelDetailInjector.LastHostGameObject != null)
-                {
-                    MapMemo.Plugin.Log?.Warn("MemoEditModal.Show: using LevelDetailInjector.LastHostGameObject");
-                    host = LevelDetailInjector.LastHostGameObject;
-                }
-            }
-
-            if (host == null)
-            {
-                MapMemo.Plugin.Log?.Warn("MemoEditModal.Show: host not found from panel; attempting LevelDetail container lookup (name-based)");
-                var t = Resources.FindObjectsOfTypeAll<Transform>()
-                    .FirstOrDefault(x => x.name.IndexOf("StandardLevelDetailView", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                         x.name.IndexOf("LevelDetail", System.StringComparison.OrdinalIgnoreCase) >= 0);
-                host = t != null ? t.gameObject : null;
-            }
-
-            if (host == null)
-            {
-                var allObjects = Resources.FindObjectsOfTypeAll<GameObject>();
-                var canvasObj = allObjects.FirstOrDefault(go => go.GetComponent("Canvas") != null);
-                var mainMenuCanvasObj = allObjects.FirstOrDefault(go => go.name.IndexOf("MainMenu", System.StringComparison.OrdinalIgnoreCase) >= 0 && go.GetComponent("Canvas") != null);
-                host = (mainMenuCanvasObj ?? canvasObj);
-                if (host != null)
-                {
-                    MapMemo.Plugin.Log?.Warn($"MemoEditModal.Show: using canvas host '{host.name}'");
-                }
-            }
-
+            // ホスト決定（ResolveHost に切り出し）
+            GameObject host = ResolveHost(parent);
             if (host == null)
             {
                 MapMemo.Plugin.Log?.Error("MemoEditModal.Show: could not resolve host GameObject for modal");
                 return;
             }
 
-            // デバッグ: シーン内の ModalView の状態を列挙してログ出力（クリックブロックの原因調査用）
-            try
-            {
-                var allModals = Resources.FindObjectsOfTypeAll<HMUI.ModalView>();
-                if (allModals != null && allModals.Length > 0)
-                {
-                    var names = allModals.Select(m => m != null ? m.name + "(active=" + m.gameObject.activeInHierarchy + ")" : "null");
-                    MapMemo.Plugin.Log?.Info($"MemoEditModal.Show: found {allModals.Length} ModalView(s): {string.Join(",", names)}");
-                }
-                else
-                {
-                    MapMemo.Plugin.Log?.Info("MemoEditModal.Show: no ModalView instances found in scene");
-                }
-            }
-            catch (System.Exception ex)
-            {
-                MapMemo.Plugin.Log?.Warn($"MemoEditModal.Show: ModalView enumerate failed: {ex}");
-            }
-
             MapMemo.Plugin.Log?.Info($"MemoEditModal.Show: parsing BSML on host '{host.name}'");
 
-            // Parse and bind
-            try
+            // Create and parse the modal (extracted to helper)
+            var newCtrl = CreateAndParse(parent, key, songName, songAuthor, content, host, existing);
+            if (ReferenceEquals(newCtrl, null))
             {
-                BSMLParser.Instance.Parse(content, host, newCtrl);
-                if (newCtrl.memoText != null)
-                {
-                    newCtrl.memoText.text = newCtrl.memo;
-                    MapMemo.Plugin.Log?.Info($"MemoEditModal.Show: memoText initialized with {newCtrl.memo.Length} chars");
-                }
-                else
-                {
-                    MapMemo.Plugin.Log?.Warn("MemoEditModal.Show: memoText component is null after parse");
-                }
-                newCtrl.NotifyPropertyChanged("last-updated");
-                // パース成功したので再利用インスタンスとして保存 
-                MemoEditModal.LastInstance = newCtrl;
-                newCtrl.charAButton.text = "E";
-                newCtrl.charAButton.richText = true;
-                newCtrl.charAButton.fontMaterial.SetFloat("_OutlineWidth", 0.2f);
-                newCtrl.charAButton.fontMaterial.SetColor("_OutlineColor", Color.blue);
-                newCtrl.charAButton.fontStyle = TMPro.FontStyles.Italic;
-                newCtrl.charAButton.fontStyle |= TMPro.FontStyles.Bold;
-                newCtrl.charAButton.fontStyle |= TMPro.FontStyles.Underline;
+                MapMemo.Plugin.Log?.Error("MemoEditModal.Show: failed to create/parse modal");
+                return;
             }
-            catch (System.Exception ex)
-            {
-                MapMemo.Plugin.Log?.Error($"MemoEditModal.Show: BSML parse failed: {ex}");
-            }
+            ApplyAlphaButtonCosmetics(newCtrl);
+
 
             var modalCtrl2 = newCtrl;
             if (modalCtrl2.modal != null)
@@ -200,35 +147,8 @@ namespace MapMemo.UI
                     MapMemo.Plugin.Log?.Warn($"MemoEditModal.Show: ModalView.Show failed: {exShow.Message}; modal may not be visible");
                 }
 
-                // 画面のだいたい左半分あたりに表示する（Canvas 幅を優先して計算）
-                try
-                {
-                    var rt = modalCtrl2.modal.gameObject.GetComponent<RectTransform>();
-                    if (rt != null)
-                    {
-                        float offsetX = 0f;
-                        var parentCanvas = modalCtrl2.modal.gameObject.GetComponentInParent<Canvas>();
-                        if (parentCanvas != null)
-                        {
-                            var canvasRt = parentCanvas.GetComponent<RectTransform>();
-                            if (canvasRt != null)
-                            {
-                                offsetX = -1f * (canvasRt.rect.width * 0.5f);
-                            }
-                        }
-                        if (offsetX == 0f)
-                        {
-                            offsetX = -1f * (UnityEngine.Screen.width * 0.5f);
-                        }
-                        var current = rt.anchoredPosition;
-                        rt.anchoredPosition = new Vector2(current.x + offsetX, current.y);
-                        MapMemo.Plugin.Log?.Info($"MemoEditModal.Show: shifted modal anchoredPosition by {offsetX} (newX={rt.anchoredPosition.x})");
-                    }
-                }
-                catch (System.Exception exPos)
-                {
-                    MapMemo.Plugin.Log?.Warn($"MemoEditModal.Show: failed to reposition modal: {exPos}");
-                }
+                // 画面の左側半分あたりに表示する処理をヘルパーに切り出し
+                RepositionModalToLeftHalf(modalCtrl2.modal);
             }
             else
             {
@@ -329,6 +249,174 @@ namespace MapMemo.UI
         {
             var local = utc.ToLocalTime();
             return $"{local:yyyy/MM/dd HH:mm:ss}";
+        }
+
+        // Create a MemoEditModal instance, parse BSML into the provided host and bind components.
+        // Returns the created controller or null on failure.
+        private static MemoEditModal CreateAndParse(MemoPanelController parent, string key, string songName, string songAuthor, string content, GameObject host, MemoEntry existing)
+        {
+            try
+            {
+                MapMemo.Plugin.Log?.Info("MemoEditModal.CreateAndParse: creating new MemoEditModal instance");
+                var newCtrl = new MemoEditModal();
+                newCtrl.parentPanel = parent;
+                newCtrl.key = key;
+                newCtrl.songName = songName;
+                newCtrl.songAuthor = songAuthor;
+                newCtrl.memo = existing?.memo ?? "";
+                MapMemo.Plugin.Log?.Info($"MemoEditModal.CreateAndParse: initialized memo with {newCtrl.memo.Length} chars");
+
+                if (existing != null)
+                {
+                    newCtrl.lastUpdated = "Updated:" + FormatLocal(existing.updatedAt);
+                }
+
+                if (string.IsNullOrEmpty(content))
+                {
+                    MapMemo.Plugin.Log?.Error("MemoEditModal.CreateAndParse: BSML content is empty");
+                    return null;
+                }
+                MapMemo.Plugin.Log?.Info("MemoEditModal.CreateAndParse: parsing BSML content" + (host == null ? "(host is null)" : $"on host '{host.name}'"));
+                BSMLParser.Instance.Parse(content, host, newCtrl);
+                if (!ReferenceEquals(newCtrl, null) && newCtrl.memoText != null)
+                {
+                    newCtrl.memoText.text = newCtrl.memo;
+                    MapMemo.Plugin.Log?.Info($"MemoEditModal.CreateAndParse: memoText initialized with {newCtrl.memo.Length} chars(newCtrlHash={newCtrl.GetHashCode()})");
+                }
+                else
+                {
+                    MapMemo.Plugin.Log?.Warn("MemoEditModal.CreateAndParse: memoText component is null after parse");
+                }
+                MapMemo.Plugin.Log?.Info("MemoEditModal.CreateAndParse: NotifyPropertyChanged call for last-updated");
+                //newCtrl.NotifyPropertyChanged("last-updated");
+                MapMemo.Plugin.Log?.Info("MemoEditModal.CreateAndParse: NotifyPropertyChanged called for last-updated");
+                // パース成功したので再利用インスタンスとして保存
+                MemoEditModal.LastInstance = newCtrl;
+
+                MapMemo.Plugin.Log?.Info(ReferenceEquals(newCtrl, null) ? "newCtrl is null" : "newCtrl is not null");
+                return newCtrl;
+            }
+            catch (System.Exception ex)
+            {
+                MapMemo.Plugin.Log?.Error($"MemoEditModal.CreateAndParse: exception {ex}");
+                MapMemo.Plugin.Log?.Error(ex.ToString());
+                return null;
+            }
+        }
+
+        // Resolve appropriate host GameObject for parsing the modal BSML.
+        // Search order: provided parent.HostGameObject -> existing MemoPanelController host -> LevelDetailInjector.LastHostGameObject
+        // -> named LevelDetail/StandardLevelDetailView transform -> MainMenu/Canvas fallback.
+        private static GameObject ResolveHost(MemoPanelController parent)
+        {
+            try
+            {
+                GameObject host = null;
+                if (parent != null)
+                {
+                    host = parent.HostGameObject ?? (parent.transform != null ? parent.transform.gameObject : null);
+                    if (host != null) return host;
+                }
+
+                MapMemo.Plugin.Log?.Warn("MemoEditModal.ResolveHost: parent is null or has no host; searching for existing panel host");
+                var existingPanel = MemoPanelController.LastInstance ?? Resources.FindObjectsOfTypeAll<MemoPanelController>().FirstOrDefault();
+                host = existingPanel != null ? (existingPanel.HostGameObject ?? existingPanel.transform.gameObject) : null;
+                if (host != null) return host;
+
+                if (LevelDetailInjector.LastHostGameObject != null)
+                {
+                    MapMemo.Plugin.Log?.Info("MemoEditModal.ResolveHost: using LevelDetailInjector.LastHostGameObject");
+                    return LevelDetailInjector.LastHostGameObject;
+                }
+
+                // Name-based search for standard detail view
+                var t = Resources.FindObjectsOfTypeAll<Transform>()
+                    .FirstOrDefault(x => x.name.IndexOf("StandardLevelDetailView", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                         x.name.IndexOf("LevelDetail", System.StringComparison.OrdinalIgnoreCase) >= 0);
+                if (t != null) return t.gameObject;
+
+                // Final fallback: use a Canvas (prefer MainMenu canvas)
+                var allObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+                var canvasObj = allObjects.FirstOrDefault(go => go.GetComponent("Canvas") != null);
+                var mainMenuCanvasObj = allObjects.FirstOrDefault(go => go.name.IndexOf("MainMenu", System.StringComparison.OrdinalIgnoreCase) >= 0 && go.GetComponent("Canvas") != null);
+                host = (mainMenuCanvasObj ?? canvasObj);
+                if (host != null)
+                {
+                    MapMemo.Plugin.Log?.Warn($"MemoEditModal.ResolveHost: using canvas host '{host.name}'");
+                    // remember for future small optimizations
+                    try { LevelDetailInjector.SetLastHostGameObject(host); } catch { }
+                }
+                return host;
+            }
+            catch (Exception e)
+            {
+                MapMemo.Plugin.Log?.Warn($"MemoEditModal.ResolveHost: error during host resolution: {e.Message}");
+                return null;
+            }
+        }
+
+        // Reposition the given modal so it appears roughly on the left half of the screen.
+        // Prioritizes the parent Canvas width when available, otherwise falls back to Screen width.
+        private static void RepositionModalToLeftHalf(HMUI.ModalView modal)
+        {
+            if (modal == null) return;
+            try
+            {
+                var rt = modal.gameObject.GetComponent<RectTransform>();
+                if (rt != null)
+                {
+                    float offsetX = 0f;
+                    var parentCanvas = modal.gameObject.GetComponentInParent<Canvas>();
+                    if (parentCanvas != null)
+                    {
+                        var canvasRt = parentCanvas.GetComponent<RectTransform>();
+                        if (canvasRt != null)
+                        {
+                            offsetX = -1f * (canvasRt.rect.width * 0.5f);
+                        }
+                    }
+                    if (offsetX == 0f)
+                    {
+                        offsetX = -1f * (UnityEngine.Screen.width * 0.5f);
+                    }
+                    var current = rt.anchoredPosition;
+                    rt.anchoredPosition = new Vector2(current.x + offsetX, current.y);
+                    MapMemo.Plugin.Log?.Info($"MemoEditModal.RepositionModalToLeftHalf: shifted modal anchoredPosition by {offsetX} (newX={rt.anchoredPosition.x})");
+                }
+            }
+            catch (System.Exception ex)
+            {
+                MapMemo.Plugin.Log?.Warn($"MemoEditModal.RepositionModalToLeftHalf: exception {ex}");
+            }
+        }
+
+        // 一括で A〜Z ボタンにスタイルを適用するヘルパー
+        // Reflection を使って private フィールド `charAButton`..`charZButton` を取得し、見た目を整えます。
+        private static void ApplyAlphaButtonCosmetics(MemoEditModal ctrl)
+        {
+            if (ReferenceEquals(ctrl, null)) return;
+            for (char ch = 'A'; ch <= 'Z'; ch++)
+            {
+                try
+                {
+                    var field = typeof(MemoEditModal).GetField($"char{ch}Button", BindingFlags.NonPublic | BindingFlags.Instance);
+                    if (field == null) continue;
+                    var btn = field.GetValue(ctrl) as ClickableText;
+                    if (btn == null) continue;
+                    // 文字とスタイル設定
+                    btn.text = ch.ToString();
+                    //btn.richText = true;
+                    if (btn.fontMaterial != null)
+                    {
+                        btn.fontMaterial.SetFloat("_OutlineWidth", 0.12f);
+                        btn.fontMaterial.SetColor("_OutlineColor", Color.white);
+                    }
+                    btn.color = new Color(1f, 1f, 1f, 0.9f);
+                    btn.fontSize = 3.5f;
+                    btn.fontStyle = FontStyles.Italic | FontStyles.Underline;
+                }
+                catch { /* 個別のボタン処理失敗は無視して続行 */ }
+            }
         }
 
         [UIAction("on-char-a")] private void OnCharA() => Append("あ");
@@ -581,5 +669,13 @@ namespace MapMemo.UI
         [UIAction("on-char-ka-xya")] private void OnCharKaXya() => Append("ャ");
         [UIAction("on-char-ka-xyu")] private void OnCharKaXyu() => Append("ュ");
         [UIAction("on-char-ka-xyo")] private void OnCharKaXyo() => Append("ョ");
+
+        [UIAction("on-char-shift")]
+        private void OnCharShift()
+        {
+            // Shiftキーは無視
+            return;
+        }
+
     }
 }
