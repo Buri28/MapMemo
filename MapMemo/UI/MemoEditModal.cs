@@ -32,6 +32,9 @@ namespace MapMemo.UI
         [UIComponent("memoText")] private TextMeshProUGUI memoText;
         [UIValue("last-updated")] private string lastUpdated = "";
 
+        // Shift 状態（true = 小文字モード）
+        private bool isShift = false;
+
         [UIComponent("char-A")] private ClickableText charAButton;
         [UIComponent("char-B")] private ClickableText charBButton;
         [UIComponent("char-C")] private ClickableText charCButton;
@@ -404,7 +407,8 @@ namespace MapMemo.UI
                     var btn = field.GetValue(ctrl) as ClickableText;
                     if (btn == null) continue;
                     // 文字とスタイル設定
-                    btn.text = ch.ToString();
+                    var label = ctrl.isShift ? ch.ToString().ToLowerInvariant() : ch.ToString().ToUpperInvariant();
+                    btn.text = label;
                     //btn.richText = true;
                     if (btn.fontMaterial != null)
                     {
@@ -490,32 +494,32 @@ namespace MapMemo.UI
         }
 
         // 英数字・記号入力
-        [UIAction("on-char-A")] private void OnCharA_Eng() => Append("A");
-        [UIAction("on-char-B")] private void OnCharB() => Append("B");
-        [UIAction("on-char-C")] private void OnCharC() => Append("C");
-        [UIAction("on-char-D")] private void OnCharD() => Append("D");
-        [UIAction("on-char-E")] private void OnCharE_Eng() => Append("E");
-        [UIAction("on-char-F")] private void OnCharF() => Append("F");
-        [UIAction("on-char-G")] private void OnCharG() => Append("G");
-        [UIAction("on-char-H")] private void OnCharH() => Append("H");
-        [UIAction("on-char-I")] private void OnCharI_Eng() => Append("I");
-        [UIAction("on-char-J")] private void OnCharJ() => Append("J");
-        [UIAction("on-char-K")] private void OnCharK() => Append("K");
-        [UIAction("on-char-L")] private void OnCharL() => Append("L");
-        [UIAction("on-char-M")] private void OnCharM() => Append("M");
-        [UIAction("on-char-N")] private void OnCharN_Eng() => Append("N");
-        [UIAction("on-char-O")] private void OnCharO_Eng() => Append("O");
-        [UIAction("on-char-P")] private void OnCharP() => Append("P");
-        [UIAction("on-char-Q")] private void OnCharQ() => Append("Q");
-        [UIAction("on-char-R")] private void OnCharR() => Append("R");
-        [UIAction("on-char-S")] private void OnCharS() => Append("S");
-        [UIAction("on-char-T")] private void OnCharT() => Append("T");
-        [UIAction("on-char-U")] private void OnCharU_Eng() => Append("U");
-        [UIAction("on-char-V")] private void OnCharV() => Append("V");
-        [UIAction("on-char-W")] private void OnCharW() => Append("W");
-        [UIAction("on-char-X")] private void OnCharX() => Append("X");
-        [UIAction("on-char-Y")] private void OnCharY() => Append("Y");
-        [UIAction("on-char-Z")] private void OnCharZ() => Append("Z");
+        [UIAction("on-char-A")] private void OnCharA_Eng() => Append(isShift ? "a" : "A");
+        [UIAction("on-char-B")] private void OnCharB() => Append(isShift ? "b" : "B");
+        [UIAction("on-char-C")] private void OnCharC() => Append(isShift ? "c" : "C");
+        [UIAction("on-char-D")] private void OnCharD() => Append(isShift ? "d" : "D");
+        [UIAction("on-char-E")] private void OnCharE_Eng() => Append(isShift ? "e" : "E");
+        [UIAction("on-char-F")] private void OnCharF() => Append(isShift ? "f" : "F");
+        [UIAction("on-char-G")] private void OnCharG() => Append(isShift ? "g" : "G");
+        [UIAction("on-char-H")] private void OnCharH() => Append(isShift ? "h" : "H");
+        [UIAction("on-char-I")] private void OnCharI_Eng() => Append(isShift ? "i" : "I");
+        [UIAction("on-char-J")] private void OnCharJ() => Append(isShift ? "j" : "J");
+        [UIAction("on-char-K")] private void OnCharK() => Append(isShift ? "k" : "K");
+        [UIAction("on-char-L")] private void OnCharL() => Append(isShift ? "l" : "L");
+        [UIAction("on-char-M")] private void OnCharM() => Append(isShift ? "m" : "M");
+        [UIAction("on-char-N")] private void OnCharN_Eng() => Append(isShift ? "n" : "N");
+        [UIAction("on-char-O")] private void OnCharO_Eng() => Append(isShift ? "o" : "O");
+        [UIAction("on-char-P")] private void OnCharP() => Append(isShift ? "p" : "P");
+        [UIAction("on-char-Q")] private void OnCharQ() => Append(isShift ? "q" : "Q");
+        [UIAction("on-char-R")] private void OnCharR() => Append(isShift ? "r" : "R");
+        [UIAction("on-char-S")] private void OnCharS() => Append(isShift ? "s" : "S");
+        [UIAction("on-char-T")] private void OnCharT() => Append(isShift ? "t" : "T");
+        [UIAction("on-char-U")] private void OnCharU_Eng() => Append(isShift ? "u" : "U");
+        [UIAction("on-char-V")] private void OnCharV() => Append(isShift ? "v" : "V");
+        [UIAction("on-char-W")] private void OnCharW() => Append(isShift ? "w" : "W");
+        [UIAction("on-char-X")] private void OnCharX() => Append(isShift ? "x" : "X");
+        [UIAction("on-char-Y")] private void OnCharY() => Append(isShift ? "y" : "Y");
+        [UIAction("on-char-Z")] private void OnCharZ() => Append(isShift ? "z" : "Z");
 
         [UIAction("on-char-0")] private void OnChar0() => Append("0");
         [UIAction("on-char-1")] private void OnChar1() => Append("1");
@@ -673,8 +677,16 @@ namespace MapMemo.UI
         [UIAction("on-char-shift")]
         private void OnCharShift()
         {
-            // Shiftキーは無視
-            return;
+            // Shift をトグルして A〜Z ボタン表示を切替
+            isShift = !isShift;
+            try
+            {
+                ApplyAlphaButtonCosmetics(this);
+            }
+            catch (Exception e)
+            {
+                MapMemo.Plugin.Log?.Warn($"MemoEditModal.OnCharShift: ApplyAlphaButtonCosmetics failed: {e.Message}");
+            }
         }
 
     }
