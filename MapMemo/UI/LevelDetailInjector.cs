@@ -15,6 +15,12 @@ namespace MapMemo.UI
     {
         public static GameObject LastHostGameObject { get; private set; }
 
+        // 外部からキャッシュを設定する安全なメソッド
+        public static void SetLastHostGameObject(GameObject host)
+        {
+            LastHostGameObject = host;
+        }
+
         // ...existing code...
 
         // 一度だけ LevelDetail の適切な親を検索して AttachTo を呼ぶユーティリティ
