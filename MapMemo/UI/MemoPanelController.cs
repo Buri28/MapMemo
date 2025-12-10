@@ -7,19 +7,21 @@ using TMPro;
 using UnityEngine;
 using System.Linq;
 using BeatSaberMarkupLanguage.Components;
+using BeatSaberMarkupLanguage.Parser;
 
 namespace MapMemo.UI
 {
     [HotReload]
     public class MemoPanelController : BSMLAutomaticViewController
     {
-        // シングルトンインスタンス
-        public static MemoPanelController instance { get; internal set; }
+        // この段階でインスタンスを作るとUnityの管理外のためバインド対象外となる。
+        public static MemoPanelController instance;
         // 現在のホストオブジェクト
         public GameObject HostGameObject { get; set; }
-        public string Key { get; set; }
-        public string SongName { get; set; }
-        public string SongAuthor { get; set; }
+
+        private string Key { get; set; }
+        private string SongName { get; set; }
+        private string SongAuthor { get; set; }
 
         [UIComponent("pen-text")]
         private TMPro.TextMeshProUGUI penText;
@@ -27,18 +29,40 @@ namespace MapMemo.UI
 
         public string ResourceName => "MapMemo.Resources.MemoPanel.bsml";
 
+        public static bool isInstance() => !ReferenceEquals(instance, null);
+
         /// <summary>
         /// 既存の LastInstance を使って表示を更新するユーティリティ
         /// </summary>
-        public static MemoPanelController GetRefreshViewInstance(
-            string key, string songName, string songAuthor)
+        public static MemoPanelController GetInstance(
+            Transform parent, string key, string songName, string songAuthor)
         {
+            if (!isInstance())
+            {
+                instance = new MemoPanelController();
+                var bsmlContent = Utilities.GetResourceContent(
+                    typeof(MemoPanelController).Assembly,
+                    "MapMemo.Resources.MemoPanel.bsml");
+                instance.ParseBSML(bsmlContent, parent.gameObject);
+                // マニュアルでDidActivateを呼び出す
+                // instance.DidActivate(true, true, false);
+
+                Plugin.Log?.Info("MemoPanelController.GetInstance: Created new instance:" + isInstance());
+            }
+
             instance.Key = key;
             instance.SongName = songName;
             instance.SongAuthor = songAuthor;
+            instance.HostGameObject = parent.gameObject;
 
             instance.Refresh();
             return instance;
+        }
+        /// BSMLをパースする
+        public void ParseBSML(string bsml, GameObject host)
+        {
+            Plugin.Log?.Info("MemoPanelController: BSML parsed and attached to host '" + host.name + "'");
+            BSMLParser.Instance.Parse(bsml, host, this);
         }
 
         /// <summary>
@@ -50,6 +74,7 @@ namespace MapMemo.UI
             if (!firstActivation) return;
 
             MapMemo.Plugin.Log?.Info($"MemoPanelController.DidActivate: firstActivation={firstActivation} addedToHierarchy={addedToHierarchy} screenSystemEnabling={screenSystemEnabling}");
+            // アクティベートされたインスタンスを設定する
             instance = this;
             if (HostGameObject == null)
             {
@@ -70,7 +95,17 @@ namespace MapMemo.UI
             {
                 MapMemo.Plugin.Log?.Warn("MemoPanel: OnEditClick parent controller is null; proceeding without parent");
             }
-            MemoEditModal.Show(parentCtrl, Key ?? "unknown", SongName ?? "", SongAuthor ?? "");
+            Plugin.Log?.Info("MemoPanel: OnEditClick showing modal" + (ReferenceEquals(instance, null) ? "null instance" : "instance exists"));
+            // Plugin.Log?.Info("MemoPanel: OnEditClick showing modal" + (ReferenceEquals(instance.gameObject, null) ? "null gameObject" : "gameObject exists"));
+
+            // MapMemo.Plugin.Log?.Info($"modal.activeSelf={instance.gameObject.activeSelf}, modal.name={instance.gameObject.name}");
+            // var rt = instance.gameObject.GetComponent<RectTransform>();
+            // MapMemo.Plugin.Log?.Info($"modal RectTransform null? {rt == null}");
+            // var canvas = instance.gameObject.GetComponentInParent<Canvas>();
+            // MapMemo.Plugin.Log?.Info($"modal parent Canvas null? {canvas == null}");
+
+
+            MemoEditModal.Show(instance, Key ?? "unknown", SongName ?? "", SongAuthor ?? "");
         }
 
         /// <summary>
@@ -97,7 +132,7 @@ namespace MapMemo.UI
 
             if (entry == null)
             {
-                MapMemo.Plugin.Log?.Warn("MemoPanel: No memo entry found for key='" + Key + "'");
+                MapMemo.Plugin.Log?.Info("MemoPanel: No memo entry found for key='" + Key + "'");
                 penText.color = Color.white;
                 penText.text = " 🖊　";
                 penText.alpha = 0.5f;

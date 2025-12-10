@@ -18,12 +18,12 @@ namespace MapMemo.UI
 {
     public class MemoEditModal : BSMLAutomaticViewController
     {
-        // 再利用可能なシングルトンインスタンス
-        public static MemoEditModal Instance = new MemoEditModal();
+        // この段階でインスタンスを作るとUnityの管理外のためバインド対象外となる。
+        public static MemoEditModal Instance;
 
         // Show() から渡された親パネル参照を保持して、保存後に正しいパネルを更新できるようにする
         private MemoPanelController parentPanel = null;
-        private bool isParsed = false;
+
         private string key;
         private string songName;
         private string songAuthor;
@@ -67,15 +67,16 @@ namespace MapMemo.UI
             string songName,
             string songAuthor)
         {
-            if (!Instance.isParsed)
+            if (ReferenceEquals(Instance, null))
             {
+                Plugin.Log?.Info("MemoEditModal.GetInstance: creating new modal instance");
+                Instance = new MemoEditModal();
                 // BSMLをパース指定なければパースする
                 Instance.ParseBSML(
                     Utilities.GetResourceContent(
                         typeof(MemoEditModal).Assembly,
                         "MapMemo.Resources.MemoEdit.bsml"),
                     ResolveHost(parent));
-                Instance.isParsed = true;
             }
             Instance.parentPanel = parent;
             Instance.key = key;
@@ -111,6 +112,7 @@ namespace MapMemo.UI
             // 表示は既にバインド済みの modal を利用して行う
             try
             {
+                MapMemo.Plugin.Log?.Info("MemoEditModal.Show: showing modal" + (ReferenceEquals(modalCtrl.modal, null) ? " modal=null" : " modal!=null"));
                 modalCtrl.modal?.Show(true, true);
                 // 画面の左側半分あたりに表示するように位置調整
                 RepositionModalToLeftHalf(modalCtrl.modal);
@@ -124,6 +126,7 @@ namespace MapMemo.UI
         public void ParseBSML(string bsml, GameObject host)
         {
             BSMLParser.Instance.Parse(bsml, host, this);
+            Plugin.Log?.Info("MemoEditModal: BSML parsed and attached to host '" + host.name + "'" + (ReferenceEquals(modal, null) ? " modal=null" : " modal!=null"));
         }
 
         [UIAction("on-save")]
@@ -276,7 +279,7 @@ namespace MapMemo.UI
         // Prioritizes the parent Canvas width when available, otherwise falls back to Screen width.
         private static void RepositionModalToLeftHalf(HMUI.ModalView modal)
         {
-            if (modal == null) return;
+            if (ReferenceEquals(modal, null)) return;
             try
             {
                 var rt = modal.gameObject.GetComponent<RectTransform>();

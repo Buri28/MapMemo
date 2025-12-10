@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using ModestTree;
 using UnityEngine;
 
 namespace MapMemo.UI
@@ -7,10 +8,11 @@ namespace MapMemo.UI
     // 実環境ではLevelSelection/DetailViewのイベントから呼び出す
     public static class SelectionHook
     {
-        private static MemoPanelController currentPanel;
+        //private static MemoPanelController currentPanel;
 
         // 楽曲選択時に呼び出す
-        public static async Task OnSongSelected(Transform detailDescriptionParent, string key, string songName, string songAuthor)
+        public static async Task OnSongSelected(
+            Transform detailDescriptionParent, string key, string songName, string songAuthor)
         {
             MapMemo.Plugin.Log?.Info($"SelectionHook: OnSongSelected parent='{detailDescriptionParent?.name}' key='{key}' song='{songName}' author='{songAuthor}'");
             if (detailDescriptionParent == null) return;
@@ -21,44 +23,16 @@ namespace MapMemo.UI
                 MapMemo.Plugin.Log?.Warn("SelectionHook: key is not meaningful; skipping panel attach/update");
                 return;
             }
+            bool isInstance = MemoPanelController.isInstance();
 
-            if (currentPanel == null)
+            var ctrl = MemoPanelController.GetInstance(
+                    detailDescriptionParent, key, songName, songAuthor);
+            if (!isInstance)
             {
-                MapMemo.Plugin.Log?.Info("SelectionHook: Attaching new MemoPanelController");
-                // Attachment strategy controlled by runtime flag for easy switching
-                if (MapMemo.Plugin.PreferAttachTo)
-                {
-                    MapMemo.Plugin.Log?.Info("SelectionHook: PreferAttachTo=true; attempting AttachTo");
-                    currentPanel = LevelDetailInjector.AttachTo(detailDescriptionParent, key, songName, songAuthor);
-                    if (currentPanel != null)
-                        MapMemo.Plugin.Log?.Info("SelectionHook: attached panel via AttachTo successfully");
-                    else
-                        MapMemo.Plugin.Log?.Warn("SelectionHook: AttachTo returned null; panel not attached");
-                }
-                else
-                {
-                    MapMemo.Plugin.Log?.Info("SelectionHook: PreferAttachTo=false; attempting floating attach");
-                    currentPanel = LevelDetailInjector.AttachFloatingNearAnchor(detailDescriptionParent, new UnityEngine.Vector2(40f, -10f));
-                    if (currentPanel != null)
-                        MapMemo.Plugin.Log?.Info("SelectionHook: attached via AttachFloatingNearAnchor");
-                    else
-                        MapMemo.Plugin.Log?.Warn("SelectionHook: AttachFloatingNearAnchor also returned null");
-                }
-            }
-            else
-            {
-                MapMemo.Plugin.Log?.Info("SelectionHook: Updating existing panel");
-                currentPanel.Key = key;
-                currentPanel.SongName = songName;
-                currentPanel.SongAuthor = songAuthor;
+                LevelDetailInjector.AttachTo(detailDescriptionParent, ctrl, key, songName, songAuthor);
             }
 
-            if (currentPanel != null)
-            {
-                MapMemo.Plugin.Log?.Info("SelectionHook: RefreshAsync begin");
-                await currentPanel.Refresh();
-                MapMemo.Plugin.Log?.Info("SelectionHook: RefreshAsync end");
-            }
+            await ctrl.Refresh();
         }
 
         private static bool IsMeaningful(string s)
