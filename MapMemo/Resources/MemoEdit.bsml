@@ -3,7 +3,7 @@
     <horizontal child-expand-width="true" pad-top="0">
       <text text="Map Memo" align="Left" font-size="4.5" />
       <!-- 更新日時をメモ表示エリアの上に表示 -->
-      <text text="~last-updated" font-size="3" color="#888888" align="Right" />
+      <text id ="last-updated" text="" font-size="3" color="#888888" align="Right" />
     </horizontal>
     <!-- メモ表示エリア(スクロール可能) -->
     <scroll-view pref-height="6" pref-width="90">

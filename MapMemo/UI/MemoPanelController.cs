@@ -13,7 +13,9 @@ namespace MapMemo.UI
     [HotReload]
     public class MemoPanelController : BSMLAutomaticViewController
     {
-        public static MemoPanelController LastInstance { get; internal set; }
+        // シングルトンインスタンス
+        public static MemoPanelController instance { get; internal set; }
+        // 現在のホストオブジェクト
         public GameObject HostGameObject { get; set; }
         public string Key { get; set; }
         public string SongName { get; set; }
@@ -25,43 +27,57 @@ namespace MapMemo.UI
 
         public string ResourceName => "MapMemo.Resources.MemoPanel.bsml";
 
+        /// <summary>
+        /// 既存の LastInstance を使って表示を更新するユーティリティ
+        /// </summary>
         public static MemoPanelController GetRefreshViewInstance(
             string key, string songName, string songAuthor)
         {
-            LastInstance.Key = key;
-            LastInstance.SongName = songName;
-            LastInstance.SongAuthor = songAuthor;
+            instance.Key = key;
+            instance.SongName = songName;
+            instance.SongAuthor = songAuthor;
 
-            LastInstance.Refresh();
-            return LastInstance;
+            instance.Refresh();
+            return instance;
         }
 
+        /// <summary>
+        /// 初回表示時のセットアップ
+        /// </summary>  
         protected override async void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
             if (!firstActivation) return;
 
             MapMemo.Plugin.Log?.Info($"MemoPanelController.DidActivate: firstActivation={firstActivation} addedToHierarchy={addedToHierarchy} screenSystemEnabling={screenSystemEnabling}");
-            LastInstance = this;
+            instance = this;
             if (HostGameObject == null)
             {
                 HostGameObject = this.transform != null ? this.transform.gameObject : null;
             }
-
             await Refresh();
         }
 
+        /// <summary>
+        /// 編集ボタン押下時
+        /// </summary>
         [UIAction("on-edit-click")]
         public void OnEditClick()
         {
             MapMemo.Plugin.Log?.Info($"MemoPanel: Edit click key='{Key}' song='{SongName}' author='{SongAuthor}'");
-            var parentCtrl = this ?? transform?.GetComponentInParent<MemoPanelController>() ?? LastInstance;
+            var parentCtrl = this ?? transform?.GetComponentInParent<MemoPanelController>() ?? instance;
             if (parentCtrl == null)
             {
                 MapMemo.Plugin.Log?.Warn("MemoPanel: OnEditClick parent controller is null; proceeding without parent");
             }
             MemoEditModal.Show(parentCtrl, Key ?? "unknown", SongName ?? "", SongAuthor ?? "");
         }
+
+        /// <summary>
+        /// ホバーヒント設定ユーティリティ
+        /// </summary>
+        /// <param name="go"></param>
+        /// <param name="hint"></param>
         public void SetHoverHint(GameObject go, string hint)
         {
             // HoverHint が無ければ追加
@@ -71,6 +87,9 @@ namespace MapMemo.UI
 
             hover.text = hint;
         }
+        /// <summary>
+        /// 表示内容の更新
+        /// </summary>
         public Task Refresh()
         {
             // 同期ロードを使って確実に現在の Key に紐づくデータを取得する
