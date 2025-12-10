@@ -18,23 +18,21 @@ namespace MapMemo.UI
 {
     public class MemoEditModal : BSMLAutomaticViewController
     {
-        // 最後にパースされた（表示された）インスタンスを保存して再利用可能にする
-        public static MemoEditModal LastInstance = null;
+        // 再利用可能なシングルトンインスタンス
+        public static MemoEditModal Instance = new MemoEditModal();
 
-        public string ResourceName => "MapMemo.Resources.MemoEdit.bsml";
-
+        // Show() から渡された親パネル参照を保持して、保存後に正しいパネルを更新できるようにする
+        private MemoPanelController parentPanel = null;
+        private bool isParsed = false;
         private string key;
         private string songName;
         private string songAuthor;
-
+        // Shift 状態（true = 小文字モード）
+        private bool isShift = false;
         [UIValue("memo")] private string memo = "";
         [UIComponent("modal")] private ModalView modal;
         [UIComponent("memoText")] private TextMeshProUGUI memoText;
-        [UIValue("last-updated")] private string lastUpdated = "";
-
-        // Shift 状態（true = 小文字モード）
-        private bool isShift = false;
-
+        [UIComponent("last-updated")] private TextMeshProUGUI lastUpdated;
         [UIComponent("char-A")] private ClickableText charAButton;
         [UIComponent("char-B")] private ClickableText charBButton;
         [UIComponent("char-C")] private ClickableText charCButton;
@@ -62,101 +60,70 @@ namespace MapMemo.UI
         [UIComponent("char-Y")] private ClickableText charYButton;
         [UIComponent("char-Z")] private ClickableText charZButton;
 
-        // Show() から渡された親パネル参照を保持して、保存後に正しいパネルを更新できるようにする
-        private MemoPanelController parentPanel = null;
+        public static MemoEditModal GetInstance(
+            MemoEntry entry,
+            MemoPanelController parent,
+            string key,
+            string songName,
+            string songAuthor)
+        {
+            if (!Instance.isParsed)
+            {
+                // BSMLをパース指定なければパースする
+                Instance.ParseBSML(
+                    Utilities.GetResourceContent(
+                        typeof(MemoEditModal).Assembly,
+                        "MapMemo.Resources.MemoEdit.bsml"),
+                    ResolveHost(parent));
+                Instance.isParsed = true;
+            }
+            Instance.parentPanel = parent;
+            Instance.key = key;
+            Instance.songName = songName;
+            Instance.songAuthor = songAuthor;
+            Instance.memo = entry?.memo ?? "";
+            Instance.lastUpdated.text = entry != null ? "Updated:" + FormatLocal(entry.updatedAt) : "";
+            if (Instance.memoText != null)
+            {
+                Instance.memoText.text = Instance.memo;
+                Instance.memoText.ForceMeshUpdate();
+            }
+            // A〜Z ボタンの見た目を整えるヘルパーを呼び出す
+            ApplyAlphaButtonCosmetics(Instance);
+            return Instance;
+        }
 
-        public static void Show(MemoPanelController parent, string key, string songName, string songAuthor)
+        /// <summary>
+        /// モーダル表示
+        /// </summary>
+        /// <param name="parent">親パネルコントローラー</param>
+        /// <param name="key">メモのキー</param>
+        /// <param name="songName">曲名</param>
+        /// <param name="songAuthor">曲の作者</param>
+        public static void Show(
+            MemoPanelController parent, string key, string songName, string songAuthor)
         {
             // 同期ロードを使って UI スレッドで確実に更新する
             var existing = MemoRepository.Load(key, songName, songAuthor);
+            var modalCtrl = MemoEditModal.GetInstance(existing, parent, key, songName, songAuthor);
 
-            // まず、既にパース済みで有効なインスタンスがあれば再利用する（UI バインドは既にセット済み）
+            MapMemo.Plugin.Log?.Info("MemoEditModal.Show: reusing existing parsed modal instance");
+            // 表示は既にバインド済みの modal を利用して行う
             try
             {
-                if (MemoEditModal.LastInstance != null && MemoEditModal.LastInstance.gameObject != null)
-                {
-                    var modalCtrl = MemoEditModal.LastInstance;
-                    // パネルのインスタンスを更新して再利用
-                    modalCtrl.parentPanel = parent;
-                    modalCtrl.key = key;
-                    modalCtrl.songName = songName;
-                    modalCtrl.songAuthor = songAuthor;
-                    modalCtrl.memo = existing?.memo ?? "";
-                    modalCtrl.lastUpdated = existing != null ? "Updated:" + FormatLocal(existing.updatedAt) : "";
-                    modalCtrl.NotifyPropertyChanged("memo");
-                    modalCtrl.NotifyPropertyChanged("last-updated");
-                    if (modalCtrl.memoText != null)
-                    {
-                        modalCtrl.memoText.text = modalCtrl.memo;
-                        modalCtrl.memoText.ForceMeshUpdate();
-                    }
-                    MapMemo.Plugin.Log?.Info("MemoEditModal.Show: reusing existing parsed modal instance");
-                    // 表示は既にバインド済みの modal を利用して行う
-                    try
-                    {
-                        modalCtrl.modal?.Show(true, true);
-                        // A〜Z ボタンの見た目を整えるヘルパーを呼び出す
-                        ApplyAlphaButtonCosmetics(modalCtrl);
-                    }
-                    catch (System.Exception ex)
-                    {
-                        MapMemo.Plugin.Log?.Warn($"MemoEditModal.Show: ModalView.Show failed: {ex.Message}; modal may not be visible");
-                    }
-                    return;
-                }
+                modalCtrl.modal?.Show(true, true);
+                // 画面の左側半分あたりに表示するように位置調整
+                RepositionModalToLeftHalf(modalCtrl.modal);
             }
-            catch { }
-
-            // 再利用できなければこれまで通り新規に作成して BSML をパースするパス
-            var content = Utilities.GetResourceContent(
-                typeof(MemoEditModal).Assembly, "MapMemo.Resources.MemoEdit.bsml");
-            if (string.IsNullOrEmpty(content))
+            catch (System.Exception ex)
             {
-                MapMemo.Plugin.Log?.Error("MemoEditModal.Show: BSML content not found for MapMemo.Resources.MemoEdit.bsml");
-                return;
+                MapMemo.Plugin.Log?.Warn($"MemoEditModal.Show: ModalView.Show failed: {ex.Message}; modal may not be visible");
             }
-
-            // ホスト決定（ResolveHost に切り出し）
-            GameObject host = ResolveHost(parent);
-            if (host == null)
-            {
-                MapMemo.Plugin.Log?.Error("MemoEditModal.Show: could not resolve host GameObject for modal");
-                return;
-            }
-
-            MapMemo.Plugin.Log?.Info($"MemoEditModal.Show: parsing BSML on host '{host.name}'");
-
-            // Create and parse the modal (extracted to helper)
-            var newCtrl = CreateAndParse(parent, key, songName, songAuthor, content, host, existing);
-            if (ReferenceEquals(newCtrl, null))
-            {
-                MapMemo.Plugin.Log?.Error("MemoEditModal.Show: failed to create/parse modal");
-                return;
-            }
-            ApplyAlphaButtonCosmetics(newCtrl);
-
-
-            var modalCtrl2 = newCtrl;
-            if (modalCtrl2.modal != null)
-            {
-                MapMemo.Plugin.Log?.Info("MemoEditModal.Show: modal component bound; showing");
-                try
-                {
-                    modalCtrl2.modal.Show(true, true);
-                    MapMemo.Plugin.Log?.Info("MemoEditModal.Show: shown via ModalView.Show");
-                }
-                catch (System.Exception exShow)
-                {
-                    MapMemo.Plugin.Log?.Warn($"MemoEditModal.Show: ModalView.Show failed: {exShow.Message}; modal may not be visible");
-                }
-
-                // 画面の左側半分あたりに表示する処理をヘルパーに切り出し
-                RepositionModalToLeftHalf(modalCtrl2.modal);
-            }
-            else
-            {
-                MapMemo.Plugin.Log?.Warn("MemoEditModal.Show: modal component is null after parse; modal may not display correctly");
-            }
+        }
+        /// BSMLをパースする
+        public void ParseBSML(string bsml, GameObject host)
+        {
+            BSMLParser.Instance.Parse(bsml, host, this);
         }
 
         [UIAction("on-save")]
@@ -172,11 +139,11 @@ namespace MapMemo.UI
                 // 続きがスレッドプールで実行されると NotifyPropertyChanged が効かない場合があります。
                 // そのため、まず表示上の更新日時を先に反映してからファイル保存を行います。
                 // TODO　: Saveボタンを押しても画面上で更新されない 
-                lastUpdated = FormatLocal(DateTime.UtcNow);
+                lastUpdated.text = FormatLocal(DateTime.UtcNow);
                 NotifyPropertyChanged("last-updated");
                 await MemoRepository.SaveAsync(entry);
                 // 表示更新（transform未参照で安全にフォールバック）
-                var parentPanelLocal = this.parentPanel ?? MemoPanelController.LastInstance;
+                var parentPanelLocal = this.parentPanel ?? MemoPanelController.instance;
                 if (parentPanelLocal != null)
                 {
                     // Save ボタンで反映すべきは親パネルの表示上の更新日時のみ。
@@ -254,59 +221,6 @@ namespace MapMemo.UI
             return $"{local:yyyy/MM/dd HH:mm:ss}";
         }
 
-        // Create a MemoEditModal instance, parse BSML into the provided host and bind components.
-        // Returns the created controller or null on failure.
-        private static MemoEditModal CreateAndParse(MemoPanelController parent, string key, string songName, string songAuthor, string content, GameObject host, MemoEntry existing)
-        {
-            try
-            {
-                MapMemo.Plugin.Log?.Info("MemoEditModal.CreateAndParse: creating new MemoEditModal instance");
-                var newCtrl = new MemoEditModal();
-                newCtrl.parentPanel = parent;
-                newCtrl.key = key;
-                newCtrl.songName = songName;
-                newCtrl.songAuthor = songAuthor;
-                newCtrl.memo = existing?.memo ?? "";
-                MapMemo.Plugin.Log?.Info($"MemoEditModal.CreateAndParse: initialized memo with {newCtrl.memo.Length} chars");
-
-                if (existing != null)
-                {
-                    newCtrl.lastUpdated = "Updated:" + FormatLocal(existing.updatedAt);
-                }
-
-                if (string.IsNullOrEmpty(content))
-                {
-                    MapMemo.Plugin.Log?.Error("MemoEditModal.CreateAndParse: BSML content is empty");
-                    return null;
-                }
-                MapMemo.Plugin.Log?.Info("MemoEditModal.CreateAndParse: parsing BSML content" + (host == null ? "(host is null)" : $"on host '{host.name}'"));
-                BSMLParser.Instance.Parse(content, host, newCtrl);
-                if (!ReferenceEquals(newCtrl, null) && newCtrl.memoText != null)
-                {
-                    newCtrl.memoText.text = newCtrl.memo;
-                    MapMemo.Plugin.Log?.Info($"MemoEditModal.CreateAndParse: memoText initialized with {newCtrl.memo.Length} chars(newCtrlHash={newCtrl.GetHashCode()})");
-                }
-                else
-                {
-                    MapMemo.Plugin.Log?.Warn("MemoEditModal.CreateAndParse: memoText component is null after parse");
-                }
-                MapMemo.Plugin.Log?.Info("MemoEditModal.CreateAndParse: NotifyPropertyChanged call for last-updated");
-                //newCtrl.NotifyPropertyChanged("last-updated");
-                MapMemo.Plugin.Log?.Info("MemoEditModal.CreateAndParse: NotifyPropertyChanged called for last-updated");
-                // パース成功したので再利用インスタンスとして保存
-                MemoEditModal.LastInstance = newCtrl;
-
-                MapMemo.Plugin.Log?.Info(ReferenceEquals(newCtrl, null) ? "newCtrl is null" : "newCtrl is not null");
-                return newCtrl;
-            }
-            catch (System.Exception ex)
-            {
-                MapMemo.Plugin.Log?.Error($"MemoEditModal.CreateAndParse: exception {ex}");
-                MapMemo.Plugin.Log?.Error(ex.ToString());
-                return null;
-            }
-        }
-
         // Resolve appropriate host GameObject for parsing the modal BSML.
         // Search order: provided parent.HostGameObject -> existing MemoPanelController host -> LevelDetailInjector.LastHostGameObject
         // -> named LevelDetail/StandardLevelDetailView transform -> MainMenu/Canvas fallback.
@@ -322,7 +236,7 @@ namespace MapMemo.UI
                 }
 
                 MapMemo.Plugin.Log?.Warn("MemoEditModal.ResolveHost: parent is null or has no host; searching for existing panel host");
-                var existingPanel = MemoPanelController.LastInstance ?? Resources.FindObjectsOfTypeAll<MemoPanelController>().FirstOrDefault();
+                var existingPanel = MemoPanelController.instance ?? Resources.FindObjectsOfTypeAll<MemoPanelController>().FirstOrDefault();
                 host = existingPanel != null ? (existingPanel.HostGameObject ?? existingPanel.transform.gameObject) : null;
                 if (host != null) return host;
 
@@ -402,6 +316,7 @@ namespace MapMemo.UI
             {
                 try
                 {
+                    // TODO:効く設定と効かない設定がある
                     var field = typeof(MemoEditModal).GetField($"char{ch}Button", BindingFlags.NonPublic | BindingFlags.Instance);
                     if (field == null) continue;
                     var btn = field.GetValue(ctrl) as ClickableText;

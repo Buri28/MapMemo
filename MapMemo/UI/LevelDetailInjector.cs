@@ -37,7 +37,7 @@ namespace MapMemo.UI
                         var existingCtrl = LastHostGameObject.GetComponentInChildren<MemoPanelController>(true) ?? LastHostGameObject.GetComponent<MemoPanelController>();
                         if (existingCtrl != null)
                         {
-                            MemoPanelController.LastInstance = existingCtrl;
+                            MemoPanelController.instance = existingCtrl;
                             return existingCtrl;
                         }
                     }
@@ -146,7 +146,7 @@ namespace MapMemo.UI
                     parent.gameObject,
                     ctrl
                 );
-                MemoPanelController.LastInstance = ctrl;
+                MemoPanelController.instance = ctrl;
                 MapMemo.Plugin.Log?.Info($"LevelDetailInjector: parent='{parent.name}', before children={((RectTransform)parent).childCount}");
                 var parentRt = parent as RectTransform;
                 if (parentRt != null && parentRt.childCount > 0)
