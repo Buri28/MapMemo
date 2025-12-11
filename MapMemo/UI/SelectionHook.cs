@@ -18,7 +18,6 @@ namespace MapMemo.UI
             bool isInstance = MemoPanelController.isInstance();
 
             var ctrl = MemoPanelController.GetInstance(view, key, songName, songAuthor);
-
             await ctrl.Refresh();
         }
 

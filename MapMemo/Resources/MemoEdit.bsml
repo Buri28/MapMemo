@@ -1,14 +1,60 @@
-﻿<modal id="modal" size-delta-x="130" size-delta-y="110" anchor-pos-y="25">
+﻿<!--
+この方法が有効かも
+<horizontal spacing='4'>
+  <button text='タブ1' click-event='ShowTab1' />
+  <button text='タブ2' click-event='ShowTab2' />
+</horizontal>
+
+<vertical>
+  <horizontal active='isTab1Active'>
+    <text text='タブ1の内容' />
+  </horizontal>
+  <horizontal active='isTab2Active'>
+    <text text='タブ2の内容' />
+  </horizontal>
+</vertical>
+// 状態を表す変数（BSMLとバインド）
+[UIValue("isTab1Active")]
+private bool isTab1Active = true;
+
+[UIValue("isTab2Active")]
+private bool isTab2Active = false;
+
+// タブ1を表示するボタンのイベント
+[UIAction("ShowTab1")]
+private void ShowTab1()
+{
+    isTab1Active = true;
+    isTab2Active = false;
+    NotifyPropertyChanged("isTab1Active");
+    NotifyPropertyChanged("isTab2Active");
+}
+
+// タブ2を表示するボタンのイベント
+[UIAction("ShowTab2")]
+private void ShowTab2()
+{
+    isTab1Active = false;
+    isTab2Active = true;
+    NotifyPropertyChanged("isTab1Active");
+    NotifyPropertyChanged("isTab2Active");
+}
+
+-->
+
+
+
+<modal id="modal" size-delta-x="130" size-delta-y="110" anchor-pos-y="25">
   <vertical spacing="0.5" pad="1">
     <horizontal child-expand-width="true" pad-top="0">
       <text text="Map Memo" align="Left" font-size="4.5" />
       <!-- 更新日時をメモ表示エリアの上に表示 -->
-      <text id ="last-updated" text="" font-size="3" color="#888888" align="Right" />
+      <text id ="last-updated" text="" font-size="3.5" color="#888888" align="Right" />
     </horizontal>
     <!-- メモ表示エリア(スクロール可能) -->
     <scroll-view pref-height="6" pref-width="90">
       <vertical>
-        <text id="memoText" text="~memo" align="TopLeft" font-size="2.5" 
+        <text id="memoText" text="~memo" align="TopLeft" font-size="3" 
           enable-word-wrapping="true" rich-text="false" />
       </vertical>
     </scroll-view>
@@ -16,7 +62,7 @@
     <!-- タブ切り替えキーボード -->
     <!-- <tab-selector tab-tag="keyboard-tabs" pref-height="8"/>-->
     <tab tags="keyboard-tabs" tab-name="ABC" > 
-      <vertical spacing="2" pad="2" pref-height="64" anchor-pos-y="5">
+      <vertical spacing="2" pad="2" pref-height="64" anchor-pos-y="5" fit-content='false'>
       <!-- 英字キーボード -->
       <horizontal spacing="1">
         <clickable-text text="A" id="char-A" on-click="on-char-A" pref-width="6" pref-height="5"/>
@@ -90,7 +136,7 @@
       </vertical>
     </tab>
     <tab tags="keyboard-tabs" tab-name="あ" child-align='TopCenter'>
-      <vertical pref-height="64" anchor-pos-y="5">
+      <vertical pref-height="64" anchor-pos-y="5"  fit-content='false'>
         <horizontal spacing="0.5">
         <!-- 左端: 小文字・長音列 → 濁点列（ぱ/ば/だ/ざ/が） → 基本行（わ→ら→や→ま→は→な→た→さ→か→あ） -->
         <!-- 小文字・長音列 -->
@@ -209,7 +255,7 @@
         <button text="え" on-click="on-char-e" pref-width="6" pref-height="5" />
         <button text="お" on-click="on-char-o" pref-width="6" pref-height="5" />
       </vertical>
-      <vertical spacing="0.5">
+      <vertical spacing="1">
         <button text="Space" on-click="on-char-space" pref-width="20" />
         <button text="Del" on-click="on-char-backspace" pref-width="15" />
         <button text="⏎" on-click="on-char-newline" pref-width="15" />
@@ -219,7 +265,7 @@
     </tab>
 
     <tab tags="keyboard-tabs" tab-name="ア" child-align='TopCenter'>
-      <vertical pref-height="64" anchor-pos-y="5">
+      <vertical pref-height="64" anchor-pos-y="5"  fit-content='false'>
         <horizontal spacing="0.5">
       <!-- 左端: 小文字/長音 → 濁点列（パ/バ/ダ/ザ/ガ） → 基本行（ワ→ラ→ヤ→マ→ハ→ナ→タ→サ→カ→ア） -->
       <!-- 小文字・長音列 -->
@@ -347,14 +393,7 @@
       </vertical>
     </tab>
     <tab-select tab-tag='keyboard-tabs' anchor-pos-y='0' size-delta-y='10' size-delta-x='-10' child-expand-width='true'/>
-    <!-- 
-    <text text="     " />
-    <text text="     " />
-    <text text="     " />
-    <text text="     " />
-    <text text="     " rectTransformZ="-1"/>
-      -->
-    <!-- 
+    <layout-element preferred-height='10' />
     <text text="────────────────────────────────────────────────────────────" font-size="2" align="Center" />
     -->
     <!-- 共通操作ボタン(全タブ共通) -->

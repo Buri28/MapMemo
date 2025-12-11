@@ -260,14 +260,14 @@ namespace MapMemo.UI
                     if (btn == null) continue;
                     // 文字とスタイル設定
                     var label = ctrl.isShift ? ch.ToString().ToLowerInvariant() : ch.ToString().ToUpperInvariant();
-                    btn.text = label;
+                    btn.text = "　" + label + "　";
                     //btn.richText = true;
                     if (btn.fontMaterial != null)
                     {
-                        btn.fontMaterial.SetFloat("_OutlineWidth", 0.12f);
-                        btn.fontMaterial.SetColor("_OutlineColor", Color.white);
+                        //btn.fontMaterial.SetFloat("_OutlineWidth", 0.12f);
+                        //btn.fontMaterial.SetColor("_OutlineColor", Color.white);
                     }
-                    btn.color = new Color(1f, 1f, 1f, 0.9f);
+                    btn.color = new Color(1f, 1f, 1f, 0.8f);
                     btn.fontSize = 3.5f;
                     btn.fontStyle = FontStyles.Italic | FontStyles.Underline;
                 }
