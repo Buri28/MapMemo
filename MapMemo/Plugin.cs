@@ -42,7 +42,7 @@ namespace MapMemo
             try
             {
                 var harmony = new HarmonyLib.Harmony("com.buri28.mapmemo");
-                UI.HarmonyPatches.TryApplyPatches(harmony);
+                UI.Patches.MapMemoPatcher.ApplyPatches(harmony);
                 Log.Info("Harmony patches applied");
             }
             catch (Exception e)

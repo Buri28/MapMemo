@@ -35,15 +35,16 @@ namespace MapMemo.UI
         /// 既存の LastInstance を使って表示を更新するユーティリティ
         /// </summary>
         public static MemoPanelController GetInstance(
-            Transform parent, string key, string songName, string songAuthor)
+            StandardLevelDetailView view, string key, string songName, string songAuthor)
         {
             if (!isInstance())
             {
+                // TODO:本来は直接newすべきでない
                 instance = new MemoPanelController();
                 var bsmlContent = Utilities.GetResourceContent(
                     typeof(MemoPanelController).Assembly,
                     "MapMemo.Resources.MemoPanel.bsml");
-                instance.ParseBSML(bsmlContent, parent.gameObject);
+                instance.ParseBSML(bsmlContent, view.gameObject);
                 // マニュアルでDidActivateを呼び出す
                 // instance.DidActivate(true, true, false);
 
@@ -53,7 +54,7 @@ namespace MapMemo.UI
             instance.Key = key;
             instance.SongName = songName;
             instance.SongAuthor = songAuthor;
-            instance.HostGameObject = parent.gameObject;
+            instance.HostGameObject = view.gameObject;
 
             instance.Refresh();
             return instance;
@@ -70,6 +71,7 @@ namespace MapMemo.UI
         /// </summary>  
         protected override async void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
         {
+            // TODO:本来ここが呼ばれるべきだが呼ばれていない(インスタンスを直接newしているため)
             base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
             if (!firstActivation) return;
 
@@ -104,7 +106,7 @@ namespace MapMemo.UI
             // var canvas = instance.gameObject.GetComponentInParent<Canvas>();
             // MapMemo.Plugin.Log?.Info($"modal parent Canvas null? {canvas == null}");
 
-
+            // TODO:parentCtrlは常にnullになりResolveHostでLastGameObjectを参照している
             MemoEditModal.Show(instance, Key ?? "unknown", SongName ?? "", SongAuthor ?? "");
         }
 
