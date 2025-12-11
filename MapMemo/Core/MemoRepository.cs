@@ -114,6 +114,23 @@ namespace MapMemo
             EnsureDir();
             // 空フィールドにフォールバック
             string path = BuildFileName(entry.key ?? "unknown", entry.songName ?? "unknown", entry.songAuthor ?? "unknown");
+            // メモが空文字（0文字）の場合はファイルを削除して終了
+            if (string.IsNullOrEmpty(entry.memo))
+            {
+                try
+                {
+                    if (File.Exists(path))
+                    {
+                        File.Delete(path);
+                        MapMemo.Plugin.Log?.Info($"MemoRepository.SaveAsync: Deleted file for empty memo path='{path}' key='{entry.key}'");
+                    }
+                }
+                catch (Exception e)
+                {
+                    MapMemo.Plugin.Log?.Warn($"MemoRepository.SaveAsync: Failed to delete file '{path}': {e.Message}");
+                }
+                return;
+            }
             entry.updatedAt = DateTime.UtcNow;
             var json = JsonConvert.SerializeObject(entry, Formatting.Indented);
             MapMemo.Plugin.Log?.Info($"MemoRepository.SaveAsync: path='{path}' key='{entry.key}' song='{entry.songName}' author='{entry.songAuthor}'");
