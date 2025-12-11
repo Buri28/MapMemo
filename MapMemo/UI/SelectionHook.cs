@@ -18,38 +18,10 @@ namespace MapMemo.UI
             bool isInstance = MemoPanelController.isInstance();
 
             var ctrl = MemoPanelController.GetInstance(view, key, songName, songAuthor);
-            if (!isInstance)
-            {
-                LevelDetailInjector.AttachTo(view, ctrl, key, songName, songAuthor);
-            }
 
             await ctrl.Refresh();
-
         }
-        // 楽曲選択時に呼び出す
-        // public static async Task OnSongSelected(
-        //     Transform detailDescriptionParent, string key, string songName, string songAuthor)
-        // {
-        //     MapMemo.Plugin.Log?.Info($"SelectionHook: OnSongSelected parent='{detailDescriptionParent?.name}' key='{key}' song='{songName}' author='{songAuthor}'");
-        //     if (detailDescriptionParent == null) return;
 
-        //     // 無意味なキー（unknownや空）の場合はパネルを取り付けない
-        //     if (!IsMeaningful(key))
-        //     {
-        //         MapMemo.Plugin.Log?.Warn("SelectionHook: key is not meaningful; skipping panel attach/update");
-        //         return;
-        //     }
-        //     bool isInstance = MemoPanelController.isInstance();
-
-        //     var ctrl = MemoPanelController.GetInstance(
-        //             detailDescriptionParent, key, songName, songAuthor);
-        //     if (!isInstance)
-        //     {
-        //         LevelDetailInjector.AttachTo(detailDescriptionParent, ctrl, key, songName, songAuthor);
-        //     }
-
-        //     await ctrl.Refresh();
-        // }
 
         private static bool IsMeaningful(string s)
         {

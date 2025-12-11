@@ -23,9 +23,7 @@ namespace MapMemo.UI
         private string SongName { get; set; }
         private string SongAuthor { get; set; }
 
-        [UIComponent("pen-text")]
-        private TMPro.TextMeshProUGUI penText;
-        [UIValue("updated-local")] private string updatedLocal = "";
+        [UIComponent("pen-text")] private TMPro.TextMeshProUGUI penText;
 
         public string ResourceName => "MapMemo.Resources.MemoPanel.bsml";
 
@@ -39,14 +37,11 @@ namespace MapMemo.UI
         {
             if (!isInstance())
             {
-                // TODO:本来は直接newすべきでない
-                instance = new MemoPanelController();
+                instance = BeatSaberUI.CreateViewController<MemoPanelController>();
                 var bsmlContent = Utilities.GetResourceContent(
                     typeof(MemoPanelController).Assembly,
                     "MapMemo.Resources.MemoPanel.bsml");
                 instance.ParseBSML(bsmlContent, view.gameObject);
-                // マニュアルでDidActivateを呼び出す
-                // instance.DidActivate(true, true, false);
 
                 Plugin.Log?.Info("MemoPanelController.GetInstance: Created new instance:" + isInstance());
             }
@@ -92,21 +87,6 @@ namespace MapMemo.UI
         public void OnEditClick()
         {
             MapMemo.Plugin.Log?.Info($"MemoPanel: Edit click key='{Key}' song='{SongName}' author='{SongAuthor}'");
-            var parentCtrl = this ?? transform?.GetComponentInParent<MemoPanelController>() ?? instance;
-            if (parentCtrl == null)
-            {
-                MapMemo.Plugin.Log?.Warn("MemoPanel: OnEditClick parent controller is null; proceeding without parent");
-            }
-            Plugin.Log?.Info("MemoPanel: OnEditClick showing modal" + (ReferenceEquals(instance, null) ? "null instance" : "instance exists"));
-            // Plugin.Log?.Info("MemoPanel: OnEditClick showing modal" + (ReferenceEquals(instance.gameObject, null) ? "null gameObject" : "gameObject exists"));
-
-            // MapMemo.Plugin.Log?.Info($"modal.activeSelf={instance.gameObject.activeSelf}, modal.name={instance.gameObject.name}");
-            // var rt = instance.gameObject.GetComponent<RectTransform>();
-            // MapMemo.Plugin.Log?.Info($"modal RectTransform null? {rt == null}");
-            // var canvas = instance.gameObject.GetComponentInParent<Canvas>();
-            // MapMemo.Plugin.Log?.Info($"modal parent Canvas null? {canvas == null}");
-
-            // TODO:parentCtrlは常にnullになりResolveHostでLastGameObjectを参照している
             MemoEditModal.Show(instance, Key ?? "unknown", SongName ?? "", SongAuthor ?? "");
         }
 
@@ -140,6 +120,7 @@ namespace MapMemo.UI
                 penText.alpha = 0.5f;
 
                 SetHoverHint(penText.gameObject, "メモを追加");
+
             }
             else
             {
@@ -151,8 +132,7 @@ namespace MapMemo.UI
 
                 SetHoverHint(penText.gameObject, MakeTooltipLine(entry.memo, 30) + " (" + FormatLocal(entry.updatedAt) + ")");
             }
-            NotifyPropertyChanged("pen-text");
-            NotifyPropertyChanged("updated-local");
+
             return Task.CompletedTask;
         }
 
@@ -167,17 +147,6 @@ namespace MapMemo.UI
         {
             var local = utc.ToLocalTime();
             return $"{local:yyyy/MM/dd HH:mm}";
-        }
-
-        // Save ボタン押下時に親パネルの表示上の更新日時を更新するための公開メソッド
-        public void SetUpdatedLocal(DateTime utc)
-        {
-            try
-            {
-                updatedLocal = "Updated: " + FormatLocal(utc);
-                NotifyPropertyChanged("updated-local");
-            }
-            catch { }
         }
 
         private static string MakeTooltipLine(string text, int max)

@@ -22,7 +22,7 @@ namespace MapMemo.UI
         public static MemoEditModal Instance;
 
         // Show() から渡された親パネル参照を保持して、保存後に正しいパネルを更新できるようにする
-        private MemoPanelController parentPanel = null;
+        // private MemoPanelController parentPanel = null;
 
         private string key;
         private string songName;
@@ -70,15 +70,15 @@ namespace MapMemo.UI
             if (ReferenceEquals(Instance, null))
             {
                 Plugin.Log?.Info("MemoEditModal.GetInstance: creating new modal instance");
-                Instance = new MemoEditModal();
-                // BSMLをパース指定なければパースする
+                Instance = BeatSaberUI.CreateViewController<MemoEditModal>();
+
                 Instance.ParseBSML(
                     Utilities.GetResourceContent(
                         typeof(MemoEditModal).Assembly,
                         "MapMemo.Resources.MemoEdit.bsml"),
-                    ResolveHost(parent));
+                        parent.HostGameObject);
             }
-            Instance.parentPanel = parent;
+            // Instance.parentPanel = parent;
             Instance.key = key;
             Instance.songName = songName;
             Instance.songAuthor = songAuthor;
@@ -138,30 +138,17 @@ namespace MapMemo.UI
                 //if (text.Length > 256) text = text.Substring(0, 256);
                 var entry = new MemoEntry { key = key ?? "unknown", songName = songName ?? "unknown", songAuthor = songAuthor ?? "unknown", memo = text };
                 MapMemo.Plugin.Log?.Info($"MemoEditModal.OnSave: key='{entry.key}' song='{entry.songName}' author='{entry.songAuthor}' len={text.Length}");
-                // UI は Unity のメインスレッドで描画されるため、保存待ちの await によって
-                // 続きがスレッドプールで実行されると NotifyPropertyChanged が効かない場合があります。
-                // そのため、まず表示上の更新日時を先に反映してからファイル保存を行います。
-                // TODO　: Saveボタンを押しても画面上で更新されない 
                 lastUpdated.text = FormatLocal(DateTime.UtcNow);
-                NotifyPropertyChanged("last-updated");
+
                 await MemoRepository.SaveAsync(entry);
                 // 表示更新（transform未参照で安全にフォールバック）
-                var parentPanelLocal = this.parentPanel ?? MemoPanelController.instance;
-                if (parentPanelLocal != null)
-                {
-                    // Save ボタンで反映すべきは親パネルの表示上の更新日時のみ。
-                    try
-                    {
-                        parentPanelLocal.SetUpdatedLocal(DateTime.UtcNow);
-                    }
-                    catch { }
-                    MapMemo.Plugin.Log?.Info("MemoEditModal.OnSave: refreshing MemoPanelController");
-                    await parentPanelLocal.Refresh();
-                }
-                else
-                {
-                    MapMemo.Plugin.Log?.Warn("MemoEditModal.OnSave: MemoPanelController not found for refresh");
-                }
+                // var parentPanelLocal = this.parentPanel ?? MemoPanelController.instance;
+
+                // 親パネルの反映
+                var parentPanelLocal = MemoPanelController.instance;
+                await parentPanelLocal.Refresh();
+                MapMemo.Plugin.Log?.Info("MemoEditModal.OnSave: refreshing MemoPanelController");
+
             }
             catch (System.Exception ex)
             {
@@ -224,59 +211,6 @@ namespace MapMemo.UI
             return $"{local:yyyy/MM/dd HH:mm:ss}";
         }
 
-        // Resolve appropriate host GameObject for parsing the modal BSML.
-        // Search order: provided parent.HostGameObject -> existing MemoPanelController host -> LevelDetailInjector.LastHostGameObject
-        // -> named LevelDetail/StandardLevelDetailView transform -> MainMenu/Canvas fallback.
-        private static GameObject ResolveHost(MemoPanelController parent)
-        {
-            try
-            {
-                GameObject host = null;
-                if (parent != null)
-                {
-                    host = parent.HostGameObject ?? (parent.transform != null ? parent.transform.gameObject : null);
-                    if (host != null) return host;
-                }
-
-                MapMemo.Plugin.Log?.Warn("MemoEditModal.ResolveHost: parent is null or has no host; searching for existing panel host");
-                var existingPanel = MemoPanelController.instance ?? Resources.FindObjectsOfTypeAll<MemoPanelController>().FirstOrDefault();
-                host = existingPanel != null ? (existingPanel.HostGameObject ?? existingPanel.transform.gameObject) : null;
-                if (host != null) return host;
-
-                if (LevelDetailInjector.LastHostGameObject != null)
-                {
-                    MapMemo.Plugin.Log?.Info("MemoEditModal.ResolveHost: using LevelDetailInjector.LastHostGameObject");
-                    return LevelDetailInjector.LastHostGameObject;
-                }
-
-                // Name-based search for standard detail view
-                var t = Resources.FindObjectsOfTypeAll<Transform>()
-                    .FirstOrDefault(x => x.name.IndexOf("StandardLevelDetailView", System.StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                         x.name.IndexOf("LevelDetail", System.StringComparison.OrdinalIgnoreCase) >= 0);
-                if (t != null) return t.gameObject;
-
-                // Final fallback: use a Canvas (prefer MainMenu canvas)
-                var allObjects = Resources.FindObjectsOfTypeAll<GameObject>();
-                var canvasObj = allObjects.FirstOrDefault(go => go.GetComponent("Canvas") != null);
-                var mainMenuCanvasObj = allObjects.FirstOrDefault(go => go.name.IndexOf("MainMenu", System.StringComparison.OrdinalIgnoreCase) >= 0 && go.GetComponent("Canvas") != null);
-                host = (mainMenuCanvasObj ?? canvasObj);
-                if (host != null)
-                {
-                    MapMemo.Plugin.Log?.Warn($"MemoEditModal.ResolveHost: using canvas host '{host.name}'");
-                    // remember for future small optimizations
-                    try { LevelDetailInjector.SetLastHostGameObject(host); } catch { }
-                }
-                return host;
-            }
-            catch (Exception e)
-            {
-                MapMemo.Plugin.Log?.Warn($"MemoEditModal.ResolveHost: error during host resolution: {e.Message}");
-                return null;
-            }
-        }
-
-        // Reposition the given modal so it appears roughly on the left half of the screen.
-        // Prioritizes the parent Canvas width when available, otherwise falls back to Screen width.
         private static void RepositionModalToLeftHalf(HMUI.ModalView modal)
         {
             if (ReferenceEquals(modal, null)) return;
