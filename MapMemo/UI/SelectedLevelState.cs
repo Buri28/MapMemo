@@ -7,15 +7,13 @@ namespace MapMemo.UI
         public string SongName { get; }
         public string SongAuthor { get; }
         public string LevelId { get; }
-        public string Hash { get; }
         public DateTime UpdatedAtUtc { get; }
 
-        public SelectedLevelSnapshot(string songName, string songAuthor, string levelId, string hash)
+        public SelectedLevelSnapshot(string songName, string songAuthor, string levelId)
         {
             SongName = songName ?? "unknown";
             SongAuthor = songAuthor ?? "unknown";
             LevelId = levelId ?? "unknown";
-            Hash = hash ?? "unknown";
             UpdatedAtUtc = DateTime.UtcNow;
         }
     }
@@ -25,16 +23,16 @@ namespace MapMemo.UI
         private static readonly object _gate = new object();
         private static SelectedLevelSnapshot _last;
 
-        public static void Update(string songName, string songAuthor, string levelId, string hash)
+        public static void Update(string songName, string songAuthor, string levelId)
         {
             try
             {
-                var snap = new SelectedLevelSnapshot(Normalize(songName), Normalize(songAuthor), Normalize(levelId), Normalize(hash));
+                var snap = new SelectedLevelSnapshot(Normalize(songName), Normalize(songAuthor), Normalize(levelId));
                 lock (_gate)
                 {
                     _last = snap;
                 }
-                MapMemo.Plugin.Log?.Info($"MapMemo: SelectedLevelState updated => name='{snap.SongName}' author='{snap.SongAuthor}' levelId='{snap.LevelId}' hash='{snap.Hash}'");
+                MapMemo.Plugin.Log?.Info($"MapMemo: SelectedLevelState updated => name='{snap.SongName}' author='{snap.SongAuthor}' levelId='{snap.LevelId}'");
             }
             catch { }
         }

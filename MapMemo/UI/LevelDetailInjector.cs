@@ -24,19 +24,19 @@ namespace MapMemo.UI
 
         // parent: 詳細パネルのTransform（説明文下が望ましい）
         public static MemoPanelController AttachTo(
-            Transform parent, MemoPanelController ctrl, string key, string songName, string songAuthor)
+            StandardLevelDetailView view, MemoPanelController ctrl, string key, string songName, string songAuthor)
         {
             try
             {
-                var parentName = parent?.name ?? "<null>";
+                var parentName = view?.name ?? "<null>";
                 MapMemo.Plugin.Log?.Info($"LevelDetailInjector: proceeding attach on parent '{parentName}' (minimal mode)");
 
                 // LastIndstanceではだめ、インスタンスはキーで分けて管理しないといけない
                 // 既に同じ親に取り付け済みなら何もしない（LastInstance があればそれを返す）
-                if (LastHostGameObject == parent?.gameObject)
+                if (LastHostGameObject == view?.gameObject)
                 {
                     MapMemo.Plugin.Log?.Info($"LevelDetailInjector: already attached to parent '{parentName}', skipping attach");
-                    var instance = MemoPanelController.GetInstance(parent,
+                    var instance = MemoPanelController.GetInstance(view,
                         key, songName, songAuthor);
                     return instance;
                 }
@@ -54,12 +54,12 @@ namespace MapMemo.UI
                 // }
                 // BSMLParser.Instance.Parse(
                 //     bsmlContent,
-                //     parent.gameObject,
+                //     view.gameObject,
                 //     ctrl
                 // );
                 // MemoPanelController.instance = ctrl;
-                MapMemo.Plugin.Log?.Info($"LevelDetailInjector.AttachTo: parent='{parent.name}', before children={((RectTransform)parent).childCount}");
-                var parentRt = parent as RectTransform;
+
+                var parentRt = view.transform as RectTransform;
                 if (parentRt != null && parentRt.childCount > 0)
                 {
                     var last = parentRt.GetChild(parentRt.childCount - 1) as RectTransform;
@@ -78,10 +78,10 @@ namespace MapMemo.UI
                     }
                 }
                 // 親が『NoAllowedBeatmapInfoText』『NoDataInfoContainer』等の情報テキストの場合、表示が制御されることがあるため一段上へ退避
-                var pn = parent.name;
+                var pn = view.transform.name;
                 if (pn == "NoAllowedBeatmapInfoText" || pn == "NoDataInfoContainer")
                 {
-                    var higher = parent.parent as RectTransform;
+                    var higher = view.transform.parent as RectTransform;
                     if (higher != null && parentRt != null && parentRt.childCount > 0)
                     {
                         var last = parentRt.GetChild(parentRt.childCount - 1) as RectTransform;
@@ -95,9 +95,9 @@ namespace MapMemo.UI
                         }
                     }
                 }
-                ctrl.HostGameObject = parent.gameObject;
+                ctrl.HostGameObject = view.gameObject;
                 // 実はResolveHostで、ここのゲームオブジェクトを使っている
-                LastHostGameObject = parent.gameObject;
+                LastHostGameObject = view.gameObject;
                 // ctrl.Key = key;
                 // ctrl.SongName = songName;
                 // ctrl.SongAuthor = songAuthor;

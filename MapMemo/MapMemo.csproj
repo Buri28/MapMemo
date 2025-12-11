@@ -18,11 +18,24 @@
 
   <!-- Beat Saber本体/依存MODへの参照。HintPathは環境に合わせて調整してください。 -->
   <ItemGroup>
-        <!-- Harmony from Libs -->
-        <Reference Include="0Harmony">
-          <HintPath>$(BeatSaberPath)\Libs\0Harmony.dll</HintPath>
-          <Private>false</Private>
-        </Reference>
+    <!-- Beat Saber MainDLL -->
+    <Reference  Include="Main">
+      <HintPath>$(BeatSaberManagedPath)\Main.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference  Include="DataModels">
+      <HintPath>$(BeatSaberManagedPath)\DataModels.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference  Include="BeatmapCore">
+      <HintPath>$(BeatSaberManagedPath)\BeatmapCore.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- Harmony from Libs -->
+    <Reference Include="0Harmony">
+      <HintPath>$(BeatSaberPath)\Libs\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <!-- IPA.Loader のみ参照（IPA/IPA.Configは未配置のため外す） -->
     <Reference Include="IPA.Loader">
       <HintPath>$(BeatSaberManagedPath)\IPA.Loader.dll</HintPath>
@@ -60,6 +73,7 @@
       <HintPath>$(BeatSaberManagedPath)\BeatSaber.ViewSystem.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    
     <!-- HMUI (ViewControllerBase 定義) -->
     <Reference Include="HMUI">
       <HintPath>$(BeatSaberManagedPath)\HMUI.dll</HintPath>
