@@ -1,50 +1,4 @@
-﻿<!--
-この方法が有効かも
-<horizontal spacing='4'>
-  <button text='タブ1' click-event='ShowTab1' />
-  <button text='タブ2' click-event='ShowTab2' />
-</horizontal>
-
-<vertical>
-  <horizontal active='isTab1Active'>
-    <text text='タブ1の内容' />
-  </horizontal>
-  <horizontal active='isTab2Active'>
-    <text text='タブ2の内容' />
-  </horizontal>
-</vertical>
-// 状態を表す変数（BSMLとバインド）
-[UIValue("isTab1Active")]
-private bool isTab1Active = true;
-
-[UIValue("isTab2Active")]
-private bool isTab2Active = false;
-
-// タブ1を表示するボタンのイベント
-[UIAction("ShowTab1")]
-private void ShowTab1()
-{
-    isTab1Active = true;
-    isTab2Active = false;
-    NotifyPropertyChanged("isTab1Active");
-    NotifyPropertyChanged("isTab2Active");
-}
-
-// タブ2を表示するボタンのイベント
-[UIAction("ShowTab2")]
-private void ShowTab2()
-{
-    isTab1Active = false;
-    isTab2Active = true;
-    NotifyPropertyChanged("isTab1Active");
-    NotifyPropertyChanged("isTab2Active");
-}
-
--->
-
-
-
-<modal id="modal" size-delta-x="130" size-delta-y="110" anchor-pos-y="25">
+﻿<modal id="modal" size-delta-x="130" size-delta-y="110" anchor-pos-y="25">
   <vertical spacing="0.5" pad="1">
     <horizontal child-expand-width="true" pad-top="0">
       <text text="Map Memo" align="Left" font-size="4.5" />
@@ -62,7 +16,7 @@ private void ShowTab2()
     <!-- タブ切り替えキーボード -->
     <!-- <tab-selector tab-tag="keyboard-tabs" pref-height="8"/>-->
     <tab tags="keyboard-tabs" tab-name="ABC" > 
-      <vertical spacing="2" pad="2" pref-height="64" anchor-pos-y="5" fit-content='false'>
+      <vertical spacing="2" pad="2" pref-height="64" anchor-pos-y="5">
       <!-- 英字キーボード -->
       <horizontal spacing="1">
         <clickable-text text="A" id="char-A" on-click="on-char-A" pref-width="6" pref-height="5"/>
@@ -136,7 +90,7 @@ private void ShowTab2()
       </vertical>
     </tab>
     <tab tags="keyboard-tabs" tab-name="あ" child-align='TopCenter'>
-      <vertical pref-height="64" anchor-pos-y="5"  fit-content='false'>
+      <vertical pref-height="64" anchor-pos-y="5">
         <horizontal spacing="0.5">
         <!-- 左端: 小文字・長音列 → 濁点列（ぱ/ば/だ/ざ/が） → 基本行（わ→ら→や→ま→は→な→た→さ→か→あ） -->
         <!-- 小文字・長音列 -->
@@ -265,7 +219,7 @@ private void ShowTab2()
     </tab>
 
     <tab tags="keyboard-tabs" tab-name="ア" child-align='TopCenter'>
-      <vertical pref-height="64" anchor-pos-y="5"  fit-content='false'>
+      <vertical pref-height="64" anchor-pos-y="5">
         <horizontal spacing="0.5">
       <!-- 左端: 小文字/長音 → 濁点列（パ/バ/ダ/ザ/ガ） → 基本行（ワ→ラ→ヤ→マ→ハ→ナ→タ→サ→カ→ア） -->
       <!-- 小文字・長音列 -->
@@ -393,7 +347,7 @@ private void ShowTab2()
       </vertical>
     </tab>
     <tab-select tab-tag='keyboard-tabs' anchor-pos-y='0' size-delta-y='10' size-delta-x='-10' child-expand-width='true'/>
-    <layout-element preferred-height='10' />
+    <!--
     <text text="────────────────────────────────────────────────────────────" font-size="2" align="Center" />
     -->
     <!-- 共通操作ボタン(全タブ共通) -->
@@ -413,3 +367,47 @@ private void ShowTab2()
     </horizontal>
   </vertical>
 </modal>
+
+<!--
+この方法が有効かも
+<horizontal spacing='4'>
+  <button text='タブ1' click-event='ShowTab1' />
+  <button text='タブ2' click-event='ShowTab2' />
+</horizontal>
+
+<vertical>
+  <horizontal active='isTab1Active'>
+    <text text='タブ1の内容' />
+  </horizontal>
+  <horizontal active='isTab2Active'>
+    <text text='タブ2の内容' />
+  </horizontal>
+</vertical>
+// 状態を表す変数（BSMLとバインド）
+[UIValue("isTab1Active")]
+private bool isTab1Active = true;
+
+[UIValue("isTab2Active")]
+private bool isTab2Active = false;
+
+// タブ1を表示するボタンのイベント
+[UIAction("ShowTab1")]
+private void ShowTab1()
+{
+    isTab1Active = true;
+    isTab2Active = false;
+    NotifyPropertyChanged("isTab1Active");
+    NotifyPropertyChanged("isTab2Active");
+}
+
+// タブ2を表示するボタンのイベント
+[UIAction("ShowTab2")]
+private void ShowTab2()
+{
+    isTab1Active = false;
+    isTab2Active = true;
+    NotifyPropertyChanged("isTab1Active");
+    NotifyPropertyChanged("isTab2Active");
+}
+
+-->
