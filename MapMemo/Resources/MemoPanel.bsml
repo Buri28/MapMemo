@@ -5,7 +5,7 @@
       text="✎" 
       font-size="5" 
       align="TopLeft"
-      color="#009999" 
+      preferred-width='20'
       on-click="on-edit-click"
       hover-hint=""/>
   </horizontal>
