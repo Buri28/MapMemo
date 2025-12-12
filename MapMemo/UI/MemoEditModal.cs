@@ -122,6 +122,7 @@ namespace MapMemo.UI
                 MapMemo.Plugin.Log?.Warn($"MemoEditModal.Show: ModalView.Show failed: {ex.Message}; modal may not be visible");
             }
         }
+
         /// BSMLをパースする
         public void ParseBSML(string bsml, GameObject host)
         {
@@ -256,20 +257,70 @@ namespace MapMemo.UI
                     // TODO:効く設定と効かない設定がある
                     var field = typeof(MemoEditModal).GetField($"char{ch}Button", BindingFlags.NonPublic | BindingFlags.Instance);
                     if (field == null) continue;
-                    var btn = field.GetValue(ctrl) as ClickableText;
-                    if (btn == null) continue;
-                    // 文字とスタイル設定
-                    var label = ctrl.isShift ? ch.ToString().ToLowerInvariant() : ch.ToString().ToUpperInvariant();
-                    btn.text = "　" + label + "　";
-                    //btn.richText = true;
-                    if (btn.fontMaterial != null)
+                    
+                    var btnObj = field.GetValue(ctrl);
+                    Plugin.Log?.Info($"ApplyAlphaButtonCosmetics: processing button {ch} type={(btnObj == null ? "null" : btnObj.GetType().Name)}");
+
+                    if (btnObj is ClickableText)
                     {
-                        //btn.fontMaterial.SetFloat("_OutlineWidth", 0.12f);
-                        //btn.fontMaterial.SetColor("_OutlineColor", Color.white);
+                       ClickableText btn = (btnObj as ClickableText); 
+
+                       if (btn == null) continue;
+                        // 文字とスタイル設定
+                        var label = ctrl.isShift ? ch.ToString().ToLowerInvariant() : ch.ToString().ToUpperInvariant();
+                        btn.text = "　" + label + "　";
+                        btn.fontSize = 3.0f;
+                        btn.fontStyle = FontStyles.Italic | FontStyles.Underline;
+                        btn.alignment = TextAlignmentOptions.Left;
+                        btn.faceColor = Color.cyan;
+                        btn.HighlightColor = Color.yellow;
+                        btn.outlineColor = Color.white;
                     }
-                    btn.color = new Color(1f, 1f, 1f, 0.8f);
-                    btn.fontSize = 3.5f;
-                    btn.fontStyle = FontStyles.Italic | FontStyles.Underline;
+                    // else if (btnObj is Button)
+                    // {
+                    //     // テストコード
+                    //     ctrl.isShift = true;
+                        
+                    //     Button btn = (btnObj as Button);
+                    //     var text = btn.GetComponentInChildren<TextMeshProUGUI>();
+         
+                    //     if (btn == null) continue;
+                    //     // 文字とスタイル設定
+                    //     var label = ctrl.isShift ? ch.ToString().ToLowerInvariant() : ch.ToString().ToUpperInvariant();
+                        
+                        
+                        
+                    //     // 小文字フォントデバッグ
+                    //     // var fonts = Resources.FindObjectsOfTypeAll<TMP_FontAsset>();
+                    //     // foreach (var f in fonts)
+                    //     // {
+                    //     //     if (f.HasCharacter('a') && f.HasCharacter('z')) {
+                    //     //         Plugin.Log.Info($"見つかったフォント: {f.name} は a-z を含む");
+                    //     //     }
+                    //     // }
+                    //     text.text = label;
+                    //     var font = Resources.FindObjectsOfTypeAll<TMP_FontAsset>()
+                    //         .FirstOrDefault(f => f.name == "Orbitron SDF 1");
+
+                    //     if (font != null)
+                    //     {
+                    //         text.font = font;
+                    //         Plugin.Log?.Info($"ApplyAlphaButtonCosmetics: applied font to button {ch}");
+                    //     }
+                    //     else
+                    //     {
+                    //         Plugin.Log?.Warn($"ApplyAlphaButtonCosmetics: font not found for button {ch}");
+                    //     }
+                    //     text.text = label;
+                    //     // 念のためTransformをリセット
+                    //     var rect = text.GetComponent<RectTransform>();
+                    //     rect.localRotation = Quaternion.identity;
+                    //     rect.localScale = Vector3.one;
+                    //     rect.anchoredPosition3D = Vector3.zero;
+
+                    //     Plugin.Log?.Info($"ApplyAlphaButtonCosmetics: setting button {ch} label='{label}'");
+                    //     text.text = label;
+                    // }   
                 }
                 catch { /* 個別のボタン処理失敗は無視して続行 */ }
             }
