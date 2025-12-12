@@ -1,24 +1,30 @@
 ﻿<modal id="modal" size-delta-x="130" size-delta-y="110" anchor-pos-y="25">
-  <vertical spacing="0.5" pad="1">
-    <horizontal child-expand-width="true" pad-top="0">
+  <vertical spacing="0.5" pad="0" pref-height="40">
+    <horizontal child-expand-width="true" pad-top="1" pref-height="10">
       <text text="Map Memo" align="Left" font-size="4.5" />
       <!-- 更新日時をメモ表示エリアの上に表示 -->
       <text id ="last-updated" text="" font-size="3.5" color="#888888" align="Right" />
     </horizontal>
     <!-- メモ表示エリア(スクロール可能) -->
-    <scroll-view pref-height="6" pref-width="90">
-      <vertical>
-        <text id="memoText" text="~memo" align="TopLeft" font-size="3" 
-          enable-word-wrapping="true" rich-text="false" />
-      </vertical>
-    </scroll-view>
+    <vertical pref-height="30" pad-top="1">
+      <!-- スクロールビュー本体 -->
+      <scroll-view pref-height="30" pad-top="0" pref-width="90">
+        <vertical>
+          <text id="memoText" text="~memo" align="TopLeft" font-size="3"
+            enable-word-wrapping="true" rich-text="false" />
+        </vertical>
+      </scroll-view>
+    </vertical>
     <!-- <text text="────────────────────────────────────────────────────────────" font-size="2" align="Center" /> -->
     <!-- タブ切り替えキーボード -->
-    <!-- <tab-selector tab-tag="keyboard-tabs" pref-height="8"/>-->
-    <tab tags="keyboard-tabs" tab-name="ABC" > 
-      <vertical spacing="2" pad="2" pref-height="64" anchor-pos-y="5">
+    <vertical pref-height="10">
+      <tab-select tab-tag='keyboard-tabs' pad-top="1" anchor-pos-y='0' size-delta-y='10' size-delta-x='-10' child-expand-width='true'/>
+    </vertical>
+    <vertical pref-height="30">
+    <tab tags="keyboard-tabs" tab-name="ABC" child-align='TopCenter'> 
+      <vertical spacing="0.5" child-force-expand-height="false">
       <!-- 英字キーボード -->
-      <horizontal spacing="1">
+      <horizontal spacing="0.5">
         <clickable-text text="A" id="char-A" on-click="on-char-A" pref-width="6" pref-height="5"/>
         <clickable-text text="B" id="char-B" on-click="on-char-B" pref-width="6" pref-height="5"/>
         <clickable-text text="C" id="char-C" on-click="on-char-C" pref-width="6" pref-height="5"/>
@@ -29,9 +35,12 @@
         <clickable-text text="H" id="char-H" on-click="on-char-H" pref-width="6" pref-height="5"/>
         <clickable-text text="I" id="char-I" on-click="on-char-I" pref-width="6" pref-height="5"/>
         <clickable-text text="J" id="char-J" on-click="on-char-J" pref-width="6" pref-height="5"/>
-        <button text="Space" on-click="on-char-space" pref-width="20" />
+        <button text="7" on-click="on-char-7" pref-width="6" pref-height="6"/>
+        <button text="8" on-click="on-char-8" pref-width="6" pref-height="6"/>
+        <button text="9" on-click="on-char-9" pref-width="6" pref-height="6"/>
+        <button text="Space" on-click="on-char-space" pref-width="15" />
       </horizontal>
-      <horizontal spacing="1">
+      <horizontal spacing="0.5">
         <clickable-text text="K" id="char-K" on-click="on-char-K" pref-width="6" pref-height="5"/>
         <clickable-text text="L" id="char-L" on-click="on-char-L" pref-width="6" pref-height="5"/>
         <clickable-text text="M" id="char-M" on-click="on-char-M" pref-width="6" pref-height="5"/>
@@ -42,9 +51,12 @@
         <clickable-text text="R" id="char-R" on-click="on-char-R" pref-width="6" pref-height="5"/>
         <clickable-text text="S" id="char-S" on-click="on-char-S" pref-width="6" pref-height="5"/>
         <clickable-text text="T" id="char-T" on-click="on-char-T" pref-width="6" pref-height="5"/>
+        <button text="4" on-click="on-char-4" pref-width="6" pref-height="6"/>
+        <button text="5" on-click="on-char-5" pref-width="6" pref-height="6"/>
+        <button text="6" on-click="on-char-6" pref-width="6" pref-height="6"/>
         <button text="Del" on-click="on-char-backspace" pref-width="15" />
       </horizontal>
-      <horizontal spacing="1">
+      <horizontal spacing="0.5">
         <clickable-text text="U" id="char-U" on-click="on-char-U" pref-width="6" pref-height="5"/>
         <clickable-text text="V" id="char-V" on-click="on-char-V" pref-width="6" pref-height="5"/>
         <clickable-text text="W" id="char-W" on-click="on-char-W" pref-width="6" pref-height="5"/>
@@ -55,42 +67,154 @@
         <button text="." on-click="on-char-period" pref-width="6" pref-height="5"/>
         <button text="!" on-click="on-char-exclam" pref-width="6" pref-height="5"/>
         <button text="?" on-click="on-char-question" pref-width="6" pref-height="5"/>
+        <button text="1" on-click="on-char-1" pref-width="6" pref-height="6" />
+        <button text="2" on-click="on-char-2" pref-width="6" pref-height="6"/>
+        <button text="3" on-click="on-char-3" pref-width="6" pref-height="6"/>
         <button text="⏎" on-click="on-char-newline" pref-width="15" />
       </horizontal>
-      <!-- 数字-->
-      <horizontal spacing="1">
-        <button text="0" on-click="on-char-0" pref-width="8" pref-height="5"/>
-        <button text="1" on-click="on-char-1" pref-width="8" pref-height="5" />
-        <button text="2" on-click="on-char-2" pref-width="8" pref-height="5"/>
-        <button text="3" on-click="on-char-3" pref-width="8" pref-height="5"/>
-        <button text="4" on-click="on-char-4" pref-width="8" pref-height="5"/>
-        <button text="5" on-click="on-char-5" pref-width="8" pref-height="5"/>
-        <button text="6" on-click="on-char-6" pref-width="8" pref-height="5"/>
-        <button text="7" on-click="on-char-7" pref-width="8" pref-height="5"/>
-        <button text="8" on-click="on-char-8" pref-width="8" pref-height="5"/>
-        <button text="9" on-click="on-char-9" pref-width="8" pref-height="5"/>
+      <horizontal spacing="0.5">
+        <button text="-" on-click="on-char-hyphen" pref-width="6" pref-height="6"/>
+        <button text="/" on-click="on-char-slash" pref-width="6" pref-height="6"/>
+        <button text=":" on-click="on-char-colon" pref-width="6" pref-height="6"/>
+        <button text=";" on-click="on-char-semicolon" pref-width="6" pref-height="6"/>
+        <button text="(" on-click="on-char-lparen" pref-width="6" pref-height="6"/>
+        <button text=")" on-click="on-char-rparen" pref-width="6" pref-height="6"/>
+        <button text="&amp;" on-click="on-char-ampersand" pref-width="6" pref-height="6"/>
+        <button text="@" on-click="on-char-at" pref-width="6" pref-height="6"/>
+        <button text="#" on-click="on-char-hash" pref-width="6" pref-height="6"/>
+        <button text="+" on-click="on-char-plus" pref-width="6" pref-height="6"/>
+        <button text="0" on-click="on-char-0" pref-width="12" pref-height="6"/>
         <button text="SHIFT" on-click="on-char-shift" pref-width="15" />
       </horizontal>
-      <horizontal spacing="1">
-        <button text="-" on-click="on-char-hyphen" pref-width="8" pref-height="5"/>
-        <button text="/" on-click="on-char-slash" pref-width="8" pref-height="5"/>
-        <button text=":" on-click="on-char-colon" pref-width="8" pref-height="5"/>
-        <button text=";" on-click="on-char-semicolon" pref-width="8" pref-height="5"/>
-        <button text="(" on-click="on-char-lparen" pref-width="8" pref-height="5"/>
-        <button text=")" on-click="on-char-rparen" pref-width="8" pref-height="5"/>
-        <button text="&amp;" on-click="on-char-ampersand" pref-width="8" pref-height="5"/>
-        <button text="@" on-click="on-char-at" pref-width="8" pref-height="5"/>
-        <button text="#" on-click="on-char-hash" pref-width="8" pref-height="5"/>
-        <button text="+" on-click="on-char-plus" pref-width="8" pref-height="5"/>
-      </horizontal>
-      <!--
-      <horizontal spacing="2" pad-top="1">
-      </horizontal>
-      -->
       </vertical>
     </tab>
+    <!-- <tab tags="keyboard-tabs" tab-name="テ" child-align='TopCenter'>
+      <vertical anchor-pos-y="5">
+        <horizontal spacing="0.5">
+      <vertical spacing="0.5">
+        <button text="!" on-click="on-char-exclam" pref-width="6" pref-height="5"/>
+        <clickable-text text="Q" id="char-Q" on-click="on-char-Q" pref-width="6" pref-height="5"/>
+        <clickable-text text="A" id="char-A" on-click="on-char-A" pref-width="6" pref-height="5"/>
+        <clickable-text text="Z" id="char-Z" on-click="on-char-Z" pref-width="6" pref-height="5"/>
+        <button text="" on-click="" pref-width="6" pref-height="5" />
+      </vertical>
+      <vertical spacing="0.5">
+        <button text="&quot;" on-click="" pref-width="6" pref-height="5" />
+        <clickable-text text="W" id="char-W" on-click="on-char-W" pref-width="6" pref-height="5"/>
+        <clickable-text text="S" id="char-S" on-click="on-char-S" pref-width="6" pref-height="5"/>
+        <clickable-text text="X" id="char-X" on-click="on-char-X" pref-width="6" pref-height="5"/>
+        <button text="@" on-click="on-char-at" pref-width="6" pref-height="6"/>
+      </vertical>
+      <vertical spacing="0.5">
+        <button text="#" on-click="on-char-hash" pref-width="6" pref-height="6"/>
+        <clickable-text text="E" id="char-E" on-click="on-char-E" pref-width="6" pref-height="5"/>
+        <clickable-text text="D" id="char-D" on-click="on-char-D" pref-width="6" pref-height="5"/>
+        <clickable-text text="C" id="char-C" on-click="on-char-C" pref-width="6" pref-height="5"/>
+        <button text="" on-click="" pref-width="6" pref-height="5" />
+      </vertical>
+      <vertical spacing="0.5">
+        <button text="$" on-click="" pref-width="6" pref-height="5" />
+        <clickable-text text="R" id="char-R" on-click="on-char-R" pref-width="6" pref-height="5"/>
+        <clickable-text text="F" id="char-F" on-click="on-char-F" pref-width="6" pref-height="5"/>
+        <clickable-text text="V" id="char-V" on-click="on-char-V" pref-width="6" pref-height="5"/>
+        <button text="" on-click="" pref-width="6" pref-height="5" />
+      </vertical>
+      <vertical spacing="0.5">
+        <button text="%" on-click="" pref-width="6" pref-height="5" />
+        <clickable-text text="T" id="char-T" on-click="on-char-T" pref-width="6" pref-height="5"/>
+        <clickable-text text="G" id="char-G" on-click="on-char-G" pref-width="6" pref-height="5"/>
+        <clickable-text text="B" id="char-B" on-click="on-char-B" pref-width="6" pref-height="5"/>
+        <button text="" on-click="" pref-width="6" pref-height="5" />
+      </vertical>
+      <vertical spacing="0.5">
+        <button text="&amp;" on-click="on-char-ampersand" pref-width="6" pref-height="6"/>
+        <clickable-text text="Y" id="char-Y" on-click="on-char-Y" pref-width="6" pref-height="5"/>
+        <clickable-text text="H" id="char-H" on-click="on-char-H" pref-width="6" pref-height="5"/>
+        <clickable-text text="N" id="char-N" on-click="on-char-N" pref-width="6" pref-height="5"/>
+        <button text="" on-click="" pref-width="6" pref-height="5" />
+      </vertical>
+      <vertical spacing="0.5">
+        <button text="わ" on-click="on-char-wa" pref-width="6" pref-height="5" />
+        <button text="" pref-width="6" pref-height="5" />
+        <button text="" pref-width="6" pref-height="5" />
+        <button text="を" on-click="on-char-wo" pref-width="6" pref-height="5" />
+        <button text="ん" on-click="on-char-n" pref-width="6" pref-height="5" />
+      </vertical>
+      <vertical spacing="0.5">
+        <button text="ら" on-click="on-char-ra" pref-width="6" pref-height="5" />
+        <button text="り" on-click="on-char-ri" pref-width="6" pref-height="5" />
+        <button text="る" on-click="on-char-ru" pref-width="6" pref-height="5" />
+        <button text="れ" on-click="on-char-re" pref-width="6" pref-height="5" />
+        <button text="ろ" on-click="on-char-ro" pref-width="6" pref-height="5" />
+      </vertical>
+      <vertical spacing="0.5">
+        <button text="や" on-click="on-char-ya" pref-width="6" pref-height="5" />
+        <button text="" pref-width="6" pref-height="5" />
+        <button text="ゆ" on-click="on-char-yu" pref-width="6" pref-height="5" />
+        <button text="" pref-width="6" pref-height="5" />
+        <button text="よ" on-click="on-char-yo" pref-width="6" pref-height="5" />
+      </vertical>
+      <vertical spacing="0.5">
+        <button text="ま" on-click="on-char-ma" pref-width="6" pref-height="5" />
+        <button text="み" on-click="on-char-mi" pref-width="6" pref-height="5" />
+        <button text="む" on-click="on-char-mu" pref-width="6" pref-height="5" />
+        <button text="め" on-click="on-char-me" pref-width="6" pref-height="5" />
+        <button text="も" on-click="on-char-mo" pref-width="6" pref-height="5" />
+      </vertical>
+      <vertical spacing="0.5">
+        <button text="は" on-click="on-char-ha" pref-width="6" pref-height="5" />
+        <button text="ひ" on-click="on-char-hi" pref-width="6" pref-height="5" />
+        <button text="ふ" on-click="on-char-fu" pref-width="6" pref-height="5" />
+        <button text="へ" on-click="on-char-he" pref-width="6" pref-height="5" />
+        <button text="ほ" on-click="on-char-ho" pref-width="6" pref-height="5" />
+      </vertical>
+      <vertical spacing="0.5">
+        <button text="な" on-click="on-char-na" pref-width="6" pref-height="5" />
+        <button text="に" on-click="on-char-ni" pref-width="6" pref-height="5" />
+        <button text="ぬ" on-click="on-char-nu" pref-width="6" pref-height="5" />
+        <button text="ね" on-click="on-char-ne" pref-width="6" pref-height="5" />
+        <button text="の" on-click="on-char-no" pref-width="6" pref-height="5" />
+      </vertical>
+      <vertical spacing="0.5">
+        <button text="た" on-click="on-char-ta" pref-width="6" pref-height="5" />
+        <button text="ち" on-click="on-char-chi" pref-width="6" pref-height="5" />
+        <button text="つ" on-click="on-char-tsu" pref-width="6" pref-height="5" />
+        <button text="て" on-click="on-char-te" pref-width="6" pref-height="5" />
+        <button text="と" on-click="on-char-to" pref-width="6" pref-height="5" />
+      </vertical>
+      <vertical spacing="0.5">
+        <button text="さ" on-click="on-char-sa" pref-width="6" pref-height="5" />
+        <button text="し" on-click="on-char-shi" pref-width="6" pref-height="5" />
+        <button text="す" on-click="on-char-su" pref-width="6" pref-height="5" />
+        <button text="せ" on-click="on-char-se" pref-width="6" pref-height="5" />
+        <button text="そ" on-click="on-char-so" pref-width="6" pref-height="5" />
+      </vertical>
+      <vertical spacing="0.5">
+        <button text="か" on-click="on-char-ka" pref-width="6" pref-height="5" />
+        <button text="き" on-click="on-char-ki" pref-width="6" pref-height="5" />
+        <button text="く" on-click="on-char-ku" pref-width="6" pref-height="5" />
+        <button text="け" on-click="on-char-ke" pref-width="6" pref-height="5" />
+        <button text="こ" on-click="on-char-ko" pref-width="6" pref-height="5" />
+      </vertical>
+      <vertical spacing="0.5">
+        <button text="あ" on-click="on-char-a" pref-width="6" pref-height="5" />
+        <button text="い" on-click="on-char-i" pref-width="6" pref-height="5" />
+        <button text="う" on-click="on-char-u" pref-width="6" pref-height="5" />
+        <button text="え" on-click="on-char-e" pref-width="6" pref-height="5" />
+        <button text="お" on-click="on-char-o" pref-width="6" pref-height="5" />
+      </vertical>
+      <vertical spacing="1">
+        <button text="Space" on-click="on-char-space" pref-width="20" />
+        <button text="Del" on-click="on-char-backspace" pref-width="15" />
+        <button text="⏎" on-click="on-char-newline" pref-width="15" />
+      </vertical>
+    </horizontal>
+      </vertical>
+    </tab> -->
+
+
     <tab tags="keyboard-tabs" tab-name="あ" child-align='TopCenter'>
-      <vertical pref-height="64" anchor-pos-y="5">
+      <vertical anchor-pos-y="0">
         <horizontal spacing="0.5">
         <!-- 左端: 小文字・長音列 → 濁点列（ぱ/ば/だ/ざ/が） → 基本行（わ→ら→や→ま→は→な→た→さ→か→あ） -->
         <!-- 小文字・長音列 -->
@@ -219,7 +343,7 @@
     </tab>
 
     <tab tags="keyboard-tabs" tab-name="ア" child-align='TopCenter'>
-      <vertical pref-height="64" anchor-pos-y="5">
+      <vertical anchor-pos-y="0">
         <horizontal spacing="0.5">
       <!-- 左端: 小文字/長音 → 濁点列（パ/バ/ダ/ザ/ガ） → 基本行（ワ→ラ→ヤ→マ→ハ→ナ→タ→サ→カ→ア） -->
       <!-- 小文字・長音列 -->
@@ -346,7 +470,8 @@
     </horizontal>
       </vertical>
     </tab>
-    <tab-select tab-tag='keyboard-tabs' anchor-pos-y='0' size-delta-y='10' size-delta-x='-10' child-expand-width='true'/>
+    </vertical>
+    <!-- <tab-select tab-tag='keyboard-tabs' pad-top="1" anchor-pos-y='0' size-delta-y='20' size-delta-x='-10' child-expand-width='true'/> -->
     <!--
     <text text="────────────────────────────────────────────────────────────" font-size="2" align="Center" />
     -->
@@ -361,7 +486,7 @@
     <text text="────────────────────────────────────────────────────────────" font-size="2" align="Center" />
     -->
     <!-- Save/Closeボタン（最下部） -->
-    <horizontal spacing="4" pad-top="1">
+    <horizontal spacing="4" pad-top="1" pref-height="30">
       <button text="Save" on-click="on-save" pref-width="20" />
       <button text="Close" on-click="on-cancel" pref-width="20" />
     </horizontal>

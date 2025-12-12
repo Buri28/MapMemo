@@ -240,10 +240,12 @@ namespace MapMemo.UI
             if (entry == null)
             {
                 MapMemo.Plugin.Log?.Info("MemoPanel: No memo entry found for key='" + Key + "'");
-                penText.color = Color.white;
+                penText.color = Color.cyan;
+                penText.faceColor = Color.cyan;
+                penText.HighlightColor = Color.green;
                 penText.text = "　🖊";
-                penText.alpha = 0.5f;
-                SetHoverHint(penText.gameObject, "メモを追加");
+                penText.fontStyle = FontStyles.Bold;
+                SetHoverHint(penText.gameObject, "Add Memo");
             }
             else
             {
@@ -251,6 +253,9 @@ namespace MapMemo.UI
 
                 penText.text = "　📝";
                 penText.color = Color.yellow;
+                penText.outlineColor = Color.white;
+                penText.faceColor = Color.yellow;
+                penText.HighlightColor = Color.green;
                 penText.fontStyle = FontStyles.Bold;
 
                 var button = penText.GetComponentInParent<UnityEngine.UI.Button>();

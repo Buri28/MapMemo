@@ -41,6 +41,9 @@ namespace MapMemo.UI.Patches
             {
                 if (method.Name == "SetData")
                 {
+                    //1.public void SetData(BeatmapLevel beatmapLevel, bool hidePracticeButton, string playButtonText, BeatmapDifficultyMask allowedBeatmapDifficultyMask, BeatmapCharacteristicSO[] notAllowedCharacteristics) 
+                    //2.public void SetData(BeatmapLevelPack pack, BeatmapLevel beatmapLevel, bool hidePracticeButton, bool canBuyPack, string playButtonText, BeatmapDifficultyMask allowedBeatmapDifficultyMask, BeatmapCharacteristicSO[] notAllowedCharacteristics)
+                    // 1から2が呼ばれるため、2のみパッチを当てる　1.39.1では1は呼ばれない
                     var parameters = method.GetParameters();
                     if (parameters.Length == 7 &&
                         parameters[0].ParameterType.Name == "BeatmapLevelPack" &&
