@@ -10,8 +10,9 @@ namespace MapMemo.UI
     {
         //private static MemoPanelController currentPanel;
         public static async Task OnSongSelected(
-            StandardLevelDetailView view, string key, string songName, string songAuthor)
+            MonoBehaviour view, string key, string songName, string songAuthor)
         {
+            // viewはStandardLevelDetailViewを想定
             Plugin.Log?.Info($"SelectionHook: OnSongSelected parent='{view?.name}' key='{key}' song='{songName}' author='{songAuthor}'");
             if (view == null) return;
 

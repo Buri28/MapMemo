@@ -7,15 +7,7 @@ using UnityEngine.UI;
 
 namespace MapMemo.UI.Patches
 {
-    [HarmonyPatch(typeof(StandardLevelDetailViewController))]
-    [HarmonyPatch("SetData")]
-    [HarmonyPatch(new Type[] {
-        typeof(BeatmapLevel),
-        typeof(bool),
-        typeof(string),
-        typeof(BeatmapDifficultyMask),
-        typeof(BeatmapCharacteristicSO[])
-    })]
+
     public class StandardLevelDetailViewController_SetData_Patch
     {
         /// <summary>
@@ -23,14 +15,16 @@ namespace MapMemo.UI.Patches
         /// </summary>
         /// <param name="__instance"></param>
         /// <param name="beatmapLevel"></param>
-        public static void Postfix(
-            StandardLevelDetailViewController __instance,
-            BeatmapLevel beatmapLevel)
+        public static void Postfix(object __instance, object beatmapLevel)
         {
-            string songName = beatmapLevel.songName;
-            string songAuthor = beatmapLevel.songAuthorName;
-            string levelId = beatmapLevel.levelID;
-            Plugin.Log?.Info($"SetData called with level: {beatmapLevel.songName} by {beatmapLevel.songAuthorName}, ID: {beatmapLevel.levelID}");
+            //var viewController = __instance as StandardLevelDetailViewController;
+            var mapLevel = beatmapLevel as BeatmapLevel;
+
+
+            string songName = mapLevel.songName;
+            string songAuthor = mapLevel.songAuthorName;
+            string levelId = mapLevel.levelID;
+            Plugin.Log?.Info($"SetData called with level: {mapLevel.songName} by {mapLevel.songAuthorName}, ID: {mapLevel.levelID}");
 
             // 詳細画面のViewを取得
             var field = typeof(StandardLevelDetailViewController)
