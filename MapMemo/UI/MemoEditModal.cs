@@ -37,12 +37,14 @@ namespace MapMemo.UI
         [UIValue("memo")] private string memo = "";
         [UIComponent("modal")] private ModalView modal;
         [UIComponent("memoText")] private TextMeshProUGUI memoText;
-        [UIComponent("scroll-view")] private ScrollView scrollView;
         private string confirmedText = "";
         private string pendingText = "";
         [UIComponent("last-updated")] private TextMeshProUGUI lastUpdated;
 
         [UIComponent("suggestion-list")] private CustomListTableData suggestionList;
+
+        // ① 辞書語リスト（キー: 検索キー, 値: 表示する値、重複排除・順序保持）
+        private List<KeyValuePair<string, string>> dictionaryWords = new List<KeyValuePair<string, string>>();
         // [UIComponent("char-A")] private ClickableText charAButton;
         // [UIComponent("char-B")] private ClickableText charBBpickListutton;
         // [UIComponent("char-C")] private ClickableText charCButton;
@@ -256,6 +258,7 @@ namespace MapMemo.UI
                         typeof(MemoEditModal).Assembly,
                         "MapMemo.Resources.MemoEdit.bsml"),
                         parent.HostGameObject);
+                LoadDictionaryWords();
             }
             // Instance.parentPanel = parent;
             Instance.key = key;
@@ -275,6 +278,49 @@ namespace MapMemo.UI
             // A〜Z ボタンの見た目を整えるヘルパーを呼び出す
             ApplyAlphaButtonCosmetics(Instance);
             return Instance;
+        }
+
+        private static void LoadDictionaryWords()
+        {
+            // ① UserData\MapMemo\#dictionary.txt を読み込む（キー,値形式）
+            try
+            {
+                string dictPath = System.IO.Path.Combine(UnityEngine.Application.dataPath, "..", "UserData", "MapMemo", "#dictionary.txt");
+                dictPath = System.IO.Path.GetFullPath(dictPath);
+                if (System.IO.File.Exists(dictPath))
+                {
+                    var lines = System.IO.File.ReadAllLines(dictPath)
+                        .Select(x => x.Trim())
+                        .Where(x => !string.IsNullOrEmpty(x));
+                    Instance.dictionaryWords = new List<KeyValuePair<string, string>>();
+                    foreach (var line in lines)
+                    {
+                        var parts = line.Split(new[] { ',' }, 2);
+                        string key, value;
+                        if (parts.Length == 2)
+                        {
+                            key = parts[0].Trim();
+                            value = parts[1].Trim();
+                        }
+                        else
+                        {
+                            key = value = line.Trim();
+                        }
+                        Instance.dictionaryWords.Add(new KeyValuePair<string, string>(key, value));
+                    }
+                    Plugin.Log?.Info($"MemoEditModal: Loaded {Instance.dictionaryWords.Count} dictionary entries.");
+                }
+                else
+                {
+                    Plugin.Log?.Warn($"MemoEditModal: Dictionary file not found: {dictPath}");
+                    Instance.dictionaryWords = new List<KeyValuePair<string, string>>();
+                }
+            }
+            catch (Exception ex)
+            {
+                    Plugin.Log?.Error($"MemoEditModal: Failed to load dictionary file: {ex.Message}");
+                Instance.dictionaryWords = new List<KeyValuePair<string, string>>();
+            }
         }
 
         [UIAction("#post-parse")]
@@ -455,13 +501,17 @@ namespace MapMemo.UI
         // かなキーボードの入力処理
         private void AppendSelectedString(string s)
         {
+            pendingText = "";
+            memo = confirmedText;
             foreach (var ch in s)
             {
-                Append(ch.ToString());
+                Append(ch.ToString(), false);
             }
+            // 確定処理
+            CommitMemo();
         }
 
-        private void Append(string s)
+        private void Append(string s, bool isSuggestUpdate=true)
         {
             if (string.IsNullOrEmpty(s)) return;
             if (memo == null) memo = "";
@@ -469,7 +519,7 @@ namespace MapMemo.UI
 
             // 未確定文字を削除して確定文字に設定
             confirmedText = memo.Replace(GetPendingText(), "");
-            
+
             int maxLines = 3;
             int maxCharsPerLine = 20;
             if (s == "\n")
@@ -480,7 +530,7 @@ namespace MapMemo.UI
                     return;
                 }
             }
-            
+
             if (GetLastLineLength(confirmedText + pendingText + s) > maxCharsPerLine)
             {
                 // 3文字超過する場合、改行も追加もしない
@@ -493,8 +543,13 @@ namespace MapMemo.UI
             }
             // 未確定文字列に追加
             pendingText += s;
-            
+
             memo = confirmedText + GetPendingText();
+
+            if(isSuggestUpdate)
+            {
+                UpdateSuggestions();
+            }
 
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.Append: len-after={memo.Length}");
             NotifyPropertyChanged("memo");
@@ -503,6 +558,24 @@ namespace MapMemo.UI
                 memoText.text = memo;
                 memoText.ForceMeshUpdate();
             }
+        }
+
+        private void UpdateSuggestions()
+        {
+            // ② サジェスト更新処理（キーで前方一致し値を表示）
+            string search = pendingText;
+            suggestionList.Data.Clear();
+            if (!string.IsNullOrEmpty(search) && search != ",")
+            {
+                var matches = dictionaryWords.Where(pair => pair.Key.StartsWith(search)).ToList();
+                var seenValues = new HashSet<string>();
+                foreach (var pair in matches)
+                {
+                    if (seenValues.Add(pair.Value))
+                        suggestionList.Data.Add(new CustomListTableData.CustomCellInfo(pair.Value));
+                }
+            }
+            suggestionList.TableView.ReloadData();
         }
 
         int GetLastLineLength(string text)
