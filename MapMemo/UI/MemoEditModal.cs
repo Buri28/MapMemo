@@ -13,6 +13,10 @@ using UnityEngine.UI;
 // Note: Avoid UnityEngine.UI dependency; use UnityEngine.Canvas explicitly
 using HMUI;
 using IPA.Config.Data;
+using System.Collections.Generic;
+using System.Collections;
+using System.Text;
+using IPA.Utilities;
 
 namespace MapMemo.UI
 {
@@ -23,6 +27,7 @@ namespace MapMemo.UI
 
         // Show() から渡された親パネル参照を保持して、保存後に正しいパネルを更新できるようにする
         // private MemoPanelController parentPanel = null;
+        private ISet<ClickableText> buttons = null;
 
         private string key;
         private string songName;
@@ -32,33 +37,207 @@ namespace MapMemo.UI
         [UIValue("memo")] private string memo = "";
         [UIComponent("modal")] private ModalView modal;
         [UIComponent("memoText")] private TextMeshProUGUI memoText;
+        [UIComponent("scroll-view")] private ScrollView scrollView;
+        private string confirmedText = "";
+        private string pendingText = "";
         [UIComponent("last-updated")] private TextMeshProUGUI lastUpdated;
-        [UIComponent("char-A")] private ClickableText charAButton;
-        [UIComponent("char-B")] private ClickableText charBButton;
-        [UIComponent("char-C")] private ClickableText charCButton;
-        [UIComponent("char-D")] private ClickableText charDButton;
-        [UIComponent("char-E")] private ClickableText charEButton;
-        [UIComponent("char-F")] private ClickableText charFButton;
-        [UIComponent("char-G")] private ClickableText charGButton;
-        [UIComponent("char-H")] private ClickableText charHButton;
-        [UIComponent("char-I")] private ClickableText charIButton;
-        [UIComponent("char-J")] private ClickableText charJButton;
-        [UIComponent("char-K")] private ClickableText charKButton;
-        [UIComponent("char-L")] private ClickableText charLButton;
-        [UIComponent("char-M")] private ClickableText charMButton;
-        [UIComponent("char-N")] private ClickableText charNButton;
-        [UIComponent("char-O")] private ClickableText charOButton;
-        [UIComponent("char-P")] private ClickableText charPButton;
-        [UIComponent("char-Q")] private ClickableText charQButton;
-        [UIComponent("char-R")] private ClickableText charRButton;
-        [UIComponent("char-S")] private ClickableText charSButton;
-        [UIComponent("char-T")] private ClickableText charTButton;
-        [UIComponent("char-U")] private ClickableText charUButton;
-        [UIComponent("char-V")] private ClickableText charVButton;
-        [UIComponent("char-W")] private ClickableText charWButton;
-        [UIComponent("char-X")] private ClickableText charXButton;
-        [UIComponent("char-Y")] private ClickableText charYButton;
-        [UIComponent("char-Z")] private ClickableText charZButton;
+
+        [UIComponent("suggestion-list")] private CustomListTableData suggestionList;
+        // [UIComponent("char-A")] private ClickableText charAButton;
+        // [UIComponent("char-B")] private ClickableText charBBpickListutton;
+        // [UIComponent("char-C")] private ClickableText charCButton;
+        // [UIComponent("char-D")] private ClickableText charDButton;
+        // [UIComponent("char-E")] private ClickableText charEButton;
+        // [UIComponent("char-F")] private ClickableText charFButton;
+        // [UIComponent("char-G")] private ClickableText charGButton;
+        // [UIComponent("char-H")] private ClickableText charHButton;
+        // [UIComponent("char-I")] private ClickableText charIButton;
+        // [UIComponent("char-J")] private ClickableText charJButton;
+        // [UIComponent("char-K")] private ClickableText charKButton;
+        // [UIComponent("char-L")] private ClickableText charLButton;
+        // [UIComponent("char-M")] private ClickableText charMButton;
+        // [UIComponent("char-N")] private ClickableText charNButton;
+        // [UIComponent("char-O")] private ClickableText charOButton;
+        // [UIComponent("char-P")] private ClickableText charPButton;
+        // [UIComponent("char-Q")] private ClickableText charQButton;
+        // [UIComponent("char-R")] private ClickableText charRButton;
+        // [UIComponent("char-S")] private ClickableText charSButton;
+        // [UIComponent("char-T")] private ClickableText charTButton;
+        // [UIComponent("char-U")] private ClickableText charUButton;
+        // [UIComponent("char-V")] private ClickableText charVButton;
+        // [UIComponent("char-W")] private ClickableText charWButton;
+        // [UIComponent("char-X")] private ClickableText charXButton;
+        // [UIComponent("char-Y")] private ClickableText charYButton;
+        // [UIComponent("char-Z")] private ClickableText charZButton;
+        // [UIComponent("char-0")] private ClickableText char0Button;
+        // [UIComponent("char-1")] private ClickableText char1Button;
+        // [UIComponent("char-2")] private ClickableText char2Button;
+        // [UIComponent("char-3")] private ClickableText char3Button;
+        // [UIComponent("char-4")] private ClickableText char4Button;
+        // [UIComponent("char-5")] private ClickableText char5Button;
+        // [UIComponent("char-6")] private ClickableText char6Button;
+        // [UIComponent("char-7")] private ClickableText char7Button;
+        // [UIComponent("char-8")] private ClickableText char8Button;
+        // [UIComponent("char-9")] private ClickableText char9Button;
+        // [UIComponent("char-comma")] private ClickableText charCommaButton;
+        // [UIComponent("char-period")] private ClickableText charPeriodButton;
+        // [UIComponent("char-exclam")] private ClickableText charExclamButton;
+        // [UIComponent("char-question")] private ClickableText charQuestionButton;
+        // [UIComponent("char-hyphen")] private ClickableText charHyphenButton;
+        // [UIComponent("char-slash")] private ClickableText charSlashButton;
+        // [UIComponent("char-colon")] private ClickableText charColonButton;
+        // [UIComponent("char-semicolon")] private ClickableText charSemicolonButton;
+        // [UIComponent("char-lparen")] private ClickableText charLParenButton;
+        // [UIComponent("char-rparen")] private ClickableText charRParenButton;
+        // [UIComponent("char-ampersand")] private ClickableText charAmpersandButton;
+        // [UIComponent("char-at")] private ClickableText charAtButton;
+        // [UIComponent("char-hash")] private ClickableText charHashButton;
+        // [UIComponent("char-plus")] private ClickableText charPlusButton;
+        // // ひらがなキー
+        // [UIComponent("char-a")] private ClickableText charHiraAButton;
+        // [UIComponent("char-i")] private ClickableText charHiraIButton;
+        // [UIComponent("char-u")] private ClickableText charHiraUButton;
+        // [UIComponent("char-e")] private ClickableText charHiraEButton;
+        // [UIComponent("char-o")] private ClickableText charHiraOButton;
+
+        // [UIComponent("char-ka")] private ClickableText charHiraKaButton;
+        // [UIComponent("char-ki")] private ClickableText charHiraKiButton;
+        // [UIComponent("char-ku")] private ClickableText charHiraKuButton;
+        // [UIComponent("char-ke")] private ClickableText charHiraKeButton;
+        // [UIComponent("char-ko")] private ClickableText charHiraKoButton;
+
+        // [UIComponent("char-sa")] private ClickableText charHiraSaButton;
+        // [UIComponent("char-shi")] private ClickableText charHiraShiButton;
+        // [UIComponent("char-su")] private ClickableText charHiraSuButton;
+        // [UIComponent("char-se")] private ClickableText charHiraSeButton;
+        // [UIComponent("char-so")] private ClickableText charHiraSoButton;
+
+        // [UIComponent("char-ta")] private ClickableText charHiraTaButton;
+        // [UIComponent("char-chi")] private ClickableText charHiraChiButton;
+        // [UIComponent("char-tsu")] private ClickableText charHiraTsuButton;
+        // [UIComponent("char-te")] private ClickableText charHiraTeButton;
+        // [UIComponent("char-to")] private ClickableText charHiraToButton;
+
+        // [UIComponent("char-na")] private ClickableText charHiraNaButton;
+        // [UIComponent("char-ni")] private ClickableText charHiraNiButton;
+        // [UIComponent("char-nu")] private ClickableText charHiraNuButton;
+        // [UIComponent("char-ne")] private ClickableText charHiraNeButton;
+        // [UIComponent("char-no")] private ClickableText charHiraNoButton;
+
+        // [UIComponent("char-ha")] private ClickableText charHiraHaButton;
+        // [UIComponent("char-hi")] private ClickableText charHiraHiButton;
+        // [UIComponent("char-fu")] private ClickableText charHiraFuButton;
+        // [UIComponent("char-he")] private ClickableText charHiraHeButton;
+        // [UIComponent("char-ho")] private ClickableText charHiraHoButton;
+
+        // [UIComponent("char-ma")] private ClickableText charHiraMaButton;
+        // [UIComponent("char-mi")] private ClickableText charHiraMiButton;
+        // [UIComponent("char-mu")] private ClickableText charHiraMuButton;
+        // [UIComponent("char-me")] private ClickableText charHiraMeButton;
+        // [UIComponent("char-mo")] private ClickableText charHiraMoButton;
+
+        // [UIComponent("char-ya")] private ClickableText charHiraYaButton;
+        // [UIComponent("char-yu")] private ClickableText charHiraYuButton;
+        // [UIComponent("char-yo")] private ClickableText charHiraYoButton;
+        // [UIComponent("char-wa")] private ClickableText charHiraWaButton;
+        // [UIComponent("char-wo")] private ClickableText charHiraWoButton;
+
+        // [UIComponent("char-n")] private ClickableText charHiraNButton;
+        // [UIComponent("char-long")] private ClickableText charHiraLongButton;
+        // [UIComponent("char-cho")] private ClickableText charHiraChoButton;
+        // [UIComponent("char-ka-cho")] private ClickableText charHiraKaChoButton;
+        // [UIComponent("char-dot")] private ClickableText charHiraDotButton;
+
+        // // カタカナキー
+        // [UIComponent("char-ka-a")] private ClickableText charKataKaAButton;
+        // [UIComponent("char-ka-i")] private ClickableText charKataKaIButton;
+        // [UIComponent("char-ka-u")] private ClickableText charKataKaUButton;
+        // [UIComponent("char-ka-e")] private ClickableText charKataKaEButton;
+        // [UIComponent("char-ka-o")] private ClickableText charKataKaOButton;
+
+        // [UIComponent("char-ka-ka")] private ClickableText charKataKaKaButton;
+        // [UIComponent("char-ka-ki")] private ClickableText charKataKaKiButton;
+        // [UIComponent("char-ka-ku")] private ClickableText charKataKaKuButton;
+        // [UIComponent("char-ka-ke")] private ClickableText charKataKaKeButton;
+        // [UIComponent("char-ka-ko")] private ClickableText charKataKaKoButton;
+
+        // [UIComponent("char-ka-sa")] private ClickableText charKataKaSaButton;
+        // [UIComponent("char-ka-shi")] private ClickableText charKataKaShiButton;
+        // [UIComponent("char-ka-su")] private ClickableText charKataKaSuButton;
+        // [UIComponent("char-ka-se")] private ClickableText charKataKaSeButton;
+        // [UIComponent("char-ka-so")] private ClickableText charKataKaSoButton;
+
+        // [UIComponent("char-ka-ta")] private ClickableText charKataKaTaButton;
+        // [UIComponent("char-ka-chi")] private ClickableText charKataKaChiButton;
+        // [UIComponent("char-ka-tsu")] private ClickableText charKataKaTsuButton;
+        // [UIComponent("char-ka-te")] private ClickableText charKataKaTeButton;
+        // [UIComponent("char-ka-to")] private ClickableText charKataKaToButton;
+
+        // [UIComponent("char-ka-na")] private ClickableText charKataKaNaButton;
+        // [UIComponent("char-ka-ni")] private ClickableText charKataKaNiButton;
+        // [UIComponent("char-ka-nu")] private ClickableText charKataKaNuButton;
+        // [UIComponent("char-ka-ne")] private ClickableText charKataKaNeButton;
+        // [UIComponent("char-ka-no")] private ClickableText charKataKaNoButton;
+
+        // [UIComponent("char-ka-ha")] private ClickableText charKataKaHaButton;
+        // [UIComponent("char-ka-hi")] private ClickableText charKataKaHiButton;
+        // [UIComponent("char-ka-fu")] private ClickableText charKataKaFuButton;
+        // [UIComponent("char-ka-he")] private ClickableText charKataKaHeButton;
+        // [UIComponent("char-ka-ho")] private ClickableText charKataKaHoButton;
+
+        // [UIComponent("char-ka-ma")] private ClickableText charKataKaMaButton;
+        // [UIComponent("char-ka-mi")] private ClickableText charKataKaMiButton;
+        // [UIComponent("char-ka-mu")] private ClickableText charKataKaMuButton;
+        // [UIComponent("char-ka-me")] private ClickableText charKataKaMeButton;
+        // [UIComponent("char-ka-mo")] private ClickableText charKataKaMoButton;
+
+        // [UIComponent("char-ka-ya")] private ClickableText charKataKaYaButton;
+        // [UIComponent("char-ka-yu")] private ClickableText charKataKaYuButton;
+        // [UIComponent("char-ka-yo")] private ClickableText charKataKaYoButton;
+        // [UIComponent("char-ka-wa")] private ClickableText charKataKaWaButton;
+        // [UIComponent("char-ka-wo")] private ClickableText charKataKaWoButton;
+
+        // [UIComponent("char-ka-ra")] private ClickableText charKataKaRaButton;
+        // [UIComponent("char-ka-ri")] private ClickableText charKataKaRiButton;
+        // [UIComponent("char-ka-ru")] private ClickableText charKataKaRuButton;
+        // [UIComponent("char-ka-re")] private ClickableText charKataKaReButton;
+        // [UIComponent("char-ka-ro")] private ClickableText charKataKaRoButton;
+
+        // [UIComponent("char-ka-n")] private ClickableText charKataKaNButton;
+
+        // // カタカナ濁点・半濁点
+        // [UIComponent("char-ka-ga")] private ClickableText charKataKaGaButton;
+        // [UIComponent("char-ka-gi")] private ClickableText charKataKaGiButton;
+        // [UIComponent("char-ka-gu")] private ClickableText charKataKaGuButton;
+        // [UIComponent("char-ka-ge")] private ClickableText charKataKaGeButton;
+        // [UIComponent("char-ka-go")] private ClickableText charKataKaGoButton;
+        // [UIComponent("char-ka-za")] private ClickableText charKataKaZaButton;
+        // [UIComponent("char-ka-ji")] private ClickableText charKataKaJiButton;
+        // [UIComponent("char-ka-zu")] private ClickableText charKataKaZuButton;
+        // [UIComponent("char-ka-ze")] private ClickableText charKataKaZeButton;
+        // [UIComponent("char-ka-zo")] private ClickableText charKataKaZoButton;
+        // [UIComponent("char-ka-da")] private ClickableText charKataKaDaButton;
+        // [UIComponent("char-ka-di")] private ClickableText charKataKaDiButton;
+        // [UIComponent("char-ka-du")] private ClickableText charKataKaDuButton;
+        // [UIComponent("char-ka-de")] private ClickableText charKataKaDeButton;
+        // [UIComponent("char-ka-do")] private ClickableText charKataKaDoButton;
+        // [UIComponent("char-ka-ba")] private ClickableText charKataKaBaButton;
+        // [UIComponent("char-ka-bi")] private ClickableText charKataKaBiButton;
+        // [UIComponent("char-ka-bu")] private ClickableText charKataKaBuButton;
+        // [UIComponent("char-ka-be")] private ClickableText charKataKaBeButton;
+        // [UIComponent("char-ka-bo")] private ClickableText charKataKaBoButton;
+
+        // [UIComponent("char-ka-pa")] private ClickableText charKataKaPaButton;
+        // [UIComponent("char-ka-pi")] private ClickableText charKataKaPiButton;
+        // [UIComponent("char-ka-pu")] private ClickableText charKataKaPuButton;
+        // [UIComponent("char-ka-pe")] private ClickableText charKataKaPeButton;
+        // [UIComponent("char-ka-po")] private ClickableText charKataKaPoButton;
+
+        // [UIComponent("char-ka-xtu")] private ClickableText charKataKaXtuButton;
+        // [UIComponent("char-ka-xya")] private ClickableText charKataKaXyaButton;
+        // [UIComponent("char-ka-xyu")] private ClickableText charKataKaXyuButton;
+        // [UIComponent("char-ka-xyo")] private ClickableText charKataKaXyoButton;
+
 
         public static MemoEditModal GetInstance(
             MemoEntry entry,
@@ -82,16 +261,95 @@ namespace MapMemo.UI
             Instance.key = key;
             Instance.songName = songName;
             Instance.songAuthor = songAuthor;
+            // Instance.memoText.maxVisibleLines = 5;
             Instance.memo = entry?.memo ?? "";
             Instance.lastUpdated.text = entry != null ? "Updated:" + FormatLocal(entry.updatedAt) : "";
             if (Instance.memoText != null)
             {
                 Instance.memoText.text = Instance.memo;
+                Instance.confirmedText = Instance.memo;
+                Instance.pendingText = "";
+                Instance.memoText.richText = true;
                 Instance.memoText.ForceMeshUpdate();
             }
             // A〜Z ボタンの見た目を整えるヘルパーを呼び出す
             ApplyAlphaButtonCosmetics(Instance);
             return Instance;
+        }
+
+        [UIAction("#post-parse")]
+         private void OnPostParse()
+        {
+            Plugin.Log?.Info("MemoEditModal: OnPostParse called — setting up pick list");
+            suggestionList.TableView.didSelectCellWithIdxEvent += OnCellSelected;
+            suggestionList.CellSizeValue = 6f;
+            suggestionList.ExpandCell = true;
+
+            suggestionList.Data.Clear();
+            suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよわをん"));
+            suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("🦊 きつね"));
+            suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("💧 しずく"));
+            suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("💧 しずく"));
+            suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("💧 しずく"));
+            suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("💧 しずく"));
+            suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("💧 しずく"));
+            suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("💧 しずく"));
+            suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("💧 しずく"));
+            suggestionList.TableView.ReloadData();
+            
+        }
+        private void OnCellSelected(TableView tableView, int index)
+        {
+            var selected = suggestionList.Data[index];
+            Plugin.Log?.Info($"選択されたのは: {selected.Text.ToString()}");
+
+            // ここに処理を書く！
+            AppendSelectedString(selected.Text.ToString());
+        }
+// private bool _shouldSetupScroll = false;
+
+// [UIAction("#post-parse")]
+// private void OnPostParse()
+// {
+//     Plugin.Log?.Info("🍄 OnPostParse called — deferring setup to OnEnable");
+//     _shouldSetupScroll = true;
+
+//     // GameObjectがすでにアクティブなら、OnEnableはもう呼ばれないのでここで呼ぶ！
+//     if (gameObject.activeInHierarchy)
+//     {
+//         Plugin.Log?.Info("🌿 OnEnable already happened — starting coroutine now");
+//         StartCoroutine(WaitAndSetupScroll());
+//         _shouldSetupScroll = false;
+//     }
+// }
+
+
+
+// private void OnEnable()
+// {
+//     Plugin.Log?.Info("🍄 OnEnable called");
+
+//     if (_shouldSetupScroll)
+//     {
+//         Plugin.Log?.Info("🌿 Deferred scroll setup — starting now");
+//         StartCoroutine(WaitAndSetupScroll());
+//         _shouldSetupScroll = false;
+//     }
+// }
+        
+
+        private void CommitMemo()
+        {
+            // 確定処理
+            confirmedText += pendingText;
+            pendingText = "";
+            memo = confirmedText;
+            NotifyPropertyChanged("memo");
+            if (memoText != null)
+            {
+                memoText.text = memo;
+                memoText.ForceMeshUpdate();
+            }
         }
 
         /// <summary>
@@ -108,18 +366,18 @@ namespace MapMemo.UI
             var existing = MemoRepository.Load(key, songName, songAuthor);
             var modalCtrl = MemoEditModal.GetInstance(existing, parent, key, songName, songAuthor);
 
-            MapMemo.Plugin.Log?.Info("MemoEditModal.Show: reusing existing parsed modal instance");
+            Plugin.Log?.Info("MemoEditModal.Show: reusing existing parsed modal instance");
             // 表示は既にバインド済みの modal を利用して行う
             try
             {
-                MapMemo.Plugin.Log?.Info("MemoEditModal.Show: showing modal" + (ReferenceEquals(modalCtrl.modal, null) ? " modal=null" : " modal!=null"));
+                Plugin.Log?.Info("MemoEditModal.Show: showing modal" + (ReferenceEquals(modalCtrl.modal, null) ? " modal=null" : " modal!=null"));
                 modalCtrl.modal?.Show(true, true);
                 // 画面の左側半分あたりに表示するように位置調整
                 RepositionModalToLeftHalf(modalCtrl.modal);
             }
             catch (System.Exception ex)
             {
-                MapMemo.Plugin.Log?.Warn($"MemoEditModal.Show: ModalView.Show failed: {ex.Message}; modal may not be visible");
+                Plugin.Log?.Warn($"MemoEditModal.Show: ModalView.Show failed: {ex.Message}; modal may not be visible");
             }
         }
 
@@ -135,10 +393,14 @@ namespace MapMemo.UI
         {
             try
             {
-                var text = memo ?? "";
+                var text = confirmedText + pendingText ?? "";
                 //if (text.Length > 256) text = text.Substring(0, 256);
-                var entry = new MemoEntry { key = key ?? "unknown", songName = songName ?? "unknown", songAuthor = songAuthor ?? "unknown", memo = text };
-                MapMemo.Plugin.Log?.Info($"MemoEditModal.OnSave: key='{entry.key}' song='{entry.songName}' author='{entry.songAuthor}' len={text.Length}");
+                var entry = new MemoEntry { 
+                    key = key ?? "unknown", 
+                    songName = songName ?? "unknown", 
+                    songAuthor = songAuthor ?? "unknown", 
+                    memo = text };
+                Plugin.Log?.Info($"MemoEditModal.OnSave: key='{entry.key}' song='{entry.songName}' author='{entry.songAuthor}' len={text.Length}");
                 lastUpdated.text = FormatLocal(DateTime.UtcNow);
 
                 await MemoRepository.SaveAsync(entry);
@@ -147,6 +409,8 @@ namespace MapMemo.UI
 
                 // 親パネルの反映
                 var parentPanelLocal = MemoPanelController.instance;
+                // 確定状態にする
+                CommitMemo();
                 await parentPanelLocal.Refresh();
                 MapMemo.Plugin.Log?.Info("MemoEditModal.OnSave: refreshing MemoPanelController");
 
@@ -189,15 +453,50 @@ namespace MapMemo.UI
         }
 
         // かなキーボードの入力処理
+        private void AppendSelectedString(string s)
+        {
+            foreach (var ch in s)
+            {
+                Append(ch.ToString());
+            }
+        }
+
         private void Append(string s)
         {
             if (string.IsNullOrEmpty(s)) return;
             if (memo == null) memo = "";
-            if (MapMemo.Plugin.VerboseLogs) MapMemo.Plugin.Log?.Info($"MemoEditModal.Append: add='{s}' code={(int)s[0]} len-before={memo.Length}");
-            var appended = memo + s;
-            if (appended.Length > 256) appended = appended.Substring(0, 256);
-            memo = appended;
-            if (MapMemo.Plugin.VerboseLogs) MapMemo.Plugin.Log?.Info($"MemoEditModal.Append: len-after={memo.Length}");
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.Append: add='{s}' len-before={memo.Length}");
+
+            // 未確定文字を削除して確定文字に設定
+            confirmedText = memo.Replace(GetPendingText(), "");
+            
+            int maxLines = 3;
+            int maxCharsPerLine = 20;
+            if (s == "\n")
+            {
+                // 改行の場合、3行を超過しない
+                if (isOverMaxLine(confirmedText + pendingText + s, maxLines))
+                {
+                    return;
+                }
+            }
+            
+            if (GetLastLineLength(confirmedText + pendingText + s) > maxCharsPerLine)
+            {
+                // 3文字超過する場合、改行も追加もしない
+                if (isOverMaxLine(confirmedText + pendingText + s, maxLines))
+                {
+                    return;
+                }
+                // 最大文字数を超過する場合は強制改行を挿入
+                s = "\n" + s;
+            }
+            // 未確定文字列に追加
+            pendingText += s;
+            
+            memo = confirmedText + GetPendingText();
+
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.Append: len-after={memo.Length}");
             NotifyPropertyChanged("memo");
             if (memoText != null)
             {
@@ -206,12 +505,35 @@ namespace MapMemo.UI
             }
         }
 
+        int GetLastLineLength(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return 0;
+
+            var lines = text.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
+            var lastLine = lines.LastOrDefault() ?? "";
+            return lastLine.Length;
+        }
+
+        private bool isOverMaxLine(string text, int maxLines)
+        {
+            var lines = text.Split(new[] { '\n' }, StringSplitOptions.None);
+            return lines.Length + 1 > maxLines;
+        }
+
+        private string GetPendingText()
+        {
+            return "<color=#FFFF00><u>" + pendingText + "</u></color>";
+        }
+
         private static string FormatLocal(DateTime utc)
         {
             var local = utc.ToLocalTime();
             return $"{local:yyyy/MM/dd HH:mm:ss}";
         }
-
+        // private static bool IsHalfWidth(string s)
+        // {
+        //     return System.Text.RegularExpressions.Regex.IsMatch(s, @"^[\u0020-\u007E]+$");
+        // }
         private static void RepositionModalToLeftHalf(HMUI.ModalView modal)
         {
             if (ReferenceEquals(modal, null)) return;
@@ -245,85 +567,125 @@ namespace MapMemo.UI
             }
         }
 
+        // Shift 切替時はラベルの差し替えだけ行う（スタイルは既に適用済みの前提）
+        private void UpdateAlphaButtonLabels(MemoEditModal ctrl)
+        {
+            try
+            {
+                if (ctrl.modal == null)
+                {
+                    MapMemo.Plugin.Log?.Warn("MemoEditModal.UpdateAlphaButtonLabels: modal is null, cannot collect buttons");
+                }
+                if (ctrl.modal != null && ctrl.modal.gameObject == null)
+                {
+                    MapMemo.Plugin.Log?.Warn("MemoEditModal.UpdateAlphaButtonLabels: modal.gameObject is null, cannot collect buttons");
+                }  
+                Plugin.Log?.Info("MemoEditModal.UpdateAlphaButtonLabels: " 
+                    + ctrl.modal.gameObject.GetComponentsInChildren<ClickableText>(true).Count() 
+                    + " ClickableText components found under modal");
+                foreach (var btn in ctrl.modal.gameObject.GetComponentsInChildren<ClickableText>(true))
+                {
+
+                    var stored = btn.text.Trim().Replace("　", ""); // 全角スペースを取り除く   
+
+                    // if (btn == null || string.IsNullOrEmpty(stored)) continue;
+                    // var ch = stored.FirstOrDefault();
+                    // if (ch == default) continue;
+                    var label = isShift ? stored.ToLowerInvariant() : stored.ToUpperInvariant();
+                    btn.text = EditLabel(label);
+                }
+            }
+            catch { }
+        }
+
+        private static string EditLabel(string label)
+        {
+            return "  " + label + "  "; 
+        }
+
         // 一括で A〜Z ボタンにスタイルを適用するヘルパー
         // Reflection を使って private フィールド `charAButton`..`charZButton` を取得し、見た目を整えます。
         private static void ApplyAlphaButtonCosmetics(MemoEditModal ctrl)
         {
             if (ReferenceEquals(ctrl, null)) return;
-            for (char ch = 'A'; ch <= 'Z'; ch++)
+            try
             {
-                try
+                var collected = new System.Collections.Generic.HashSet<ClickableText>();
+                if (ctrl.modal == null)
                 {
-                    // TODO:効く設定と効かない設定がある
-                    var field = typeof(MemoEditModal).GetField($"char{ch}Button", BindingFlags.NonPublic | BindingFlags.Instance);
-                    if (field == null) continue;
-                    
-                    var btnObj = field.GetValue(ctrl);
-                    Plugin.Log?.Info($"ApplyAlphaButtonCosmetics: processing button {ch} type={(btnObj == null ? "null" : btnObj.GetType().Name)}");
-
-                    if (btnObj is ClickableText)
-                    {
-                       ClickableText btn = (btnObj as ClickableText); 
-
-                       if (btn == null) continue;
-                        // 文字とスタイル設定
-                        var label = ctrl.isShift ? ch.ToString().ToLowerInvariant() : ch.ToString().ToUpperInvariant();
-                        btn.text = "　" + label + "　";
-                        btn.fontSize = 3.0f;
-                        btn.fontStyle = FontStyles.Italic | FontStyles.Underline;
-                        btn.alignment = TextAlignmentOptions.Left;
-                        btn.faceColor = Color.cyan;
-                        btn.HighlightColor = Color.yellow;
-                        btn.outlineColor = Color.white;
-                    }
-                    // else if (btnObj is Button)
-                    // {
-                    //     // テストコード
-                    //     ctrl.isShift = true;
-                        
-                    //     Button btn = (btnObj as Button);
-                    //     var text = btn.GetComponentInChildren<TextMeshProUGUI>();
-         
-                    //     if (btn == null) continue;
-                    //     // 文字とスタイル設定
-                    //     var label = ctrl.isShift ? ch.ToString().ToLowerInvariant() : ch.ToString().ToUpperInvariant();
-                        
-                        
-                        
-                    //     // 小文字フォントデバッグ
-                    //     // var fonts = Resources.FindObjectsOfTypeAll<TMP_FontAsset>();
-                    //     // foreach (var f in fonts)
-                    //     // {
-                    //     //     if (f.HasCharacter('a') && f.HasCharacter('z')) {
-                    //     //         Plugin.Log.Info($"見つかったフォント: {f.name} は a-z を含む");
-                    //     //     }
-                    //     // }
-                    //     text.text = label;
-                    //     var font = Resources.FindObjectsOfTypeAll<TMP_FontAsset>()
-                    //         .FirstOrDefault(f => f.name == "Orbitron SDF 1");
-
-                    //     if (font != null)
-                    //     {
-                    //         text.font = font;
-                    //         Plugin.Log?.Info($"ApplyAlphaButtonCosmetics: applied font to button {ch}");
-                    //     }
-                    //     else
-                    //     {
-                    //         Plugin.Log?.Warn($"ApplyAlphaButtonCosmetics: font not found for button {ch}");
-                    //     }
-                    //     text.text = label;
-                    //     // 念のためTransformをリセット
-                    //     var rect = text.GetComponent<RectTransform>();
-                    //     rect.localRotation = Quaternion.identity;
-                    //     rect.localScale = Vector3.one;
-                    //     rect.anchoredPosition3D = Vector3.zero;
-
-                    //     Plugin.Log?.Info($"ApplyAlphaButtonCosmetics: setting button {ch} label='{label}'");
-                    //     text.text = label;
-                    // }   
+                    MapMemo.Plugin.Log?.Warn("MemoEditModal.ApplyAlphaButtonCosmetics: modal is null, cannot collect buttons");
                 }
-                catch { /* 個別のボタン処理失敗は無視して続行 */ }
+                if (ctrl.modal != null && ctrl.modal.gameObject == null)
+                {
+                    MapMemo.Plugin.Log?.Warn("MemoEditModal.ApplyAlphaButtonCosmetics: modal.gameObject is null, cannot collect buttons");
+                }  
+                Plugin.Log?.Info("MemoEditModal.ApplyAlphaButtonCosmetics: " 
+                    + ctrl.modal.gameObject.GetComponentsInChildren<ClickableText>(true).Count() 
+                    + " ClickableText components found under modal");
+                // 2) BSML バインド済みの modal 配下（あれば）
+                // if (ctrl.modal != null && ctrl.modal.gameObject != null)
+                // {
+                //     foreach (var b in ctrl.modal.gameObject.GetComponentsInChildren<ClickableText>(true))
+                //     {
+                //         collected.Add(b);
+                //     } 
+                // }
+                            
+                // 収集したボタンに一括でスタイルを適用
+                foreach (var btn in ctrl.modal.gameObject.GetComponentsInChildren<ClickableText>(true))
+                {
+                    try
+                    {
+                        if (btn == null) continue;
+                        btn.fontSize = 3.8f;
+                        btn.fontStyle = FontStyles.Italic | FontStyles.Underline;
+                        btn.alignment = TextAlignmentOptions.Center;
+                        // 特定の色以外も設定できるようにするため、ScriptableObject由来の色設定は無効化
+                        
+                        //btn.useScriptableObjectColors = true;
+                        btn.color = Color.cyan;
+                        //btn.faceColorはHighlightColorに影響するため設定しない
+                        btn.DefaultColor = Color.cyan;
+                        btn.HighlightColor = new Color(1f, 0.3f, 0f, 1f); // RGB: (255, 77, 0)// new Color(1f, 0f, 0f, 1f);
+                        btn.outlineColor = Color.yellow;
+                        btn.outlineWidth = 0.3f;
+
+                        // グロー(これではうまくいかないので一旦コメントアウト)
+                        // btn.fontMaterial.EnableKeyword("GLOW_ON");
+                        // btn.fontMaterial.SetColor("_GlowColor", new Color(1f, 0.3f, 0f));
+                        // btn.fontMaterial.SetFloat("_GlowPower", 0.5f);
+
+                        // リッチテキストが有効になるのは初回だけのためコメントアウト
+                        //btn.richText = true;
+
+                        // フォントを設定すると座標がずれる問題があるため一旦コメントアウト
+                        // var fonts = Resources.FindObjectsOfTypeAll<TMP_FontAsset>();
+                        // var font = fonts.FirstOrDefault(f => f.name.Contains("Assistant SDF")); // 使いたいフォント名に合わせて
+
+                        // if (font != null)
+                        // {
+                        //     btn.font = font;
+                        // }
+
+                        var layout = btn.gameObject.GetComponent<LayoutElement>();
+                        if (layout == null)
+                            layout = btn.gameObject.AddComponent<LayoutElement>();
+                        layout.preferredWidth = 5f;
+                        layout.minWidth = 5f;
+
+                        var label = btn.text.Trim().Replace(" ", "");;
+                        label = ctrl.isShift ? label.ToLowerInvariant() : label.ToUpperInvariant();
+
+                        // if(IsHalfWidth(label))
+                        // {
+                        label = EditLabel(label); // 全角スペースで囲む
+                        // }
+                        btn.text = label;
+                    }
+                    catch { /* 個別のボタン処理失敗は無視して続行 */ }
+                }
             }
+            catch { /* 全体取得に失敗しても崩壊させない */ }
         }
 
         [UIAction("on-char-a")] private void OnCharA() => Append("あ");
@@ -382,12 +744,27 @@ namespace MapMemo.UI
         [UIAction("on-char-ka-cho")] private void OnCharKaCho() => Append("ー");
         [UIAction("on-char-dot")] private void OnCharDot() => Append("・");
         [UIAction("on-char-space")] private void OnCharSpace() => Append(" ");
-        [UIAction("on-char-newline")] private void OnCharNewline() => Append("\n");
+        // [UIAction("on-char-newline")] private void OnCharNewline() => Append("\n");
         [UIAction("on-char-backspace")]
         private void OnCharBackspace()
         {
-            if (string.IsNullOrEmpty(memo)) return;
-            memo = memo.Substring(0, memo.Length - 1);
+            if (pendingText.Length > 0)
+            {
+                // 未確定文字列から削除
+                pendingText = pendingText.Substring(0, pendingText.Length - 1);
+                memo = confirmedText + GetPendingText();
+                NotifyPropertyChanged("memo");
+                if (memoText != null)
+                {
+                    memoText.text = memo;
+                    memoText.ForceMeshUpdate();
+                }
+                return;
+            }
+            
+            if (string.IsNullOrEmpty(confirmedText)) return;
+            confirmedText = confirmedText.Substring(0, confirmedText.Length - 1);
+            memo = confirmedText;
             NotifyPropertyChanged("memo");
             if (memoText != null)
             {
@@ -584,13 +961,26 @@ namespace MapMemo.UI
             isShift = !isShift;
             try
             {
-                ApplyAlphaButtonCosmetics(this);
+                UpdateAlphaButtonLabels(this);
             }
             catch (Exception e)
             {
-                MapMemo.Plugin.Log?.Warn($"MemoEditModal.OnCharShift: ApplyAlphaButtonCosmetics failed: {e.Message}");
+                Plugin.Log?.Warn($"MemoEditModal.OnCharShift: UpdateAlphaButtonLabels failed: {e.Message}");
             }
         }
-
+        [UIAction("on-char-enter")]
+        private void OnCharEnter()
+        {
+            if(pendingText.Length > 0)
+            {
+                // 未確定文字を確定文字にする
+                CommitMemo();
+            }
+            else
+            {
+                Append("\n");
+            }
+            
+        }
     }
 }
