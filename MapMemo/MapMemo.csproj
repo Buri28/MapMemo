@@ -119,6 +119,9 @@
     <EmbeddedResource Include="Resources\MemoEdit.bsml">
       <LogicalName>MapMemo.Resources.MemoEdit.bsml</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="Resources\#dictionary.txt">
+      <LogicalName>MapMemo.Resources.#dictionary.txt</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
