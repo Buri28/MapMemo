@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Text;
 using IPA.Utilities;
+using System.IO;
 
 namespace MapMemo.UI
 {
@@ -285,40 +286,56 @@ namespace MapMemo.UI
             // ① UserData\MapMemo\#dictionary.txt を読み込む（キー,値形式）
             try
             {
-                string dictPath = System.IO.Path.Combine(UnityEngine.Application.dataPath, "..", "UserData", "MapMemo", "#dictionary.txt");
-                dictPath = System.IO.Path.GetFullPath(dictPath);
-                if (System.IO.File.Exists(dictPath))
+                string userDictionaryPath = Path.Combine(Environment.CurrentDirectory, "UserData", "MapMemo", "#dictionary.txt");
+                // UserData\MapMemo\#dictionary.txt がなければ埋め込みリソースからコピー
+                if (!File.Exists(userDictionaryPath))
                 {
-                    var lines = System.IO.File.ReadAllLines(dictPath)
-                        .Select(x => x.Trim())
-                        .Where(x => !string.IsNullOrEmpty(x));
-                    Instance.dictionaryWords = new List<KeyValuePair<string, string>>();
-                    foreach (var line in lines)
+                    var asm = typeof(MemoEditModal).Assembly;
+                    var resourceName = "MapMemo.Resources.#dictionary.txt";
+                    using (var stream = asm.GetManifestResourceStream(resourceName))
                     {
-                        var parts = line.Split(new[] { ',' }, 2);
-                        string key, value;
-                        if (parts.Length == 2)
+                        if (stream != null)
                         {
-                            key = parts[0].Trim();
-                            value = parts[1].Trim();
+                            Directory.CreateDirectory(Path.GetDirectoryName(userDictionaryPath));
+                            using (var fs = new FileStream(userDictionaryPath, FileMode.Create, FileAccess.Write))
+                            {
+                                stream.CopyTo(fs);
+                            }
+                            Plugin.Log?.Info($"Copied dictionary from embedded resource to UserData: {userDictionaryPath}");
                         }
                         else
                         {
-                            key = value = line.Trim();
+                            Plugin.Log?.Warn($"Embedded dictionary resource not found: {resourceName}");
+                            return;
                         }
-                        Instance.dictionaryWords.Add(new KeyValuePair<string, string>(key, value));
                     }
-                    Plugin.Log?.Info($"MemoEditModal: Loaded {Instance.dictionaryWords.Count} dictionary entries.");
                 }
-                else
+                try
                 {
-                    Plugin.Log?.Warn($"MemoEditModal: Dictionary file not found: {dictPath}");
                     Instance.dictionaryWords = new List<KeyValuePair<string, string>>();
+                    foreach (var line in File.ReadLines(userDictionaryPath))
+                    {
+                        if (string.IsNullOrWhiteSpace(line)) continue;
+                        var parts = line.Split(new[] { ',' }, 2);
+                        if (parts.Length == 2)
+                        {
+                            Instance.dictionaryWords.Add(new KeyValuePair<string, string>(parts[0].Trim(), parts[1].Trim()));
+                        }
+                        else
+                        {
+                            Instance.dictionaryWords.Add(new KeyValuePair<string, string>(line.Trim(), line.Trim()));
+                        }
+                    }
+                    Plugin.Log?.Info($"Loaded {Instance.dictionaryWords.Count} dictionary words.");
+                }
+                catch (Exception ex)
+                {
+                    Plugin.Log?.Error($"Failed to load dictionary: {ex.Message}");
                 }
             }
             catch (Exception ex)
             {
-                    Plugin.Log?.Error($"MemoEditModal: Failed to load dictionary file: {ex.Message}");
+                Plugin.Log?.Error($"MemoEditModal: Failed to load dictionary file: {ex.Message}");
                 Instance.dictionaryWords = new List<KeyValuePair<string, string>>();
             }
         }
@@ -331,17 +348,17 @@ namespace MapMemo.UI
             suggestionList.CellSizeValue = 6f;
             suggestionList.ExpandCell = true;
 
-            suggestionList.Data.Clear();
-            suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよわをん"));
-            suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("🦊 きつね"));
-            suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("💧 しずく"));
-            suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("💧 しずく"));
-            suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("💧 しずく"));
-            suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("💧 しずく"));
-            suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("💧 しずく"));
-            suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("💧 しずく"));
-            suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("💧 しずく"));
-            suggestionList.TableView.ReloadData();
+            // suggestionList.Data.Clear();
+            // suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよわをん"));
+            // suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("🦊 きつね"));
+            // suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("💧 しずく"));
+            // suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("💧 しずく"));
+            // suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("💧 しずく"));
+            // suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("💧 しずく"));
+            // suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("💧 しずく"));
+            // suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("💧 しずく"));
+            // suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("💧 しずく"));
+            // suggestionList.TableView.ReloadData();
             
         }
         private void OnCellSelected(TableView tableView, int index)
@@ -827,11 +844,9 @@ namespace MapMemo.UI
                 pendingText = pendingText.Substring(0, pendingText.Length - 1);
                 memo = confirmedText + GetPendingText();
                 NotifyPropertyChanged("memo");
-                if (memoText != null)
-                {
-                    memoText.text = memo;
-                    memoText.ForceMeshUpdate();
-                }
+                memoText.text = memo;
+                memoText.ForceMeshUpdate();
+                UpdateSuggestions();
                 return;
             }
             
@@ -839,11 +854,9 @@ namespace MapMemo.UI
             confirmedText = confirmedText.Substring(0, confirmedText.Length - 1);
             memo = confirmedText;
             NotifyPropertyChanged("memo");
-            if (memoText != null)
-            {
-                memoText.text = memo;
-                memoText.ForceMeshUpdate();
-            }
+            memoText.text = memo;
+            memoText.ForceMeshUpdate();
+            UpdateSuggestions();
         }
 
         // 英数字・記号入力
