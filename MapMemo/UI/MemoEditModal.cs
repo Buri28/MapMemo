@@ -18,6 +18,7 @@ using System.Collections;
 using System.Text;
 using IPA.Utilities;
 using System.IO;
+using UnityEngine.Rendering;
 
 namespace MapMemo.UI
 {
@@ -270,11 +271,10 @@ namespace MapMemo.UI
             Instance.lastUpdated.text = entry != null ? "Updated:" + FormatLocal(entry.updatedAt) : "";
             if (Instance.memoText != null)
             {
-                Instance.memoText.text = Instance.memo;
+                Instance.memoText.richText = true;
+                Instance.UpdateMemoText(Instance.memo);
                 Instance.confirmedText = Instance.memo;
                 Instance.pendingText = "";
-                Instance.memoText.richText = true;
-                Instance.memoText.ForceMeshUpdate();
             }
             // A〜Z ボタンの見た目を整えるヘルパーを呼び出す
             ApplyAlphaButtonCosmetics(Instance);
@@ -346,60 +346,32 @@ namespace MapMemo.UI
             Plugin.Log?.Info("MemoEditModal: OnPostParse called — setting up pick list");
             suggestionList.TableView.didSelectCellWithIdxEvent += OnCellSelected;
             suggestionList.CellSizeValue = 6f;
-            suggestionList.ExpandCell = true;
+            suggestionList.ExpandCell = true; 
 
-            // suggestionList.Data.Clear();
-            // suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよわをん"));
-            // suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("🦊 きつね"));
-            // suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("💧 しずく"));
-            // suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("💧 しずく"));
-            // suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("💧 しずく"));
-            // suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("💧 しずく"));
-            // suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("💧 しずく"));
-            // suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("💧 しずく"));
-            // suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("💧 しずく"));
-            // suggestionList.TableView.ReloadData();
-            
         }
         private void OnCellSelected(TableView tableView, int index)
         {
             var selected = suggestionList.Data[index];
             Plugin.Log?.Info($"選択されたのは: {selected.Text.ToString()}");
-
+            // 先頭の空文字が選択された場合は無視する
+            if (string.IsNullOrEmpty(selected.Text.ToString()))
+            {
+                return;
+            }
             // ここに処理を書く！
             AppendSelectedString(selected.Text.ToString());
         }
-// private bool _shouldSetupScroll = false;
 
-// [UIAction("#post-parse")]
-// private void OnPostParse()
-// {
-//     Plugin.Log?.Info("🍄 OnPostParse called — deferring setup to OnEnable");
-//     _shouldSetupScroll = true;
-
-//     // GameObjectがすでにアクティブなら、OnEnableはもう呼ばれないのでここで呼ぶ！
-//     if (gameObject.activeInHierarchy)
-//     {
-//         Plugin.Log?.Info("🌿 OnEnable already happened — starting coroutine now");
-//         StartCoroutine(WaitAndSetupScroll());
-//         _shouldSetupScroll = false;
-//     }
-// }
-
-
-
-// private void OnEnable()
-// {
-//     Plugin.Log?.Info("🍄 OnEnable called");
-
-//     if (_shouldSetupScroll)
-//     {
-//         Plugin.Log?.Info("🌿 Deferred scroll setup — starting now");
-//         StartCoroutine(WaitAndSetupScroll());
-//         _shouldSetupScroll = false;
-//     }
-// }
-        
+        private void OnEnable()
+        {
+            // モーダルが有効化されたときに呼ばれる
+            Plugin.Log?.Info("MemoEditModal: OnEnable called");
+            
+            // A〜Z ボタンのラベルを更新する
+            UpdateAlphaButtonLabels(this);
+            // サジェストリストを初期化する
+            UpdateSuggestions();
+        }
 
         private void CommitMemo()
         {
@@ -410,9 +382,14 @@ namespace MapMemo.UI
             NotifyPropertyChanged("memo");
             if (memoText != null)
             {
-                memoText.text = memo;
-                memoText.ForceMeshUpdate();
+                UpdateMemoText(memo);
             }
+        }
+
+        private void UpdateMemoText(string memoValue)
+        {
+            memoText.text = memoValue.Replace("\n","↲\n");
+            memoText.ForceMeshUpdate();
         }
 
         /// <summary>
@@ -572,16 +549,23 @@ namespace MapMemo.UI
             NotifyPropertyChanged("memo");
             if (memoText != null)
             {
-                memoText.text = memo;
-                memoText.ForceMeshUpdate();
+                UpdateMemoText(memo);
             }
         }
 
         private void UpdateSuggestions()
         {
-            // ② サジェスト更新処理（キーで前方一致し値を表示）
-            string search = pendingText;
+            // サジェスト更新処理（キーで前方一致し値を表示）
+            // 改行は削除して検索する
+            string search = pendingText.Replace("\n", "").Replace("\r", "");
+            if (search.Length == 0)
+            {
+                return;
+            }
+
             suggestionList.Data.Clear();
+            suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("")); // 空行を先頭に追加
+            
             if (!string.IsNullOrEmpty(search) && search != ",")
             {
                 var matches = dictionaryWords.Where(pair => pair.Key.StartsWith(search)).ToList();
@@ -592,6 +576,15 @@ namespace MapMemo.UI
                         suggestionList.Data.Add(new CustomListTableData.CustomCellInfo(pair.Value));
                 }
             }
+            // 先頭の空文字を選択する
+            if (suggestionList.Data.Count > 0)
+            {
+                suggestionList.TableView.SelectCellWithIdx(0, false);
+            }
+            else
+            {
+                suggestionList.TableView.ClearSelection();
+            }       
             suggestionList.TableView.ReloadData();
         }
 
@@ -607,6 +600,11 @@ namespace MapMemo.UI
         private bool isOverMaxLine(string text, int maxLines)
         {
             var lines = text.Split(new[] { '\n' }, StringSplitOptions.None);
+            if(lines.LastOrDefault() == "")
+            {
+                // 最後が改行で終わっている場合は行数を-1する
+                return lines.Length > maxLines;
+            }
             return lines.Length + 1 > maxLines;
         }
 
@@ -844,18 +842,17 @@ namespace MapMemo.UI
                 pendingText = pendingText.Substring(0, pendingText.Length - 1);
                 memo = confirmedText + GetPendingText();
                 NotifyPropertyChanged("memo");
-                memoText.text = memo;
-                memoText.ForceMeshUpdate();
+                UpdateMemoText(memo);
                 UpdateSuggestions();
                 return;
             }
             
             if (string.IsNullOrEmpty(confirmedText)) return;
+            
             confirmedText = confirmedText.Substring(0, confirmedText.Length - 1);
             memo = confirmedText;
             NotifyPropertyChanged("memo");
-            memoText.text = memo;
-            memoText.ForceMeshUpdate();
+            UpdateMemoText(memo);
             UpdateSuggestions();
         }
 
@@ -1056,15 +1053,17 @@ namespace MapMemo.UI
         }
         [UIAction("on-char-enter")]
         private void OnCharEnter()
-        {
+        {            
             if(pendingText.Length > 0)
             {
                 // 未確定文字を確定文字にする
                 CommitMemo();
+                UpdateSuggestions();
             }
             else
             {
                 Append("\n");
+                CommitMemo();
             }
             
         }
