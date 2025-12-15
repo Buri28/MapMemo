@@ -907,6 +907,26 @@ namespace MapMemo.UI
         [UIAction("on-char-hash")] private void OnCharHash() => Append("#");
         [UIAction("on-char-plus")] private void OnCharPlus() => Append("+");
 
+        // 英字キーボード追加記号
+        [UIAction("on-char-underscore")] private void OnCharUnderscore() => Append("_");
+        [UIAction("on-char-equals")] private void OnCharEquals() => Append("=");
+        [UIAction("on-char-lbracket")] private void OnCharLBracket() => Append("[");
+        [UIAction("on-char-rbracket")] private void OnCharRBracket() => Append("]");
+        [UIAction("on-char-lbrace")] private void OnCharLBrace() => Append("{");
+        [UIAction("on-char-rbrace")] private void OnCharRBrace() => Append("}");
+        [UIAction("on-char-apostrophe")] private void OnCharApostrophe() => Append("'");
+        [UIAction("on-char-quote")] private void OnCharQuote() => Append("\"");
+        [UIAction("on-char-less")] private void OnCharLess() => Append("<");
+        [UIAction("on-char-greater")] private void OnCharGreater() => Append(">");
+        [UIAction("on-char-pipe")] private void OnCharPipe() => Append("|");
+        [UIAction("on-char-backslash")] private void OnCharBackslash() => Append("\\");
+        [UIAction("on-char-caret")] private void OnCharCaret() => Append("^");
+        [UIAction("on-char-tilde")] private void OnCharTilde() => Append("~");
+        [UIAction("on-char-backtick")] private void OnCharBacktick() => Append("`");
+        [UIAction("on-char-asterisk")] private void OnCharAsterisk() => Append("*");
+        [UIAction("on-char-percent")] private void OnCharPercent() => Append("%");
+        [UIAction("on-char-dollar")] private void OnCharDollar() => Append("$");
+
         // ら行
         [UIAction("on-char-ra")] private void OnCharRa() => Append("ら");
         [UIAction("on-char-ri")] private void OnCharRi() => Append("り");
