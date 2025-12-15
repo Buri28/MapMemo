@@ -242,7 +242,17 @@ namespace MapMemo.UI
         // [UIComponent("char-ka-xyu")] private ClickableText charKataKaXyuButton;
         // [UIComponent("char-ka-xyo")] private ClickableText charKataKaXyoButton;
 
+        //// ◆画面初期表示関連メソッド Start ◆////
 
+        /// <summary>
+        /// モーダルのインスタンスを取得または生成する
+        /// </summary>
+        /// <param name="entry"></param>
+        /// <param name="parent"></param>
+        /// <param name="key"></param>
+        /// <param name="songName"></param>
+        /// <param name="songAuthor"></param>
+        /// <returns></returns>
         public static MemoEditModal GetInstance(
             MemoEntry entry,
             MemoPanelController parent,
@@ -279,6 +289,35 @@ namespace MapMemo.UI
             // A〜Z ボタンの見た目を整えるヘルパーを呼び出す
             ApplyAlphaButtonCosmetics(Instance);
             return Instance;
+        }
+
+        /// <summary>
+        /// モーダル表示
+        /// </summary>
+        /// <param name="parent">親パネルコントローラー</param>
+        /// <param name="key">メモのキー</param>
+        /// <param name="songName">曲名</param>
+        /// <param name="songAuthor">曲の作者</param>
+        public static void Show(
+            MemoPanelController parent, string key, string songName, string songAuthor)
+        {
+            // 同期ロードを使って UI スレッドで確実に更新する
+            var existing = MemoRepository.Load(key, songName, songAuthor);
+            var modalCtrl = MemoEditModal.GetInstance(existing, parent, key, songName, songAuthor);
+
+            Plugin.Log?.Info("MemoEditModal.Show: reusing existing parsed modal instance");
+            // 表示は既にバインド済みの modal を利用して行う
+            try
+            {
+                Plugin.Log?.Info("MemoEditModal.Show: showing modal" + (ReferenceEquals(modalCtrl.modal, null) ? " modal=null" : " modal!=null"));
+                modalCtrl.modal?.Show(true, true);
+                // 画面の左側半分あたりに表示するように位置調整
+                RepositionModalToLeftHalf(modalCtrl.modal);
+            }
+            catch (System.Exception ex)
+            {
+                Plugin.Log?.Warn($"MemoEditModal.Show: ModalView.Show failed: {ex.Message}; modal may not be visible");
+            }
         }
 
         private static void LoadDictionaryWords()
@@ -340,6 +379,13 @@ namespace MapMemo.UI
             }
         }
 
+        /// BSMLをパースする
+        public void ParseBSML(string bsml, GameObject host)
+        {
+            BSMLParser.Instance.Parse(bsml, host, this);
+            Plugin.Log?.Info("MemoEditModal: BSML parsed and attached to host '" + host.name + "'" + (ReferenceEquals(modal, null) ? " modal=null" : " modal!=null"));
+        }
+
         [UIAction("#post-parse")]
          private void OnPostParse()
         {
@@ -349,18 +395,7 @@ namespace MapMemo.UI
             suggestionList.ExpandCell = true; 
 
         }
-        private void OnCellSelected(TableView tableView, int index)
-        {
-            var selected = suggestionList.Data[index];
-            Plugin.Log?.Info($"選択されたのは: {selected.Text.ToString()}");
-            // 先頭の空文字が選択された場合は無視する
-            if (string.IsNullOrEmpty(selected.Text.ToString()))
-            {
-                return;
-            }
-            // ここに処理を書く！
-            AppendSelectedString(selected.Text.ToString());
-        }
+        //// ◆画面初期表示関連メソッド End ◆////
 
         private void OnEnable()
         {
@@ -372,6 +407,20 @@ namespace MapMemo.UI
             // サジェストリストを初期化する
             UpdateSuggestions();
         }
+
+        private void OnCellSelected(TableView tableView, int index)
+        {
+            var selected = suggestionList.Data[index];
+            Plugin.Log?.Info($"選択されたのは: {selected.Text.ToString()}");
+            // 先頭の空文字が選択された場合は無視する
+            if (string.IsNullOrEmpty(selected.Text.ToString()))
+            {
+                return;
+            }
+            AppendSelectedString(selected.Text.ToString());
+            ClearSuggestions();
+        }
+
 
         private void CommitMemo()
         {
@@ -390,42 +439,6 @@ namespace MapMemo.UI
         {
             memoText.text = memoValue.Replace("\n","↲\n");
             memoText.ForceMeshUpdate();
-        }
-
-        /// <summary>
-        /// モーダル表示
-        /// </summary>
-        /// <param name="parent">親パネルコントローラー</param>
-        /// <param name="key">メモのキー</param>
-        /// <param name="songName">曲名</param>
-        /// <param name="songAuthor">曲の作者</param>
-        public static void Show(
-            MemoPanelController parent, string key, string songName, string songAuthor)
-        {
-            // 同期ロードを使って UI スレッドで確実に更新する
-            var existing = MemoRepository.Load(key, songName, songAuthor);
-            var modalCtrl = MemoEditModal.GetInstance(existing, parent, key, songName, songAuthor);
-
-            Plugin.Log?.Info("MemoEditModal.Show: reusing existing parsed modal instance");
-            // 表示は既にバインド済みの modal を利用して行う
-            try
-            {
-                Plugin.Log?.Info("MemoEditModal.Show: showing modal" + (ReferenceEquals(modalCtrl.modal, null) ? " modal=null" : " modal!=null"));
-                modalCtrl.modal?.Show(true, true);
-                // 画面の左側半分あたりに表示するように位置調整
-                RepositionModalToLeftHalf(modalCtrl.modal);
-            }
-            catch (System.Exception ex)
-            {
-                Plugin.Log?.Warn($"MemoEditModal.Show: ModalView.Show failed: {ex.Message}; modal may not be visible");
-            }
-        }
-
-        /// BSMLをパースする
-        public void ParseBSML(string bsml, GameObject host)
-        {
-            BSMLParser.Instance.Parse(bsml, host, this);
-            Plugin.Log?.Info("MemoEditModal: BSML parsed and attached to host '" + host.name + "'" + (ReferenceEquals(modal, null) ? " modal=null" : " modal!=null"));
         }
 
         [UIAction("on-save")]
@@ -553,6 +566,12 @@ namespace MapMemo.UI
             }
         }
 
+        private void ClearSuggestions()
+        {
+            suggestionList.Data.Clear();
+            suggestionList.TableView.ClearSelection();
+            suggestionList.TableView.ReloadData();
+        }
         private void UpdateSuggestions()
         {
             // サジェスト更新処理（キーで前方一致し値を表示）
@@ -588,7 +607,7 @@ namespace MapMemo.UI
             suggestionList.TableView.ReloadData();
         }
 
-        int GetLastLineLength(string text)
+        private int GetLastLineLength(string text)
         {
             if (string.IsNullOrEmpty(text)) return 0;
 
@@ -658,32 +677,29 @@ namespace MapMemo.UI
         // Shift 切替時はラベルの差し替えだけ行う（スタイルは既に適用済みの前提）
         private void UpdateAlphaButtonLabels(MemoEditModal ctrl)
         {
-            try
+            
+            if (ctrl.modal == null)
             {
-                if (ctrl.modal == null)
-                {
-                    MapMemo.Plugin.Log?.Warn("MemoEditModal.UpdateAlphaButtonLabels: modal is null, cannot collect buttons");
-                }
-                if (ctrl.modal != null && ctrl.modal.gameObject == null)
-                {
-                    MapMemo.Plugin.Log?.Warn("MemoEditModal.UpdateAlphaButtonLabels: modal.gameObject is null, cannot collect buttons");
-                }  
-                Plugin.Log?.Info("MemoEditModal.UpdateAlphaButtonLabels: " 
-                    + ctrl.modal.gameObject.GetComponentsInChildren<ClickableText>(true).Count() 
-                    + " ClickableText components found under modal");
-                foreach (var btn in ctrl.modal.gameObject.GetComponentsInChildren<ClickableText>(true))
-                {
-
-                    var stored = btn.text.Trim().Replace("　", ""); // 全角スペースを取り除く   
-
-                    // if (btn == null || string.IsNullOrEmpty(stored)) continue;
-                    // var ch = stored.FirstOrDefault();
-                    // if (ch == default) continue;
-                    var label = isShift ? stored.ToLowerInvariant() : stored.ToUpperInvariant();
-                    btn.text = EditLabel(label);
-                }
+                MapMemo.Plugin.Log?.Warn("MemoEditModal.UpdateAlphaButtonLabels: modal is null, cannot collect buttons");
             }
-            catch { }
+            if (ctrl.modal != null && ctrl.modal.gameObject == null)
+            {
+                MapMemo.Plugin.Log?.Warn("MemoEditModal.UpdateAlphaButtonLabels: modal.gameObject is null, cannot collect buttons");
+            }  
+            Plugin.Log?.Info("MemoEditModal.UpdateAlphaButtonLabels: " 
+                + ctrl.modal.gameObject.GetComponentsInChildren<ClickableText>(true).Count() 
+                + " ClickableText components found under modal");
+            foreach (var btn in ctrl.modal.gameObject.GetComponentsInChildren<ClickableText>(true))
+            {
+
+                var stored = btn.text.Trim().Replace("　", ""); // 全角スペースを取り除く   
+
+                // if (btn == null || string.IsNullOrEmpty(stored)) continue;
+                // var ch = stored.FirstOrDefault();
+                // if (ch == default) continue;
+                var label = isShift ? stored.ToLowerInvariant() : stored.ToUpperInvariant();
+                btn.text = EditLabel(label);
+            }
         }
 
         private static string EditLabel(string label)
@@ -691,34 +707,13 @@ namespace MapMemo.UI
             return "  " + label + "  "; 
         }
 
-        // 一括で A〜Z ボタンにスタイルを適用するヘルパー
+        // 一括でボタンにスタイルを適用するヘルパー
         // Reflection を使って private フィールド `charAButton`..`charZButton` を取得し、見た目を整えます。
         private static void ApplyAlphaButtonCosmetics(MemoEditModal ctrl)
         {
             if (ReferenceEquals(ctrl, null)) return;
             try
             {
-                var collected = new System.Collections.Generic.HashSet<ClickableText>();
-                if (ctrl.modal == null)
-                {
-                    MapMemo.Plugin.Log?.Warn("MemoEditModal.ApplyAlphaButtonCosmetics: modal is null, cannot collect buttons");
-                }
-                if (ctrl.modal != null && ctrl.modal.gameObject == null)
-                {
-                    MapMemo.Plugin.Log?.Warn("MemoEditModal.ApplyAlphaButtonCosmetics: modal.gameObject is null, cannot collect buttons");
-                }  
-                Plugin.Log?.Info("MemoEditModal.ApplyAlphaButtonCosmetics: " 
-                    + ctrl.modal.gameObject.GetComponentsInChildren<ClickableText>(true).Count() 
-                    + " ClickableText components found under modal");
-                // 2) BSML バインド済みの modal 配下（あれば）
-                // if (ctrl.modal != null && ctrl.modal.gameObject != null)
-                // {
-                //     foreach (var b in ctrl.modal.gameObject.GetComponentsInChildren<ClickableText>(true))
-                //     {
-                //         collected.Add(b);
-                //     } 
-                // }
-                            
                 // 収集したボタンに一括でスタイルを適用
                 foreach (var btn in ctrl.modal.gameObject.GetComponentsInChildren<ClickableText>(true))
                 {
