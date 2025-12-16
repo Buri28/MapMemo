@@ -26,6 +26,7 @@ namespace MapMemo.UI
 
         public void AddHistory(string text)
         {
+            text = text.Trim().Replace("\r", "").Replace("\n", "");
             if (string.IsNullOrWhiteSpace(text) || text.Length < 2) return;
             var history = LoadHistory();
             history.RemoveAll(x => x == text);

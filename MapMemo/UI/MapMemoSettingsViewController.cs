@@ -28,10 +28,10 @@ namespace MapMemo.UI
             yield return new WaitUntil(() => GameplaySetup.Instance != null);
 
             GameplaySetup.Instance.AddTab(
-                "MapMemo",
+                "Map Memo",
                 "MapMemo.Resources.MapMemoSettings.bsml",
                 this,
-                MenuType.All);
+                MenuType.Solo | MenuType.Online);
             settings = SettingsManager.Load();
             _tabAdded = true;
         }

@@ -1,5 +1,5 @@
 ﻿<modal id="modal" size-delta-x="140" size-delta-y="95" anchor-pos-y="25">
-  <vertical spacing="1.0" child-expand-width="true" pref-width="135" pad="2" align="TopCenter">
+  <vertical spacing="1.0" child-expand-width="true" pref-width="138" pad="2" align="TopCenter">
     <horizontal child-expand-width="true" pad-top="1" pref-height="5">
       <text text="Map Memo" align="Left" font-size="4.5" />
       <!-- 更新日時をメモ表示エリアの上に表示 -->
@@ -379,13 +379,13 @@
     </horizontal>
   </vertical>
   
-  <vertical pref-width="30" align="TopRight">
-    <text text="┌──────────────┐" font-size="2" align="Center" />
+  <vertical pref-width="33" align="TopRight">
+    <text text="┌─────────────────┐" font-size="2" align="Center" />
     <list id="suggestion-list"
-      pref-width="30"
+      pref-width="33"
       show-scrollbar="true"
     />
-    <text text="└──────────────┘" font-size="2" align="Center" />
+    <text text="└─────────────────┘" font-size="2" align="Center" />
   </vertical>
   </horizontal>
 

@@ -414,12 +414,12 @@ namespace MapMemo.UI
         }
 
         [UIAction("#post-parse")]
-         private void OnPostParse()
+        private void OnPostParse()
         {
             Plugin.Log?.Info("MemoEditModal: OnPostParse called — setting up pick list");
             suggestionList.TableView.didSelectCellWithIdxEvent += OnCellSelected;
             suggestionList.CellSizeValue = 6f;
-            suggestionList.ExpandCell = true; 
+            suggestionList.ExpandCell = true;
 
         }
         //// ◆画面初期表示関連メソッド End ◆////
@@ -428,7 +428,7 @@ namespace MapMemo.UI
         {
             // モーダルが有効化されたときに呼ばれる
             Plugin.Log?.Info("MemoEditModal: OnEnable called");
-            
+
             // A〜Z ボタンのラベルを更新する
             UpdateAlphaButtonLabels(this);
             // サジェストリストを初期化する
@@ -453,11 +453,7 @@ namespace MapMemo.UI
         {
             // 確定処理
             confirmedText += pendingText;
-            // 履歴保存（2文字以上の確定文字列のみ）
-            if (!string.IsNullOrWhiteSpace(pendingText) && pendingText.Length >= 2)
-            {
-                inputHistoryManager.AddHistory(pendingText);
-            }
+
             pendingText = "";
             memo = confirmedText;
             NotifyPropertyChanged("memo");
@@ -469,7 +465,7 @@ namespace MapMemo.UI
 
         private void UpdateMemoText(string memoValue)
         {
-            memoText.text = memoValue.Replace("\n","↲\n");
+            memoText.text = memoValue.Replace("\n", "↲\n");
             memoText.ForceMeshUpdate();
         }
 
@@ -480,11 +476,13 @@ namespace MapMemo.UI
             {
                 var text = confirmedText + pendingText ?? "";
                 //if (text.Length > 256) text = text.Substring(0, 256);
-                var entry = new MemoEntry { 
-                    key = key ?? "unknown", 
-                    songName = songName ?? "unknown", 
-                    songAuthor = songAuthor ?? "unknown", 
-                    memo = text };
+                var entry = new MemoEntry
+                {
+                    key = key ?? "unknown",
+                    songName = songName ?? "unknown",
+                    songAuthor = songAuthor ?? "unknown",
+                    memo = text
+                };
                 Plugin.Log?.Info($"MemoEditModal.OnSave: key='{entry.key}' song='{entry.songName}' author='{entry.songAuthor}' len={text.Length}");
                 lastUpdated.text = FormatLocal(DateTime.UtcNow);
 
@@ -495,6 +493,7 @@ namespace MapMemo.UI
                 // 親パネルの反映
                 var parentPanelLocal = MemoPanelController.instance;
                 // 確定状態にする
+                inputHistoryManager.AddHistory(pendingText);
                 CommitMemo();
                 await parentPanelLocal.Refresh();
                 MapMemo.Plugin.Log?.Info("MemoEditModal.OnSave: refreshing MemoPanelController");
@@ -546,11 +545,13 @@ namespace MapMemo.UI
             {
                 Append(ch.ToString(), false);
             }
+            inputHistoryManager.AddHistory(s);
             // 確定処理
             CommitMemo();
+
         }
 
-        private void Append(string s, bool isSuggestUpdate=true)
+        private void Append(string s, bool isSuggestUpdate = true)
         {
             if (string.IsNullOrEmpty(s)) return;
             if (memo == null) memo = "";
@@ -585,7 +586,7 @@ namespace MapMemo.UI
 
             memo = confirmedText + GetPendingText();
 
-            if(isSuggestUpdate)
+            if (isSuggestUpdate)
             {
                 UpdateSuggestions();
             }
@@ -606,15 +607,15 @@ namespace MapMemo.UI
         }
         private void UpdateSuggestions()
         {
+            suggestionList.Data.Clear();
             // サジェスト更新処理（キーで前方一致し値を表示）
             // 改行は削除して検索する
             string search = pendingText.Replace("\n", "").Replace("\r", "");
             if (search.Length == 0)
             {
+                suggestionList.TableView.ReloadData();
                 return;
             }
-
-            suggestionList.Data.Clear();
             suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("")); // 空行を先頭に追加
 
             // --- 履歴から最大N件を重複排除して「新しいものが上」に追加 ---
@@ -666,7 +667,7 @@ namespace MapMemo.UI
         private bool isOverMaxLine(string text, int maxLines)
         {
             var lines = text.Split(new[] { '\n' }, StringSplitOptions.None);
-            if(lines.LastOrDefault() == "")
+            if (lines.LastOrDefault() == "")
             {
                 // 最後が改行で終わっている場合は行数を-1する
                 return lines.Length > maxLines;
@@ -724,7 +725,7 @@ namespace MapMemo.UI
         // Shift 切替時はラベルの差し替えだけ行う（スタイルは既に適用済みの前提）
         private void UpdateAlphaButtonLabels(MemoEditModal ctrl)
         {
-            
+
             if (ctrl.modal == null)
             {
                 MapMemo.Plugin.Log?.Warn("MemoEditModal.UpdateAlphaButtonLabels: modal is null, cannot collect buttons");
@@ -732,9 +733,9 @@ namespace MapMemo.UI
             if (ctrl.modal != null && ctrl.modal.gameObject == null)
             {
                 MapMemo.Plugin.Log?.Warn("MemoEditModal.UpdateAlphaButtonLabels: modal.gameObject is null, cannot collect buttons");
-            }  
-            Plugin.Log?.Info("MemoEditModal.UpdateAlphaButtonLabels: " 
-                + ctrl.modal.gameObject.GetComponentsInChildren<ClickableText>(true).Count() 
+            }
+            Plugin.Log?.Info("MemoEditModal.UpdateAlphaButtonLabels: "
+                + ctrl.modal.gameObject.GetComponentsInChildren<ClickableText>(true).Count()
                 + " ClickableText components found under modal");
             foreach (var btn in ctrl.modal.gameObject.GetComponentsInChildren<ClickableText>(true))
             {
@@ -751,7 +752,7 @@ namespace MapMemo.UI
 
         private static string EditLabel(string label)
         {
-            return "  " + label + "  "; 
+            return "  " + label + "  ";
         }
 
         // 一括でボタンにスタイルを適用するヘルパー
@@ -771,7 +772,7 @@ namespace MapMemo.UI
                         btn.fontStyle = FontStyles.Italic | FontStyles.Underline;
                         btn.alignment = TextAlignmentOptions.Center;
                         // 特定の色以外も設定できるようにするため、ScriptableObject由来の色設定は無効化
-                        
+
                         //btn.useScriptableObjectColors = true;
                         btn.color = Color.cyan;
                         //btn.faceColorはHighlightColorに影響するため設定しない
@@ -803,7 +804,7 @@ namespace MapMemo.UI
                         layout.preferredWidth = 5f;
                         layout.minWidth = 5f;
 
-                        var label = btn.text.Trim().Replace(" ", "");;
+                        var label = btn.text.Trim().Replace(" ", ""); ;
                         label = ctrl.isShift ? label.ToLowerInvariant() : label.ToUpperInvariant();
 
                         // if(IsHalfWidth(label))
@@ -888,9 +889,12 @@ namespace MapMemo.UI
                 UpdateSuggestions();
                 return;
             }
-            
-            if (string.IsNullOrEmpty(confirmedText)) return;
-            
+
+            if (string.IsNullOrEmpty(confirmedText))
+            {
+                return;
+            }
+
             confirmedText = confirmedText.Substring(0, confirmedText.Length - 1);
             memo = confirmedText;
             NotifyPropertyChanged("memo");
@@ -1113,11 +1117,15 @@ namespace MapMemo.UI
                 Plugin.Log?.Warn($"MemoEditModal.OnCharShift: UpdateAlphaButtonLabels failed: {e.Message}");
             }
         }
+        /// <summary>
+        /// 確定ボタン押下時の処理
+        /// </summary>
         [UIAction("on-char-enter")]
         private void OnCharEnter()
-        {            
-            if(pendingText.Length > 0)
+        {
+            if (pendingText.Length > 0)
             {
+                inputHistoryManager.AddHistory(pendingText);
                 // 未確定文字を確定文字にする
                 CommitMemo();
                 UpdateSuggestions();
@@ -1127,7 +1135,7 @@ namespace MapMemo.UI
                 Append("\n");
                 CommitMemo();
             }
-            
+
         }
     }
 }
