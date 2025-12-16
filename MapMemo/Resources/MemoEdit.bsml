@@ -17,6 +17,7 @@
           <tab-select tab-tag='keyboard-tabs' pad-top="1" anchor-pos-y='0' size-delta-y='10' size-delta-x='-10' child-expand-width='true'/>
         </vertical>
     <vertical pref-height="40" >
+
     <tab tags="keyboard-tabs" tab-name="A" child-align='TopCenter'>
       <vertical spacing="0.5" child-force-expand-height="false" align="TopCenter" anchor-pos-y="0" anchor-pos-x="5">
         <!-- 英字キーボード -->
@@ -369,21 +370,22 @@
     </horizontal>
       </vertical>
     </tab>
-    </vertical>
-    <!-- <tab-select tab-tag='keyboard-tabs' pad-top="1" anchor-pos-y='0' size-delta-y='20' size-delta-x='-10' child-expand-width='true'/> -->
-    <!--
-    <text text="────────────────────────────────────────────────────────────" font-size="2" align="Center" />
-    -->
-    <!-- 共通操作ボタン(全タブ共通) -->
-    <!--
-    <horizontal spacing="2" pad-top="1">
-      <button text="Space" on-click="on-char-space" pref-width="20" />
-      <button text="Del" on-click="on-char-backspace" pref-width="15" />
-      <button text="⏎" on-click="on-char-newline" pref-width="15" />
-    </horizontal>
 
-    <text text="────────────────────────────────────────────────────────────" font-size="2" align="Center" />
-    -->
+    <tab tags="keyboard-tabs" tab-name="Settings" child-align='TopCenter'>
+      <vertical spacing="2" align="TopCenter" pad="2">
+        <horizontal spacing="2" align="TopLeft">
+          <increment-setting id="history-max-count" text="Max History Count" value='historyMaxCount' min='0' max='1000' increment='10' on-change='on-history-max-count-change' formatter="FormatInt"  />
+        </horizontal>
+        <horizontal spacing="2" align="TopLeft">
+          <increment-setting id="history-show-count" text="History Show Count" value='historyShowCount' min='0' max='10' increment='1' on-change='on-history-show-count-change' formatter="FormatInt"  />
+        </horizontal>
+        <horizontal spacing="2" align="TopLeft">
+          <button text="Clear History" on-click="on-clear-history" pref-width="40" />
+        </horizontal>
+      </vertical>
+    </tab>
+
+    </vertical>
     <!-- Save/Closeボタン（最下部） -->
     <horizontal spacing="4" pad-top="1">
       <button text="Save" on-click="on-save" pref-width="20" />
