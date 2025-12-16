@@ -29,7 +29,11 @@
     <img width="40%" height="40%" alt="image" src="https://github.com/user-attachments/assets/2e5eb358-44ed-4b98-b2f0-13b895e659e1" />
 - 2025/12/16  
   入力アシストがだいぶ形に。
+  【入力アシスト機能】
   - 辞書ファイル機能：辞書ファイルにある単語を検索する機能  
   - 入力履歴機能：確定した単語を保存し最近のものから検索対象とする機能  
 　  <img width="40%" height="40%" alt="image" src="https://github.com/user-attachments/assets/233f5ce0-f605-45c5-9532-b30b67bbe606" />
-  
+
+  - TODO
+     - ひらがな、カタカナのタブを統合する
+     - 絵文字タブ、BeatSaberタブを追加する
