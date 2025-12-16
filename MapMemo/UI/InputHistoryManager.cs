@@ -12,8 +12,16 @@ namespace MapMemo.UI
         public InputHistoryManager(string userDataDir, int maxCount = 500)
         {
             Directory.CreateDirectory(userDataDir);
-            historyFilePath = Path.Combine(userDataDir, "#input_history.txt");
+            historyFilePath = Path.Combine(userDataDir, "_input_history.txt");
             maxHistoryCount = maxCount;
+        }
+
+        // 静的メソッド: UserData/MapMemo/_input_history.txt を削除
+        public static void ClearHistoryStatic()
+        {
+            var path = Path.Combine("UserData", "MapMemo", "_input_history.txt");
+            if (File.Exists(path))
+                File.Delete(path);
         }
 
         public void AddHistory(string text)

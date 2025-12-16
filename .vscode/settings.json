@@ -1,9 +1,7 @@
 {
   "files.associations": {
     "*.bsml": "xml"
-  }
-}
-{
+  },
   "files.exclude": {
     "**/bin": true,
     "**/obj": true
