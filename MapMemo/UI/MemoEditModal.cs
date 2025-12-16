@@ -18,19 +18,45 @@ using System.Collections;
 using System.Text;
 using IPA.Utilities;
 using System.IO;
+using MapMemo.UI;
 using UnityEngine.Rendering;
 
 namespace MapMemo.UI
 {
     public class MemoEditModal : BSMLAutomaticViewController
     {
-        // この段階でインスタンスを作るとUnityの管理外のためバインド対象外となる。
+        // 設定タブ用プロパティ
+        [UIValue("historyMaxCount")] private int historyMaxCount = 500;
+        [UIValue("historyShowCount")] private int historyShowCount = 3;
+
+        // 整数フォーマッタ
+        [UIAction("FormatInt")] private string FormatInt(float value) => ((int)value).ToString();
+
+        [UIAction("on-history-max-count-change")]
+        private void OnHistoryMaxCountChange(int value)
+        {
+            historyMaxCount = value;
+            inputHistoryManager.SetMaxHistoryCount(value);
+            UpdateSuggestions();
+        }
+
+        [UIAction("on-history-show-count-change")]
+        private void OnHistoryShowCountChange(int value)
+        {
+            historyShowCount = value;
+            // サジェストリストの再描画
+            UpdateSuggestions();
+        }
+
+        [UIAction("on-clear-history")]
+        private void OnClearHistory()
+        {
+            inputHistoryManager.ClearHistory();
+            UpdateSuggestions();
+        }
         public static MemoEditModal Instance;
-
-        // Show() から渡された親パネル参照を保持して、保存後に正しいパネルを更新できるようにする
-        // private MemoPanelController parentPanel = null;
-        private ISet<ClickableText> buttons = null;
-
+        // 入力履歴マネージャ
+        private static InputHistoryManager inputHistoryManager = new InputHistoryManager(Path.Combine("UserData", "MapMemo"));
         private string key;
         private string songName;
         private string songAuthor;
@@ -426,6 +452,11 @@ namespace MapMemo.UI
         {
             // 確定処理
             confirmedText += pendingText;
+            // 履歴保存（2文字以上の確定文字列のみ）
+            if (!string.IsNullOrWhiteSpace(pendingText) && pendingText.Length >= 2)
+            {
+                inputHistoryManager.AddHistory(pendingText);
+            }
             pendingText = "";
             memo = confirmedText;
             NotifyPropertyChanged("memo");
@@ -584,14 +615,29 @@ namespace MapMemo.UI
 
             suggestionList.Data.Clear();
             suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("")); // 空行を先頭に追加
-            
+
+            // --- 履歴から最大N件を重複排除して「新しいものが上」に追加 ---
+            var history = inputHistoryManager.LoadHistory();
+            var historyMatches = history
+                .Reverse<string>() // 新しい順
+                .Where(h => h.StartsWith(search))
+                .Distinct()
+                .Take(historyShowCount)
+                .ToList();
+            var already = new HashSet<string>();
+            foreach (var h in historyMatches)
+            {
+                already.Add(h);
+                suggestionList.Data.Add(new CustomListTableData.CustomCellInfo(h));
+            }
+
+            // --- 辞書からもサジェスト（履歴と重複しないもののみ） ---
             if (!string.IsNullOrEmpty(search) && search != ",")
             {
                 var matches = dictionaryWords.Where(pair => pair.Key.StartsWith(search)).ToList();
-                var seenValues = new HashSet<string>();
                 foreach (var pair in matches)
                 {
-                    if (seenValues.Add(pair.Value))
+                    if (already.Add(pair.Value))
                         suggestionList.Data.Add(new CustomListTableData.CustomCellInfo(pair.Value));
                 }
             }
@@ -603,7 +649,7 @@ namespace MapMemo.UI
             else
             {
                 suggestionList.TableView.ClearSelection();
-            }       
+            }
             suggestionList.TableView.ReloadData();
         }
 
