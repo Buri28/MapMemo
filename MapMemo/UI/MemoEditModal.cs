@@ -25,17 +25,17 @@ namespace MapMemo.UI
 {
     public class MemoEditModal : BSMLAutomaticViewController
     {
-        // 設定タブ用プロパティ
-        [UIValue("historyMaxCount")] private int historyMaxCount = 500;
-        [UIValue("historyShowCount")] private int historyShowCount = 3;
-
-        // 整数フォーマッタ
-        [UIAction("FormatInt")] private string FormatInt(float value) => ((int)value).ToString();
+        // 設定値
+        private static MapMemo.SettingsManager settings = MapMemo.SettingsManager.Load();
+        [UIValue("historyMaxCount")] private int historyMaxCount = settings.HistoryMaxCount;
+        [UIValue("historyShowCount")] private int historyShowCount = settings.HistoryShowCount;
 
         [UIAction("on-history-max-count-change")]
         private void OnHistoryMaxCountChange(int value)
         {
             historyMaxCount = value;
+            settings.HistoryMaxCount = value;
+            settings.Save();
             inputHistoryManager.SetMaxHistoryCount(value);
             UpdateSuggestions();
         }
@@ -44,7 +44,8 @@ namespace MapMemo.UI
         private void OnHistoryShowCountChange(int value)
         {
             historyShowCount = value;
-            // サジェストリストの再描画
+            settings.HistoryShowCount = value;
+            settings.Save();
             UpdateSuggestions();
         }
 
@@ -56,7 +57,7 @@ namespace MapMemo.UI
         }
         public static MemoEditModal Instance;
         // 入力履歴マネージャ
-        private static InputHistoryManager inputHistoryManager = new InputHistoryManager(Path.Combine("UserData", "MapMemo"));
+        private static InputHistoryManager inputHistoryManager = new InputHistoryManager(Path.Combine("UserData", "MapMemo"), settings.HistoryMaxCount);
         private string key;
         private string songName;
         private string songAuthor;

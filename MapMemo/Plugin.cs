@@ -1,5 +1,6 @@
 using IPA;
 using IPA.Logging;
+using SiraUtil.Zenject;
 using System;
 
 namespace MapMemo
@@ -16,10 +17,12 @@ namespace MapMemo
         // If AttachTo fails at runtime, SelectionHook will fall back to the floating attach.
 
         [Init]
-        public void Init(Logger logger)
+        public void Init(Logger logger, Zenjector zenjector)
         {
             Log = logger;
             Log.Info("MapMemo Init");
+            zenjector.Install<Installers.MenuInstaller>(Location.Menu);
+            Log?.Info("Menu installer registered");
         }
 
         [OnEnable]
