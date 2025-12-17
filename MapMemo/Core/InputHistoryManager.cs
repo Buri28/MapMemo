@@ -12,7 +12,7 @@ namespace MapMemo.Core
         private int maxHistoryCount = 500;
 
         public static InputHistoryManager Instance { get; private set; }
-        public List<KeyValuePair<string, string>> historyList { get; set; } = null;
+        public List<KeyValuePair<string, string>> historyList { get; set; } = new List<KeyValuePair<string, string>>();
         private void Awake()
         {
             Plugin.Log?.Info("InputHistoryManager Awake");
@@ -47,6 +47,8 @@ namespace MapMemo.Core
 
         public void AddHistory(string text, string subText = null)
         {
+            if (string.IsNullOrEmpty(text)) return;
+            if (historyList == null) historyList = new List<KeyValuePair<string, string>>();
             text = text.Trim().Replace("\r", "").Replace("\n", "");
             if (string.IsNullOrWhiteSpace(text) || text.Length < 2) return;
 
@@ -89,12 +91,13 @@ namespace MapMemo.Core
         {
             if (File.Exists(historyFilePath))
                 File.Delete(historyFilePath);
-            historyList = null;
+            historyList = new List<KeyValuePair<string, string>>();
         }
 
         public void SetMaxHistoryCount(int count)
         {
             maxHistoryCount = count;
+            if (historyList == null) historyList = new List<KeyValuePair<string, string>>();
             while (historyList.Count > maxHistoryCount)
             {
                 historyList.RemoveAt(0);
@@ -103,9 +106,30 @@ namespace MapMemo.Core
         public void SaveHistory()
         {
             // ファイルに保存処理
-            File.WriteAllLines(historyFilePath, historyList.Select(
-                kv => kv.Key != null ? $"{kv.Key},{kv.Value}" : kv.Value));
-            Plugin.Log?.Info("Input history saved.");
+            try
+            {
+                if (string.IsNullOrEmpty(historyFilePath) || historyList == null) return;
+                File.WriteAllLines(historyFilePath, historyList.Select(
+                    kv => kv.Key != null ? $"{kv.Key},{kv.Value}" : kv.Value));
+                Plugin.Log?.Info("Input history saved.");
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log?.Error($"Failed to save input history: {ex}");
+            }
+        }
+
+        private void OnDestroy()
+        {
+            Plugin.Log?.Info("OnDestroy: Saving input history.");
+            try
+            {
+                SaveHistory();
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log?.Error($"Failed to save input history on destroy: {ex}");
+            }
         }
 
         private void OnApplicationQuit()

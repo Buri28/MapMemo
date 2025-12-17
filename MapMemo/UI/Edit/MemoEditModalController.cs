@@ -72,6 +72,7 @@ namespace MapMemo.UI.Edit
         [UIComponent("last-updated")] private TextMeshProUGUI lastUpdated;
 
         [UIComponent("suggestion-list")] private CustomListTableData suggestionList;
+        private SuggestionListController suggestionController;
 
         // 辞書語リストは DictionaryManager が管理する
 
@@ -103,7 +104,9 @@ namespace MapMemo.UI.Edit
                         typeof(MemoEditModalController).Assembly,
                         "MapMemo.Resources.MemoEdit.bsml"),
                         parent.HostGameObject);
-                MapMemo.Core.DictionaryManager.Load();
+                // 初回のみロード
+                DictionaryManager.Load();
+                InputHistoryManager.Instance.LoadHistory(Path.Combine("UserData", "MapMemo"), settings.HistoryMaxCount);
             }
             // Instance.parentPanel = parent;
             Instance.key = key;
@@ -121,8 +124,8 @@ namespace MapMemo.UI.Edit
             }
             // A〜Z ボタンの見た目を整えるヘルパーを呼び出す
             ApplyAlphaButtonCosmetics(Instance);
-
-            InputHistoryManager.Instance.LoadHistory(Path.Combine("UserData", "MapMemo"), settings.HistoryMaxCount);
+            // サジェストリストを初期化する
+            Instance.suggestionController.Clear();
             return Instance;
         }
 
@@ -168,9 +171,21 @@ namespace MapMemo.UI.Edit
         private void OnPostParse()
         {
             Plugin.Log?.Info("MemoEditModal: OnPostParse called — setting up pick list");
-            suggestionList.TableView.didSelectCellWithIdxEvent += OnCellSelected;
-            suggestionList.CellSizeValue = 6f;
-            suggestionList.ExpandCell = true;
+            try
+            {
+                suggestionController = new SuggestionListController(suggestionList, historyShowCount);
+                suggestionController.SuggestionSelected += (value, subtext) =>
+                {
+                    Plugin.Log?.Info($"選択されたのは: {value}");
+                    if (string.IsNullOrEmpty(value)) return;
+                    AppendSelectedString(value, subtext);
+                    suggestionController.Clear();
+                };
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log?.Warn($"MemoEditModal.OnPostParse: failed to initialize SuggestionListController: {ex.Message}");
+            }
 
         }
         //// ◆画面初期表示関連メソッド End ◆////
@@ -182,23 +197,7 @@ namespace MapMemo.UI.Edit
 
             // A〜Z ボタンのラベルを更新する
             UpdateAlphaButtonLabels(this);
-            // サジェストリストを初期化する
-            UpdateSuggestions();
         }
-
-        private void OnCellSelected(TableView tableView, int index)
-        {
-            var selected = suggestionList.Data[index];
-            Plugin.Log?.Info($"選択されたのは: {selected.Text.ToString()}");
-            // 先頭の空文字が選択された場合は無視する
-            if (string.IsNullOrEmpty(selected.Text.ToString()))
-            {
-                return;
-            }
-            AppendSelectedString(selected.Text.ToString(), selected.Subtext?.ToString());
-            ClearSuggestions();
-        }
-
 
         private void CommitMemo()
         {
@@ -352,103 +351,29 @@ namespace MapMemo.UI.Edit
 
         private void ClearSuggestions()
         {
+            if (suggestionController != null)
+            {
+                suggestionController.Clear();
+                return;
+            }
             suggestionList.Data.Clear();
             suggestionList.TableView.ClearSelection();
             suggestionList.TableView.ReloadData();
         }
-        private void AddSuggestion(string value, string subText = null)
-        {
-            int dataCount = suggestionList.Data.Count;
-
-            if (string.IsNullOrEmpty(subText))
-            {
-                suggestionList.Data.Add(new CustomListTableData.CustomCellInfo(value));
-            }
-            else
-            {
-                suggestionList.Data.Add(new CustomListTableData.CustomCellInfo(value, subText));
-            }
-        }
 
         private void UpdateSuggestions()
         {
-            suggestionList.Data.Clear();
-
-            string search = pendingText.Replace("\n", "").Replace("\r", "");
-            if (string.IsNullOrEmpty(search))
+            if (suggestionController != null)
             {
-                suggestionList.TableView.ReloadData();
+                suggestionController.UpdateSuggestions(pendingText);
                 return;
             }
 
-            AddEmptySuggestion();
-            var already = new HashSet<KeyValuePair<string, string>>();
-            AddHistorySuggestions(search, already);
-            AddDictionarySuggestions(search, already);
-
-            UpdateSelection();
+            // Fallback: clear list
+            suggestionList.Data.Clear();
             suggestionList.TableView.ReloadData();
         }
-        private void AddEmptySuggestion()
-        {
-            AddSuggestion("");
-        }
-        private void AddHistorySuggestions(string search, HashSet<KeyValuePair<string, string>> already)
-        {
-            var history = InputHistoryManager.Instance.historyList;
 
-            foreach (var h in history)
-            {
-                Plugin.Log?.Info($"履歴項目: {h}");
-            }
-
-            var historyMatches = history
-                .AsEnumerable()
-                .Reverse()
-                .Where(h => (h.Key != null && h.Key.StartsWith(search)) || h.Value.StartsWith(search))
-                .Distinct()
-                .Take(historyShowCount)
-                .ToList();
-
-            foreach (var h in historyMatches)
-            {
-                Plugin.Log?.Info($"履歴サジェスト: {h}");
-                if (already.Add(h))
-                {
-                    AddSuggestion(h.Value, h.Key);
-                }
-            }
-        }
-
-        private void AddDictionarySuggestions(string search, HashSet<KeyValuePair<string, string>> already)
-        {
-            if (string.IsNullOrEmpty(search) || search == ",") return;
-
-            var matches = MapMemo.Core.DictionaryManager.GetMatches(search)
-                .Distinct()
-                .ToList();
-
-            foreach (var pair in matches)
-            {
-                if (already.Add(pair))
-                {
-                    AddSuggestion(pair.Value, pair.Key);
-                }
-            }
-        }
-
-
-        private void UpdateSelection()
-        {
-            if (suggestionList.Data.Count > 0)
-            {
-                suggestionList.TableView.SelectCellWithIdx(0, false);
-            }
-            else
-            {
-                suggestionList.TableView.ClearSelection();
-            }
-        }
 
         private int GetLastLineLength(string text)
         {
