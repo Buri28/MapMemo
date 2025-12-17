@@ -114,7 +114,7 @@ namespace MapMemo.UI.Edit
             Instance.songAuthor = songAuthor;
             // Instance.memoText.maxVisibleLines = 5;
             Instance.memo = entry?.memo ?? "";
-            Instance.lastUpdated.text = entry != null ? "Updated:" + FormatLocal(entry.updatedAt) : "";
+            Instance.lastUpdated.text = entry != null ? "Updated:" + MemoEditModalHelper.FormatLocal(entry.updatedAt) : "";
             if (Instance.memoText != null)
             {
                 Instance.memoText.richText = true;
@@ -123,74 +123,12 @@ namespace MapMemo.UI.Edit
                 Instance.pendingText = "";
             }
             // A〜Z ボタンの見た目を整えるヘルパーを呼び出す
-            ApplyAlphaButtonCosmetics(Instance);
+            MemoEditModalHelper.ApplyAlphaButtonCosmetics(Instance.modal, Instance.isShift);
             // サジェストリストを初期化する
             Instance.suggestionController.Clear();
             return Instance;
         }
-        // 一括でボタンにスタイルを適用するヘルパー
-        // Reflection を使って private フィールド `charAButton`..`charZButton` を取得し、見た目を整えます。
-        private static void ApplyAlphaButtonCosmetics(MemoEditModalController ctrl)
-        {
-            if (ReferenceEquals(ctrl, null)) return;
-            try
-            {
-                // 収集したボタンに一括でスタイルを適用
-                foreach (var btn in ctrl.modal.gameObject.GetComponentsInChildren<ClickableText>(true))
-                {
-                    try
-                    {
-                        if (btn == null) continue;
-                        btn.fontSize = 3.8f;
-                        btn.fontStyle = FontStyles.Italic | FontStyles.Underline;
-                        btn.alignment = TextAlignmentOptions.Center;
-                        // 特定の色以外も設定できるようにするため、ScriptableObject由来の色設定は無効化
-
-                        //btn.useScriptableObjectColors = true;
-                        btn.color = Color.cyan;
-                        //btn.faceColorはHighlightColorに影響するため設定しない
-                        btn.DefaultColor = Color.cyan;
-                        btn.HighlightColor = new Color(1f, 0.3f, 0f, 1f); // RGB: (255, 77, 0)// new Color(1f, 0f, 0f, 1f);
-                        btn.outlineColor = Color.yellow;
-                        btn.outlineWidth = 0.3f;
-
-                        // グロー(これではうまくいかないので一旦コメントアウト)
-                        // btn.fontMaterial.EnableKeyword("GLOW_ON");
-                        // btn.fontMaterial.SetColor("_GlowColor", new Color(1f, 0.3f, 0f));
-                        // btn.fontMaterial.SetFloat("_GlowPower", 0.5f);
-
-                        // リッチテキストが有効になるのは初回だけのためコメントアウト
-                        //btn.richText = true;
-
-                        // フォントを設定すると座標がずれる問題があるため一旦コメントアウト
-                        // var fonts = Resources.FindObjectsOfTypeAll<TMP_FontAsset>();
-                        // var font = fonts.FirstOrDefault(f => f.name.Contains("Assistant SDF")); // 使いたいフォント名に合わせて
-
-                        // if (font != null)
-                        // {
-                        //     btn.font = font;
-                        // }
-
-                        var layout = btn.gameObject.GetComponent<LayoutElement>();
-                        if (layout == null)
-                            layout = btn.gameObject.AddComponent<LayoutElement>();
-                        layout.preferredWidth = 5f;
-                        layout.minWidth = 5f;
-
-                        var label = btn.text.Trim().Replace(" ", ""); ;
-                        label = ctrl.isShift ? label.ToLowerInvariant() : label.ToUpperInvariant();
-
-                        // if(IsHalfWidth(label))
-                        // {
-                        label = EditLabel(label); // 全角スペースで囲む
-                        // }
-                        btn.text = label;
-                    }
-                    catch { /* 個別のボタン処理失敗は無視して続行 */ }
-                }
-            }
-            catch { /* 全体取得に失敗しても崩壊させない */ }
-        }
+        // ApplyAlphaButtonCosmetics moved to MemoEditModalHelper.ApplyAlphaButtonCosmetics
         /// <summary>
         /// モーダル表示
         /// </summary>
@@ -212,7 +150,7 @@ namespace MapMemo.UI.Edit
                 Plugin.Log?.Info("MemoEditModal.Show: showing modal" + (ReferenceEquals(modalCtrl.modal, null) ? " modal=null" : " modal!=null"));
                 modalCtrl.modal?.Show(true, true);
                 // 画面の左側半分あたりに表示するように位置調整
-                RepositionModalToLeftHalf(modalCtrl.modal);
+                MemoEditModalHelper.RepositionModalToLeftHalf(modalCtrl.modal);
             }
             catch (System.Exception ex)
             {
@@ -257,68 +195,12 @@ namespace MapMemo.UI.Edit
             Plugin.Log?.Info("MemoEditModal: OnEnable called");
 
             // A〜Z ボタンのラベルを更新する
-            UpdateAlphaButtonLabels(this);
+            MemoEditModalHelper.UpdateAlphaButtonLabels(this.modal, this.isShift);
         }
-        private static void RepositionModalToLeftHalf(HMUI.ModalView modal)
-        {
-            if (ReferenceEquals(modal, null)) return;
-            try
-            {
-                var rt = modal.gameObject.GetComponent<RectTransform>();
-                if (rt != null)
-                {
-                    float offsetX = 0f;
-                    var parentCanvas = modal.gameObject.GetComponentInParent<Canvas>();
-                    if (parentCanvas != null)
-                    {
-                        var canvasRt = parentCanvas.GetComponent<RectTransform>();
-                        if (canvasRt != null)
-                        {
-                            offsetX = -1f * (canvasRt.rect.width * 0.5f);
-                        }
-                    }
-                    if (offsetX == 0f)
-                    {
-                        offsetX = -1f * (UnityEngine.Screen.width * 0.5f);
-                    }
-                    var current = rt.anchoredPosition;
-                    rt.anchoredPosition = new Vector2(current.x + offsetX, current.y);
-                    MapMemo.Plugin.Log?.Info($"MemoEditModal.RepositionModalToLeftHalf: shifted modal anchoredPosition by {offsetX} (newX={rt.anchoredPosition.x})");
-                }
-            }
-            catch (System.Exception ex)
-            {
-                MapMemo.Plugin.Log?.Warn($"MemoEditModal.RepositionModalToLeftHalf: exception {ex}");
-            }
-        }
+        // RepositionModalToLeftHalf moved to MemoEditModalHelper.RepositionModalToLeftHalf
 
         // Shift 切替時はラベルの差し替えだけ行う（スタイルは既に適用済みの前提）
-        private void UpdateAlphaButtonLabels(MemoEditModalController ctrl)
-        {
-
-            if (ctrl.modal == null)
-            {
-                MapMemo.Plugin.Log?.Warn("MemoEditModal.UpdateAlphaButtonLabels: modal is null, cannot collect buttons");
-            }
-            if (ctrl.modal != null && ctrl.modal.gameObject == null)
-            {
-                MapMemo.Plugin.Log?.Warn("MemoEditModal.UpdateAlphaButtonLabels: modal.gameObject is null, cannot collect buttons");
-            }
-            Plugin.Log?.Info("MemoEditModal.UpdateAlphaButtonLabels: "
-                + ctrl.modal.gameObject.GetComponentsInChildren<ClickableText>(true).Count()
-                + " ClickableText components found under modal");
-            foreach (var btn in ctrl.modal.gameObject.GetComponentsInChildren<ClickableText>(true))
-            {
-
-                var stored = btn.text.Trim().Replace("　", ""); // 全角スペースを取り除く   
-
-                // if (btn == null || string.IsNullOrEmpty(stored)) continue;
-                // var ch = stored.FirstOrDefault();
-                // if (ch == default) continue;
-                var label = isShift ? stored.ToLowerInvariant() : stored.ToUpperInvariant();
-                btn.text = EditLabel(label);
-            }
-        }
+        // UpdateAlphaButtonLabels moved to MemoEditModalHelper.UpdateAlphaButtonLabels
         //// ◆画面初期表示関連メソッド End ◆////
 
 
@@ -357,7 +239,7 @@ namespace MapMemo.UI.Edit
                     memo = text
                 };
                 Plugin.Log?.Info($"MemoEditModal.OnSave: key='{entry.key}' song='{entry.songName}' author='{entry.songAuthor}' len={text.Length}");
-                lastUpdated.text = FormatLocal(DateTime.UtcNow);
+                lastUpdated.text = MemoEditModalHelper.FormatLocal(DateTime.UtcNow);
 
                 await MemoRepository.SaveAsync(entry);
                 // 表示更新（transform未参照で安全にフォールバック）
@@ -523,20 +405,7 @@ namespace MapMemo.UI.Edit
             return "<color=#FFFF00><u>" + pendingText + "</u></color>";
         }
 
-        private static string FormatLocal(DateTime utc)
-        {
-            var local = utc.ToLocalTime();
-            return $"{local:yyyy/MM/dd HH:mm:ss}";
-        }
-        // private static bool IsHalfWidth(string s)
-        // {
-        //     return System.Text.RegularExpressions.Regex.IsMatch(s, @"^[\u0020-\u007E]+$");
-        // }
-
-        private static string EditLabel(string label)
-        {
-            return "  " + label + "  ";
-        }
+        // FormatLocal and EditLabel moved to MemoEditModalHelper
 
         [UIAction("on-char-a")] private void OnCharA() => Append("あ");
         [UIAction("on-char-i")] private void OnCharI() => Append("い");
@@ -829,7 +698,7 @@ namespace MapMemo.UI.Edit
             isShift = !isShift;
             try
             {
-                UpdateAlphaButtonLabels(this);
+                MemoEditModalHelper.UpdateAlphaButtonLabels(this.modal, this.isShift);
             }
             catch (Exception e)
             {
