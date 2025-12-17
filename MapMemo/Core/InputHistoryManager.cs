@@ -1,0 +1,117 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using UnityEngine;
+
+namespace MapMemo.Core
+{
+    public class InputHistoryManager : MonoBehaviour
+    {
+        private string historyFilePath;
+        private int maxHistoryCount = 500;
+
+        public static InputHistoryManager Instance { get; private set; }
+        public List<KeyValuePair<string, string>> historyList { get; set; } = null;
+        private void Awake()
+        {
+            Plugin.Log?.Info("InputHistoryManager Awake");
+            if (Instance != null)
+            {
+                Destroy(this);
+                return;
+            }
+
+            Instance = this;
+            DontDestroyOnLoad(this.gameObject);
+        }
+
+        public InputHistoryManager LoadHistory(string userDataDir, int maxCount = 500)
+        {
+            Directory.CreateDirectory(userDataDir);
+            historyFilePath = Path.Combine(userDataDir, "_input_history.txt");
+            maxHistoryCount = maxCount;
+
+            LoadHistory();
+
+            return this;
+        }
+
+        // 静的メソッド: UserData/MapMemo/_input_history.txt を削除
+        public static void ClearHistoryStatic()
+        {
+            var path = Path.Combine("UserData", "MapMemo", "_input_history.txt");
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+
+        public void AddHistory(string text, string subText = null)
+        {
+            text = text.Trim().Replace("\r", "").Replace("\n", "");
+            if (string.IsNullOrWhiteSpace(text) || text.Length < 2) return;
+
+            historyList.RemoveAll(x => x.Key == subText && x.Value == text);
+            historyList.Add(new KeyValuePair<string, string>(subText, text));
+            while (historyList.Count > maxHistoryCount)
+            {
+                historyList.RemoveAt(0);
+            }
+        }
+
+        private void LoadHistory()
+        {
+            if (!File.Exists(historyFilePath))
+            {
+                historyList = new List<KeyValuePair<string, string>>();
+                return;
+            }
+            var historyLines = File.ReadAllLines(historyFilePath).ToList();
+            historyList = historyLines
+                .Select(line =>
+                {
+                    var parts = line.Split(new[] { ',' }, 2);
+                    var splitIndex = line.IndexOf(',');
+                    if (splitIndex >= 0)
+                    {
+                        var key = line.Substring(0, splitIndex).Trim();
+                        var value = line.Substring(splitIndex + 1).Trim();
+                        return new KeyValuePair<string, string>(key, value);
+                    }
+                    else
+                    {
+                        return new KeyValuePair<string, string>(null, line.Trim());
+                    }
+                })
+                .ToList();
+        }
+
+        public void ClearHistory()
+        {
+            if (File.Exists(historyFilePath))
+                File.Delete(historyFilePath);
+            historyList = null;
+        }
+
+        public void SetMaxHistoryCount(int count)
+        {
+            maxHistoryCount = count;
+            while (historyList.Count > maxHistoryCount)
+            {
+                historyList.RemoveAt(0);
+            }
+        }
+        public void SaveHistory()
+        {
+            // ファイルに保存処理
+            File.WriteAllLines(historyFilePath, historyList.Select(
+                kv => kv.Key != null ? $"{kv.Key},{kv.Value}" : kv.Value));
+            Plugin.Log?.Info("Input history saved.");
+        }
+
+        private void OnApplicationQuit()
+        {
+            Plugin.Log?.Info("OnApplicationQuit: Saving input history.");
+            SaveHistory();
+        }
+    }
+}

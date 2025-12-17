@@ -20,13 +20,15 @@ using IPA.Utilities;
 using System.IO;
 using MapMemo.UI;
 using UnityEngine.Rendering;
+using MapMemo.UI.Menu;
+using MapMemo.Core;
 
-namespace MapMemo.UI
+namespace MapMemo.UI.Edit
 {
     public class MemoEditModal : BSMLAutomaticViewController
     {
         // 設定値
-        private static MapMemo.SettingsManager settings = MapMemo.SettingsManager.Load();
+        private static MapMemo.Core.MemoSettingsManager settings = MapMemo.Core.MemoSettingsManager.Load();
         [UIValue("historyMaxCount")] private int historyMaxCount = settings.HistoryMaxCount;
         [UIValue("historyShowCount")] private int historyShowCount = settings.HistoryShowCount;
 
@@ -36,7 +38,7 @@ namespace MapMemo.UI
             historyMaxCount = value;
             settings.HistoryMaxCount = value;
             settings.Save();
-            inputHistoryManager.SetMaxHistoryCount(value);
+            InputHistoryManager.Instance.SetMaxHistoryCount(value);
             UpdateSuggestions();
         }
 
@@ -52,12 +54,11 @@ namespace MapMemo.UI
         [UIAction("on-clear-history")]
         private void OnClearHistory()
         {
-            inputHistoryManager.ClearHistory();
+            InputHistoryManager.Instance.ClearHistory();
             UpdateSuggestions();
         }
         public static MemoEditModal Instance;
-        // 入力履歴マネージャ
-        private static InputHistoryManager inputHistoryManager = new InputHistoryManager(Path.Combine("UserData", "MapMemo"), settings.HistoryMaxCount);
+
         private string key;
         private string songName;
         private string songAuthor;
@@ -74,200 +75,6 @@ namespace MapMemo.UI
 
         // ① 辞書語リスト（キー: 検索キー, 値: 表示する値、重複排除・順序保持）
         private List<KeyValuePair<string, string>> dictionaryWords = new List<KeyValuePair<string, string>>();
-        // [UIComponent("char-A")] private ClickableText charAButton;
-        // [UIComponent("char-B")] private ClickableText charBBpickListutton;
-        // [UIComponent("char-C")] private ClickableText charCButton;
-        // [UIComponent("char-D")] private ClickableText charDButton;
-        // [UIComponent("char-E")] private ClickableText charEButton;
-        // [UIComponent("char-F")] private ClickableText charFButton;
-        // [UIComponent("char-G")] private ClickableText charGButton;
-        // [UIComponent("char-H")] private ClickableText charHButton;
-        // [UIComponent("char-I")] private ClickableText charIButton;
-        // [UIComponent("char-J")] private ClickableText charJButton;
-        // [UIComponent("char-K")] private ClickableText charKButton;
-        // [UIComponent("char-L")] private ClickableText charLButton;
-        // [UIComponent("char-M")] private ClickableText charMButton;
-        // [UIComponent("char-N")] private ClickableText charNButton;
-        // [UIComponent("char-O")] private ClickableText charOButton;
-        // [UIComponent("char-P")] private ClickableText charPButton;
-        // [UIComponent("char-Q")] private ClickableText charQButton;
-        // [UIComponent("char-R")] private ClickableText charRButton;
-        // [UIComponent("char-S")] private ClickableText charSButton;
-        // [UIComponent("char-T")] private ClickableText charTButton;
-        // [UIComponent("char-U")] private ClickableText charUButton;
-        // [UIComponent("char-V")] private ClickableText charVButton;
-        // [UIComponent("char-W")] private ClickableText charWButton;
-        // [UIComponent("char-X")] private ClickableText charXButton;
-        // [UIComponent("char-Y")] private ClickableText charYButton;
-        // [UIComponent("char-Z")] private ClickableText charZButton;
-        // [UIComponent("char-0")] private ClickableText char0Button;
-        // [UIComponent("char-1")] private ClickableText char1Button;
-        // [UIComponent("char-2")] private ClickableText char2Button;
-        // [UIComponent("char-3")] private ClickableText char3Button;
-        // [UIComponent("char-4")] private ClickableText char4Button;
-        // [UIComponent("char-5")] private ClickableText char5Button;
-        // [UIComponent("char-6")] private ClickableText char6Button;
-        // [UIComponent("char-7")] private ClickableText char7Button;
-        // [UIComponent("char-8")] private ClickableText char8Button;
-        // [UIComponent("char-9")] private ClickableText char9Button;
-        // [UIComponent("char-comma")] private ClickableText charCommaButton;
-        // [UIComponent("char-period")] private ClickableText charPeriodButton;
-        // [UIComponent("char-exclam")] private ClickableText charExclamButton;
-        // [UIComponent("char-question")] private ClickableText charQuestionButton;
-        // [UIComponent("char-hyphen")] private ClickableText charHyphenButton;
-        // [UIComponent("char-slash")] private ClickableText charSlashButton;
-        // [UIComponent("char-colon")] private ClickableText charColonButton;
-        // [UIComponent("char-semicolon")] private ClickableText charSemicolonButton;
-        // [UIComponent("char-lparen")] private ClickableText charLParenButton;
-        // [UIComponent("char-rparen")] private ClickableText charRParenButton;
-        // [UIComponent("char-ampersand")] private ClickableText charAmpersandButton;
-        // [UIComponent("char-at")] private ClickableText charAtButton;
-        // [UIComponent("char-hash")] private ClickableText charHashButton;
-        // [UIComponent("char-plus")] private ClickableText charPlusButton;
-        // // ひらがなキー
-        // [UIComponent("char-a")] private ClickableText charHiraAButton;
-        // [UIComponent("char-i")] private ClickableText charHiraIButton;
-        // [UIComponent("char-u")] private ClickableText charHiraUButton;
-        // [UIComponent("char-e")] private ClickableText charHiraEButton;
-        // [UIComponent("char-o")] private ClickableText charHiraOButton;
-
-        // [UIComponent("char-ka")] private ClickableText charHiraKaButton;
-        // [UIComponent("char-ki")] private ClickableText charHiraKiButton;
-        // [UIComponent("char-ku")] private ClickableText charHiraKuButton;
-        // [UIComponent("char-ke")] private ClickableText charHiraKeButton;
-        // [UIComponent("char-ko")] private ClickableText charHiraKoButton;
-
-        // [UIComponent("char-sa")] private ClickableText charHiraSaButton;
-        // [UIComponent("char-shi")] private ClickableText charHiraShiButton;
-        // [UIComponent("char-su")] private ClickableText charHiraSuButton;
-        // [UIComponent("char-se")] private ClickableText charHiraSeButton;
-        // [UIComponent("char-so")] private ClickableText charHiraSoButton;
-
-        // [UIComponent("char-ta")] private ClickableText charHiraTaButton;
-        // [UIComponent("char-chi")] private ClickableText charHiraChiButton;
-        // [UIComponent("char-tsu")] private ClickableText charHiraTsuButton;
-        // [UIComponent("char-te")] private ClickableText charHiraTeButton;
-        // [UIComponent("char-to")] private ClickableText charHiraToButton;
-
-        // [UIComponent("char-na")] private ClickableText charHiraNaButton;
-        // [UIComponent("char-ni")] private ClickableText charHiraNiButton;
-        // [UIComponent("char-nu")] private ClickableText charHiraNuButton;
-        // [UIComponent("char-ne")] private ClickableText charHiraNeButton;
-        // [UIComponent("char-no")] private ClickableText charHiraNoButton;
-
-        // [UIComponent("char-ha")] private ClickableText charHiraHaButton;
-        // [UIComponent("char-hi")] private ClickableText charHiraHiButton;
-        // [UIComponent("char-fu")] private ClickableText charHiraFuButton;
-        // [UIComponent("char-he")] private ClickableText charHiraHeButton;
-        // [UIComponent("char-ho")] private ClickableText charHiraHoButton;
-
-        // [UIComponent("char-ma")] private ClickableText charHiraMaButton;
-        // [UIComponent("char-mi")] private ClickableText charHiraMiButton;
-        // [UIComponent("char-mu")] private ClickableText charHiraMuButton;
-        // [UIComponent("char-me")] private ClickableText charHiraMeButton;
-        // [UIComponent("char-mo")] private ClickableText charHiraMoButton;
-
-        // [UIComponent("char-ya")] private ClickableText charHiraYaButton;
-        // [UIComponent("char-yu")] private ClickableText charHiraYuButton;
-        // [UIComponent("char-yo")] private ClickableText charHiraYoButton;
-        // [UIComponent("char-wa")] private ClickableText charHiraWaButton;
-        // [UIComponent("char-wo")] private ClickableText charHiraWoButton;
-
-        // [UIComponent("char-n")] private ClickableText charHiraNButton;
-        // [UIComponent("char-long")] private ClickableText charHiraLongButton;
-        // [UIComponent("char-cho")] private ClickableText charHiraChoButton;
-        // [UIComponent("char-ka-cho")] private ClickableText charHiraKaChoButton;
-        // [UIComponent("char-dot")] private ClickableText charHiraDotButton;
-
-        // // カタカナキー
-        // [UIComponent("char-ka-a")] private ClickableText charKataKaAButton;
-        // [UIComponent("char-ka-i")] private ClickableText charKataKaIButton;
-        // [UIComponent("char-ka-u")] private ClickableText charKataKaUButton;
-        // [UIComponent("char-ka-e")] private ClickableText charKataKaEButton;
-        // [UIComponent("char-ka-o")] private ClickableText charKataKaOButton;
-
-        // [UIComponent("char-ka-ka")] private ClickableText charKataKaKaButton;
-        // [UIComponent("char-ka-ki")] private ClickableText charKataKaKiButton;
-        // [UIComponent("char-ka-ku")] private ClickableText charKataKaKuButton;
-        // [UIComponent("char-ka-ke")] private ClickableText charKataKaKeButton;
-        // [UIComponent("char-ka-ko")] private ClickableText charKataKaKoButton;
-
-        // [UIComponent("char-ka-sa")] private ClickableText charKataKaSaButton;
-        // [UIComponent("char-ka-shi")] private ClickableText charKataKaShiButton;
-        // [UIComponent("char-ka-su")] private ClickableText charKataKaSuButton;
-        // [UIComponent("char-ka-se")] private ClickableText charKataKaSeButton;
-        // [UIComponent("char-ka-so")] private ClickableText charKataKaSoButton;
-
-        // [UIComponent("char-ka-ta")] private ClickableText charKataKaTaButton;
-        // [UIComponent("char-ka-chi")] private ClickableText charKataKaChiButton;
-        // [UIComponent("char-ka-tsu")] private ClickableText charKataKaTsuButton;
-        // [UIComponent("char-ka-te")] private ClickableText charKataKaTeButton;
-        // [UIComponent("char-ka-to")] private ClickableText charKataKaToButton;
-
-        // [UIComponent("char-ka-na")] private ClickableText charKataKaNaButton;
-        // [UIComponent("char-ka-ni")] private ClickableText charKataKaNiButton;
-        // [UIComponent("char-ka-nu")] private ClickableText charKataKaNuButton;
-        // [UIComponent("char-ka-ne")] private ClickableText charKataKaNeButton;
-        // [UIComponent("char-ka-no")] private ClickableText charKataKaNoButton;
-
-        // [UIComponent("char-ka-ha")] private ClickableText charKataKaHaButton;
-        // [UIComponent("char-ka-hi")] private ClickableText charKataKaHiButton;
-        // [UIComponent("char-ka-fu")] private ClickableText charKataKaFuButton;
-        // [UIComponent("char-ka-he")] private ClickableText charKataKaHeButton;
-        // [UIComponent("char-ka-ho")] private ClickableText charKataKaHoButton;
-
-        // [UIComponent("char-ka-ma")] private ClickableText charKataKaMaButton;
-        // [UIComponent("char-ka-mi")] private ClickableText charKataKaMiButton;
-        // [UIComponent("char-ka-mu")] private ClickableText charKataKaMuButton;
-        // [UIComponent("char-ka-me")] private ClickableText charKataKaMeButton;
-        // [UIComponent("char-ka-mo")] private ClickableText charKataKaMoButton;
-
-        // [UIComponent("char-ka-ya")] private ClickableText charKataKaYaButton;
-        // [UIComponent("char-ka-yu")] private ClickableText charKataKaYuButton;
-        // [UIComponent("char-ka-yo")] private ClickableText charKataKaYoButton;
-        // [UIComponent("char-ka-wa")] private ClickableText charKataKaWaButton;
-        // [UIComponent("char-ka-wo")] private ClickableText charKataKaWoButton;
-
-        // [UIComponent("char-ka-ra")] private ClickableText charKataKaRaButton;
-        // [UIComponent("char-ka-ri")] private ClickableText charKataKaRiButton;
-        // [UIComponent("char-ka-ru")] private ClickableText charKataKaRuButton;
-        // [UIComponent("char-ka-re")] private ClickableText charKataKaReButton;
-        // [UIComponent("char-ka-ro")] private ClickableText charKataKaRoButton;
-
-        // [UIComponent("char-ka-n")] private ClickableText charKataKaNButton;
-
-        // // カタカナ濁点・半濁点
-        // [UIComponent("char-ka-ga")] private ClickableText charKataKaGaButton;
-        // [UIComponent("char-ka-gi")] private ClickableText charKataKaGiButton;
-        // [UIComponent("char-ka-gu")] private ClickableText charKataKaGuButton;
-        // [UIComponent("char-ka-ge")] private ClickableText charKataKaGeButton;
-        // [UIComponent("char-ka-go")] private ClickableText charKataKaGoButton;
-        // [UIComponent("char-ka-za")] private ClickableText charKataKaZaButton;
-        // [UIComponent("char-ka-ji")] private ClickableText charKataKaJiButton;
-        // [UIComponent("char-ka-zu")] private ClickableText charKataKaZuButton;
-        // [UIComponent("char-ka-ze")] private ClickableText charKataKaZeButton;
-        // [UIComponent("char-ka-zo")] private ClickableText charKataKaZoButton;
-        // [UIComponent("char-ka-da")] private ClickableText charKataKaDaButton;
-        // [UIComponent("char-ka-di")] private ClickableText charKataKaDiButton;
-        // [UIComponent("char-ka-du")] private ClickableText charKataKaDuButton;
-        // [UIComponent("char-ka-de")] private ClickableText charKataKaDeButton;
-        // [UIComponent("char-ka-do")] private ClickableText charKataKaDoButton;
-        // [UIComponent("char-ka-ba")] private ClickableText charKataKaBaButton;
-        // [UIComponent("char-ka-bi")] private ClickableText charKataKaBiButton;
-        // [UIComponent("char-ka-bu")] private ClickableText charKataKaBuButton;
-        // [UIComponent("char-ka-be")] private ClickableText charKataKaBeButton;
-        // [UIComponent("char-ka-bo")] private ClickableText charKataKaBoButton;
-
-        // [UIComponent("char-ka-pa")] private ClickableText charKataKaPaButton;
-        // [UIComponent("char-ka-pi")] private ClickableText charKataKaPiButton;
-        // [UIComponent("char-ka-pu")] private ClickableText charKataKaPuButton;
-        // [UIComponent("char-ka-pe")] private ClickableText charKataKaPeButton;
-        // [UIComponent("char-ka-po")] private ClickableText charKataKaPoButton;
-
-        // [UIComponent("char-ka-xtu")] private ClickableText charKataKaXtuButton;
-        // [UIComponent("char-ka-xya")] private ClickableText charKataKaXyaButton;
-        // [UIComponent("char-ka-xyu")] private ClickableText charKataKaXyuButton;
-        // [UIComponent("char-ka-xyo")] private ClickableText charKataKaXyoButton;
 
         //// ◆画面初期表示関連メソッド Start ◆////
 
@@ -315,6 +122,8 @@ namespace MapMemo.UI
             }
             // A〜Z ボタンの見た目を整えるヘルパーを呼び出す
             ApplyAlphaButtonCosmetics(Instance);
+
+            InputHistoryManager.Instance.LoadHistory(Path.Combine("UserData", "MapMemo"), settings.HistoryMaxCount);
             return Instance;
         }
 
@@ -389,7 +198,7 @@ namespace MapMemo.UI
                         }
                         else
                         {
-                            Instance.dictionaryWords.Add(new KeyValuePair<string, string>(line.Trim(), line.Trim()));
+                            Instance.dictionaryWords.Add(new KeyValuePair<string, string>(null, line.Trim()));
                         }
                     }
                     Plugin.Log?.Info($"Loaded {Instance.dictionaryWords.Count} dictionary words.");
@@ -444,7 +253,7 @@ namespace MapMemo.UI
             {
                 return;
             }
-            AppendSelectedString(selected.Text.ToString());
+            AppendSelectedString(selected.Text.ToString(), selected.Subtext?.ToString());
             ClearSuggestions();
         }
 
@@ -493,7 +302,7 @@ namespace MapMemo.UI
                 // 親パネルの反映
                 var parentPanelLocal = MemoPanelController.instance;
                 // 確定状態にする
-                inputHistoryManager.AddHistory(pendingText);
+                InputHistoryManager.Instance.AddHistory(pendingText);
                 CommitMemo();
                 await parentPanelLocal.Refresh();
                 MapMemo.Plugin.Log?.Info("MemoEditModal.OnSave: refreshing MemoPanelController");
@@ -537,7 +346,7 @@ namespace MapMemo.UI
         }
 
         // かなキーボードの入力処理
-        private void AppendSelectedString(string s)
+        private void AppendSelectedString(string s, string subText = null)
         {
             pendingText = "";
             memo = confirmedText;
@@ -545,7 +354,7 @@ namespace MapMemo.UI
             {
                 Append(ch.ToString(), false);
             }
-            inputHistoryManager.AddHistory(s);
+            InputHistoryManager.Instance.AddHistory(s, subText);
             // 確定処理
             CommitMemo();
 
@@ -605,45 +414,91 @@ namespace MapMemo.UI
             suggestionList.TableView.ClearSelection();
             suggestionList.TableView.ReloadData();
         }
+        private void AddSuggestion(string value, string subText = null)
+        {
+            int dataCount = suggestionList.Data.Count;
+
+            if (string.IsNullOrEmpty(subText))
+            {
+                suggestionList.Data.Add(new CustomListTableData.CustomCellInfo(value));
+            }
+            else
+            {
+                suggestionList.Data.Add(new CustomListTableData.CustomCellInfo(value, subText));
+            }
+        }
+
         private void UpdateSuggestions()
         {
             suggestionList.Data.Clear();
-            // サジェスト更新処理（キーで前方一致し値を表示）
-            // 改行は削除して検索する
+
             string search = pendingText.Replace("\n", "").Replace("\r", "");
-            if (search.Length == 0)
+            if (string.IsNullOrEmpty(search))
             {
                 suggestionList.TableView.ReloadData();
                 return;
             }
-            suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("")); // 空行を先頭に追加
 
-            // --- 履歴から最大N件を重複排除して「新しいものが上」に追加 ---
-            var history = inputHistoryManager.LoadHistory();
+            AddEmptySuggestion();
+            var already = new HashSet<KeyValuePair<string, string>>();
+            AddHistorySuggestions(search, already);
+            AddDictionarySuggestions(search, already);
+
+            UpdateSelection();
+            suggestionList.TableView.ReloadData();
+        }
+        private void AddEmptySuggestion()
+        {
+            AddSuggestion("");
+        }
+        private void AddHistorySuggestions(string search, HashSet<KeyValuePair<string, string>> already)
+        {
+            var history = InputHistoryManager.Instance.historyList;
+
+            foreach (var h in history)
+            {
+                Plugin.Log?.Info($"履歴項目: {h}");
+            }
+
             var historyMatches = history
-                .Reverse<string>() // 新しい順
-                .Where(h => h.StartsWith(search))
+                .AsEnumerable()
+                .Reverse()
+                .Where(h => (h.Key != null && h.Key.StartsWith(search)) || h.Value.StartsWith(search))
                 .Distinct()
                 .Take(historyShowCount)
                 .ToList();
-            var already = new HashSet<string>();
+
             foreach (var h in historyMatches)
             {
-                already.Add(h);
-                suggestionList.Data.Add(new CustomListTableData.CustomCellInfo(h));
-            }
-
-            // --- 辞書からもサジェスト（履歴と重複しないもののみ） ---
-            if (!string.IsNullOrEmpty(search) && search != ",")
-            {
-                var matches = dictionaryWords.Where(pair => pair.Key.StartsWith(search)).ToList();
-                foreach (var pair in matches)
+                Plugin.Log?.Info($"履歴サジェスト: {h}");
+                if (already.Add(h))
                 {
-                    if (already.Add(pair.Value))
-                        suggestionList.Data.Add(new CustomListTableData.CustomCellInfo(pair.Value));
+                    AddSuggestion(h.Value, h.Key);
                 }
             }
-            // 先頭の空文字を選択する
+        }
+
+        private void AddDictionarySuggestions(string search, HashSet<KeyValuePair<string, string>> already)
+        {
+            if (string.IsNullOrEmpty(search) || search == ",") return;
+
+            var matches = dictionaryWords
+                .Where(pair => pair.Key != null && pair.Key.StartsWith(search))
+                .Distinct()
+                .ToList();
+
+            foreach (var pair in matches)
+            {
+                if (already.Add(pair))
+                {
+                    AddSuggestion(pair.Value, pair.Key);
+                }
+            }
+        }
+
+
+        private void UpdateSelection()
+        {
             if (suggestionList.Data.Count > 0)
             {
                 suggestionList.TableView.SelectCellWithIdx(0, false);
@@ -652,8 +507,72 @@ namespace MapMemo.UI
             {
                 suggestionList.TableView.ClearSelection();
             }
-            suggestionList.TableView.ReloadData();
         }
+
+        // private void UpdateSuggestions()
+        // {
+        //     suggestionList.Data.Clear();
+        //     // サジェスト更新処理（キーで前方一致し値を表示）
+        //     // 改行は削除して検索する
+        //     string search = pendingText.Replace("\n", "").Replace("\r", "");
+        //     if (search.Length == 0)
+        //     {
+        //         suggestionList.TableView.ReloadData();
+        //         return;
+        //     }
+        //     AddSuggestion("");
+        //     suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("")); // 空行を先頭に追加
+
+        //     // --- 履歴から最大N件を重複排除して「新しいものが上」に追加 ---
+        //     var history = InputHistoryManager.Instance.historyList;
+        //     // 履歴を全件ログ出力
+        //     foreach (var h in history)
+        //     {
+        //         Plugin.Log?.Info($"履歴項目: {h}");
+        //     }
+
+        //     // keyがある場合はkeyで検索、ない場合はvalueで検索
+        //     var historyMatches = history
+        //         .AsEnumerable()
+        //         .Reverse()
+        //         .Where(h => (h.Key != null && h.Key.StartsWith(search)) || h.Value.StartsWith(search))
+        //         .Distinct() // ← Key と Value のペアで重複排除！
+        //         .Take(historyShowCount)
+        //         .ToList();
+
+        //     var already = new HashSet<KeyValuePair<string, string>>();
+        //     foreach (var h in historyMatches)
+        //     {
+        //         Plugin.Log?.Info($"履歴サジェスト: {h}");
+        //         already.Add(h);
+        //         AddSuggestion(h.Key, h.Value);
+        //     }
+
+        //     // --- 辞書からもサジェスト（履歴と重複しないもののみ） ---
+        //     if (!string.IsNullOrEmpty(search) && search != ",")
+        //     {
+
+        //         var matches = dictionaryWords.Where(
+        //             pair => pair.Key.StartsWith(search)).ToList();
+        //         foreach (var pair in matches)
+        //         {
+        //             if (already.Add(pair))
+        //             {
+        //                 AddSuggestion(pair.Value, pair.Key);
+        //             }
+        //         }
+        //     }
+        //     // 先頭の空文字を選択する
+        //     if (suggestionList.Data.Count > 0)
+        //     {
+        //         suggestionList.TableView.SelectCellWithIdx(0, false);
+        //     }
+        //     else
+        //     {
+        //         suggestionList.TableView.ClearSelection();
+        //     }
+        //     suggestionList.TableView.ReloadData();
+        // }
 
         private int GetLastLineLength(string text)
         {
@@ -1125,7 +1044,7 @@ namespace MapMemo.UI
         {
             if (pendingText.Length > 0)
             {
-                inputHistoryManager.AddHistory(pendingText);
+                InputHistoryManager.Instance.AddHistory(pendingText);
                 // 未確定文字を確定文字にする
                 CommitMemo();
                 UpdateSuggestions();

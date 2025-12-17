@@ -1,4 +1,7 @@
+using MapMemo.Core;
 using MapMemo.UI;
+using MapMemo.UI.Edit;
+using MapMemo.UI.Settings;
 using UnityEngine;
 using Zenject;
 
@@ -14,19 +17,7 @@ namespace MapMemo.Installers
             go.SetActive(true);
             Object.DontDestroyOnLoad(go); // シーン遷移で消えないようにする
 
-            // TODO: Replace 'MapMemoSettingsViewController' with the correct component if needed
-            // var controller = go.AddComponent<MapMemoSettingsViewInstaller>();
-
-            // Container.BindInterfacesAndSelfTo<MapMemoSettingsViewInstaller>()
-            //     .FromInstance(controller)
-            //     .AsSingle();
-
-            // var gameObject = new GameObject("MapMemoSettingsViewController");
-            // gameObject.SetActive(true);
-            // Container.Bind<MapMemoSettingsViewController>()
-            //     .FromInstance(gameObject.AddComponent<MapMemoSettingsViewController>())
-            //     .AsSingle();
-
+            go.AddComponent<InputHistoryManager>();
             var controller = go.AddComponent<MapMemoSettingsViewController>();
 
             Container.BindInterfacesAndSelfTo<MapMemoSettingsViewController>()
