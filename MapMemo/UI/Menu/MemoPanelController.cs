@@ -87,78 +87,6 @@ namespace MapMemo.UI.Menu
             Plugin.Log?.Info("MemoPanelController: BSML parsed and attached to host '" + host.name + "'");
             BSMLParser.Instance.Parse(bsml, host, this);
         }
-        // public class MyFlowCoordinator : FlowCoordinator
-        // {
-        //     private MemoPanelController _memoPanel;
-
-        //     protected override void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
-        //     {
-        //         if (!firstActivation) return;
-
-
-
-        //         SetTitle("Memo Panel"); // ← これが重要！
-
-        //         _memoPanel = BeatSaberUI.CreateViewController<MemoPanelController>();
-
-        //         var bsmlContent = Utilities.GetResourceContent(
-        //             typeof(MemoPanelController).Assembly,
-        //             "MapMemo.Resources.MemoPanel.bsml");
-
-        //         _memoPanel.ParseBSML(bsmlContent, _memoPanel.gameObject);
-        //         Plugin.Log?.Info("Logging hierarchy after BSML parse:");
-        //         LogHierarchy(_memoPanel.transform);
-        //         _memoPanel.gameObject.SetActive(true);
-        //         var image = _memoPanel.gameObject.AddComponent<UnityEngine.UI.Image>();
-
-        //         var rt = _memoPanel.transform as RectTransform;
-        //         rt.anchorMin = new Vector2(0.5f, 0.5f);
-        //         rt.anchorMax = new Vector2(0.5f, 0.5f);
-        //         rt.pivot = new Vector2(0.5f, 0.5f);
-        //         rt.anchoredPosition = new Vector2(0f, -100f);
-        //         rt.sizeDelta = new Vector2(300f, 150f);
-
-        //         image.color = UnityEngine.Color.red;
-
-        //         Plugin.Log?.Info($"Child count: {_memoPanel.transform.childCount}");
-        //         for (int i = 0; i < _memoPanel.transform.childCount; i++)
-        //         {
-        //             var child = _memoPanel.transform.GetChild(i);
-        //             Plugin.Log?.Info($"Child[{i}] = {child.name}, active={child.gameObject.activeSelf}");
-        //         }
-
-        //         ProvideInitialViewControllers(_memoPanel);
-        //         // _memoPanel.transform.SetParent(BeatSaberUI.MainFlowCoordinator.transform, false);
-        //     }
-        //     void LogHierarchy(Transform t, string indent = "")
-        //     {
-        //         Plugin.Log?.Info($"{indent}- {t.name} (active={t.gameObject.activeSelf})");
-        //         for (int i = 0; i < t.childCount; i++)
-        //         {
-        //             LogHierarchy(t.GetChild(i), indent + "  ");
-        //         }
-        //     }
-        // }
-
-
-        // /// <summary>
-        // /// 初回表示時のセットアップ
-        // /// </summary>  
-        // protected override async void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
-        // {
-        //     // TODO:本来ここが呼ばれるべきだが呼ばれていない(インスタンスを直接newしているため)
-        //     base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
-        //     if (!firstActivation) return;
-
-        //     MapMemo.Plugin.Log?.Info($"MemoPanelController.DidActivate: firstActivation={firstActivation} addedToHierarchy={addedToHierarchy} screenSystemEnabling={screenSystemEnabling}");
-        //     // アクティベートされたインスタンスを設定する
-        //     instance = this;
-        //     if (HostGameObject == null)
-        //     {
-        //         HostGameObject = this.transform != null ? this.transform.gameObject : null;
-        //     }
-        //     await Refresh();
-        // }
 
         /// <summary>
         /// 編集ボタン押下時
@@ -167,7 +95,7 @@ namespace MapMemo.UI.Menu
         public void OnEditClick()
         {
             MapMemo.Plugin.Log?.Info($"MemoPanel: Edit click key='{Key}' song='{SongName}' author='{SongAuthor}'");
-            MemoEditModal.Show(instance, Key ?? "unknown", SongName ?? "", SongAuthor ?? "");
+            MemoEditModalController.Show(instance, Key ?? "unknown", SongName ?? "", SongAuthor ?? "");
         }
 
         /// <summary>

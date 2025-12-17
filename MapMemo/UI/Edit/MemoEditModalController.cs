@@ -25,7 +25,7 @@ using MapMemo.Core;
 
 namespace MapMemo.UI.Edit
 {
-    public class MemoEditModal : BSMLAutomaticViewController
+    public class MemoEditModalController : BSMLAutomaticViewController
     {
         // 設定値
         private static MapMemo.Core.MemoSettingsManager settings = MapMemo.Core.MemoSettingsManager.Load();
@@ -57,7 +57,7 @@ namespace MapMemo.UI.Edit
             InputHistoryManager.Instance.ClearHistory();
             UpdateSuggestions();
         }
-        public static MemoEditModal Instance;
+        public static MemoEditModalController Instance;
 
         private string key;
         private string songName;
@@ -73,8 +73,7 @@ namespace MapMemo.UI.Edit
 
         [UIComponent("suggestion-list")] private CustomListTableData suggestionList;
 
-        // ① 辞書語リスト（キー: 検索キー, 値: 表示する値、重複排除・順序保持）
-        private List<KeyValuePair<string, string>> dictionaryWords = new List<KeyValuePair<string, string>>();
+        // 辞書語リストは DictionaryManager が管理する
 
         //// ◆画面初期表示関連メソッド Start ◆////
 
@@ -87,7 +86,7 @@ namespace MapMemo.UI.Edit
         /// <param name="songName"></param>
         /// <param name="songAuthor"></param>
         /// <returns></returns>
-        public static MemoEditModal GetInstance(
+        public static MemoEditModalController GetInstance(
             MemoEntry entry,
             MemoPanelController parent,
             string key,
@@ -97,14 +96,14 @@ namespace MapMemo.UI.Edit
             if (ReferenceEquals(Instance, null))
             {
                 Plugin.Log?.Info("MemoEditModal.GetInstance: creating new modal instance");
-                Instance = BeatSaberUI.CreateViewController<MemoEditModal>();
+                Instance = BeatSaberUI.CreateViewController<MemoEditModalController>();
 
                 Instance.ParseBSML(
                     Utilities.GetResourceContent(
-                        typeof(MemoEditModal).Assembly,
+                        typeof(MemoEditModalController).Assembly,
                         "MapMemo.Resources.MemoEdit.bsml"),
                         parent.HostGameObject);
-                LoadDictionaryWords();
+                MapMemo.Core.DictionaryManager.Load();
             }
             // Instance.parentPanel = parent;
             Instance.key = key;
@@ -139,7 +138,7 @@ namespace MapMemo.UI.Edit
         {
             // 同期ロードを使って UI スレッドで確実に更新する
             var existing = MemoRepository.Load(key, songName, songAuthor);
-            var modalCtrl = MemoEditModal.GetInstance(existing, parent, key, songName, songAuthor);
+            var modalCtrl = MemoEditModalController.GetInstance(existing, parent, key, songName, songAuthor);
 
             Plugin.Log?.Info("MemoEditModal.Show: reusing existing parsed modal instance");
             // 表示は既にバインド済みの modal を利用して行う
@@ -156,64 +155,7 @@ namespace MapMemo.UI.Edit
             }
         }
 
-        private static void LoadDictionaryWords()
-        {
-            // ① UserData\MapMemo\#dictionary.txt を読み込む（キー,値形式）
-            try
-            {
-                string userDictionaryPath = Path.Combine(Environment.CurrentDirectory, "UserData", "MapMemo", "#dictionary.txt");
-                // UserData\MapMemo\#dictionary.txt がなければ埋め込みリソースからコピー
-                if (!File.Exists(userDictionaryPath))
-                {
-                    var asm = typeof(MemoEditModal).Assembly;
-                    var resourceName = "MapMemo.Resources.#dictionary.txt";
-                    using (var stream = asm.GetManifestResourceStream(resourceName))
-                    {
-                        if (stream != null)
-                        {
-                            Directory.CreateDirectory(Path.GetDirectoryName(userDictionaryPath));
-                            using (var fs = new FileStream(userDictionaryPath, FileMode.Create, FileAccess.Write))
-                            {
-                                stream.CopyTo(fs);
-                            }
-                            Plugin.Log?.Info($"Copied dictionary from embedded resource to UserData: {userDictionaryPath}");
-                        }
-                        else
-                        {
-                            Plugin.Log?.Warn($"Embedded dictionary resource not found: {resourceName}");
-                            return;
-                        }
-                    }
-                }
-                try
-                {
-                    Instance.dictionaryWords = new List<KeyValuePair<string, string>>();
-                    foreach (var line in File.ReadLines(userDictionaryPath))
-                    {
-                        if (string.IsNullOrWhiteSpace(line)) continue;
-                        var parts = line.Split(new[] { ',' }, 2);
-                        if (parts.Length == 2)
-                        {
-                            Instance.dictionaryWords.Add(new KeyValuePair<string, string>(parts[0].Trim(), parts[1].Trim()));
-                        }
-                        else
-                        {
-                            Instance.dictionaryWords.Add(new KeyValuePair<string, string>(null, line.Trim()));
-                        }
-                    }
-                    Plugin.Log?.Info($"Loaded {Instance.dictionaryWords.Count} dictionary words.");
-                }
-                catch (Exception ex)
-                {
-                    Plugin.Log?.Error($"Failed to load dictionary: {ex.Message}");
-                }
-            }
-            catch (Exception ex)
-            {
-                Plugin.Log?.Error($"MemoEditModal: Failed to load dictionary file: {ex.Message}");
-                Instance.dictionaryWords = new List<KeyValuePair<string, string>>();
-            }
-        }
+        // 辞書の読み込みと検索は DictionaryManager に委譲
 
         /// BSMLをパースする
         public void ParseBSML(string bsml, GameObject host)
@@ -482,8 +424,7 @@ namespace MapMemo.UI.Edit
         {
             if (string.IsNullOrEmpty(search) || search == ",") return;
 
-            var matches = dictionaryWords
-                .Where(pair => pair.Key != null && pair.Key.StartsWith(search))
+            var matches = MapMemo.Core.DictionaryManager.GetMatches(search)
                 .Distinct()
                 .ToList();
 
@@ -508,71 +449,6 @@ namespace MapMemo.UI.Edit
                 suggestionList.TableView.ClearSelection();
             }
         }
-
-        // private void UpdateSuggestions()
-        // {
-        //     suggestionList.Data.Clear();
-        //     // サジェスト更新処理（キーで前方一致し値を表示）
-        //     // 改行は削除して検索する
-        //     string search = pendingText.Replace("\n", "").Replace("\r", "");
-        //     if (search.Length == 0)
-        //     {
-        //         suggestionList.TableView.ReloadData();
-        //         return;
-        //     }
-        //     AddSuggestion("");
-        //     suggestionList.Data.Add(new CustomListTableData.CustomCellInfo("")); // 空行を先頭に追加
-
-        //     // --- 履歴から最大N件を重複排除して「新しいものが上」に追加 ---
-        //     var history = InputHistoryManager.Instance.historyList;
-        //     // 履歴を全件ログ出力
-        //     foreach (var h in history)
-        //     {
-        //         Plugin.Log?.Info($"履歴項目: {h}");
-        //     }
-
-        //     // keyがある場合はkeyで検索、ない場合はvalueで検索
-        //     var historyMatches = history
-        //         .AsEnumerable()
-        //         .Reverse()
-        //         .Where(h => (h.Key != null && h.Key.StartsWith(search)) || h.Value.StartsWith(search))
-        //         .Distinct() // ← Key と Value のペアで重複排除！
-        //         .Take(historyShowCount)
-        //         .ToList();
-
-        //     var already = new HashSet<KeyValuePair<string, string>>();
-        //     foreach (var h in historyMatches)
-        //     {
-        //         Plugin.Log?.Info($"履歴サジェスト: {h}");
-        //         already.Add(h);
-        //         AddSuggestion(h.Key, h.Value);
-        //     }
-
-        //     // --- 辞書からもサジェスト（履歴と重複しないもののみ） ---
-        //     if (!string.IsNullOrEmpty(search) && search != ",")
-        //     {
-
-        //         var matches = dictionaryWords.Where(
-        //             pair => pair.Key.StartsWith(search)).ToList();
-        //         foreach (var pair in matches)
-        //         {
-        //             if (already.Add(pair))
-        //             {
-        //                 AddSuggestion(pair.Value, pair.Key);
-        //             }
-        //         }
-        //     }
-        //     // 先頭の空文字を選択する
-        //     if (suggestionList.Data.Count > 0)
-        //     {
-        //         suggestionList.TableView.SelectCellWithIdx(0, false);
-        //     }
-        //     else
-        //     {
-        //         suggestionList.TableView.ClearSelection();
-        //     }
-        //     suggestionList.TableView.ReloadData();
-        // }
 
         private int GetLastLineLength(string text)
         {
@@ -642,7 +518,7 @@ namespace MapMemo.UI.Edit
         }
 
         // Shift 切替時はラベルの差し替えだけ行う（スタイルは既に適用済みの前提）
-        private void UpdateAlphaButtonLabels(MemoEditModal ctrl)
+        private void UpdateAlphaButtonLabels(MemoEditModalController ctrl)
         {
 
             if (ctrl.modal == null)
@@ -676,7 +552,7 @@ namespace MapMemo.UI.Edit
 
         // 一括でボタンにスタイルを適用するヘルパー
         // Reflection を使って private フィールド `charAButton`..`charZButton` を取得し、見た目を整えます。
-        private static void ApplyAlphaButtonCosmetics(MemoEditModal ctrl)
+        private static void ApplyAlphaButtonCosmetics(MemoEditModalController ctrl)
         {
             if (ReferenceEquals(ctrl, null)) return;
             try
