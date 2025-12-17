@@ -4,13 +4,15 @@ using System.Runtime.CompilerServices;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.GameplaySetup;
 using BeatSaberMarkupLanguage.ViewControllers;
+using MapMemo.Core;
+using MapMemo.UI.Edit;
 using UnityEngine;
 
-namespace MapMemo.UI
+namespace MapMemo.UI.Settings
 {
     public class MapMemoSettingsViewController : MonoBehaviour, INotifyPropertyChanged
     {
-        private SettingsManager settings = null;
+        private MemoSettingsManager settings = null;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -32,7 +34,7 @@ namespace MapMemo.UI
                 "MapMemo.Resources.MapMemoSettings.bsml",
                 this,
                 MenuType.Solo | MenuType.Online);
-            settings = SettingsManager.Load();
+            settings = MemoSettingsManager.Load();
             _tabAdded = true;
         }
 

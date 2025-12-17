@@ -379,13 +379,13 @@
     </horizontal>
   </vertical>
   
-  <vertical pref-width="33" align="TopRight">
-    <text text="┌─────────────────┐" font-size="2" align="Center" />
+  <vertical pref-width="30" align="TopRight">
+    <text text=" ┌────────────────┐" font-size="2" align="Center" />
     <list id="suggestion-list"
-      pref-width="33"
+      pref-width="30"
       show-scrollbar="true"
     />
-    <text text="└─────────────────┘" font-size="2" align="Center" />
+    <text text=" └────────────────┘" font-size="2" align="Center" />
   </vertical>
   </horizontal>
 

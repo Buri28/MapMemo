@@ -2,9 +2,9 @@ using IPA.Utilities;
 using Newtonsoft.Json;
 using System.IO;
 
-namespace MapMemo
+namespace MapMemo.Core
 {
-    public class SettingsManager
+    public class MemoSettingsManager
     {
         private static readonly string SettingsPath = Path.Combine(
             UnityGame.UserDataPath, "MapMemo", "_settings.json");
@@ -12,14 +12,14 @@ namespace MapMemo
         public int HistoryMaxCount { get; set; } = 500;
         public int HistoryShowCount { get; set; } = 3;
 
-        public static SettingsManager Load()
+        public static MemoSettingsManager Load()
         {
             if (File.Exists(SettingsPath))
             {
                 var json = File.ReadAllText(SettingsPath);
-                return JsonConvert.DeserializeObject<SettingsManager>(json) ?? new SettingsManager();
+                return JsonConvert.DeserializeObject<MemoSettingsManager>(json) ?? new MemoSettingsManager();
             }
-            return new SettingsManager();
+            return new MemoSettingsManager();
         }
 
         public void Save()

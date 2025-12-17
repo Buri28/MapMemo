@@ -1,8 +1,9 @@
 using System.Threading.Tasks;
+using MapMemo.UI.Menu;
 using ModestTree;
 using UnityEngine;
 
-namespace MapMemo.UI
+namespace MapMemo.Patches
 {
     // 選曲変更時に呼び出される想定のフック土台
     // 実環境ではLevelSelection/DetailViewのイベントから呼び出す

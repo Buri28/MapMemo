@@ -10,8 +10,10 @@ using BeatSaberMarkupLanguage.Components;
 using BeatSaberMarkupLanguage.Parser;
 using HMUI;
 using UnityEngine.UI;
+using MapMemo.UI.Edit;
+using MapMemo.Core;
 
-namespace MapMemo.UI
+namespace MapMemo.UI.Menu
 {
     [HotReload]
     public class MemoPanelController : BSMLAutomaticViewController
@@ -40,25 +42,6 @@ namespace MapMemo.UI
         {
             if (!isInstance())
             {
-                // var container = new GameObject("MemoPanelContainer");
-                // container.transform.SetParent(view.transform, false);
-
-                // var bsmlContent = Utilities.GetResourceContent(
-                //     typeof(MemoPanelController).Assembly,
-                //     "MapMemo.Resources.MemoPanel.bsml");
-
-                // BSMLParser.Instance.Parse(bsmlContent, container, new MemoPanelController());
-                // container.SetActive(true);
-                // //var image = container.AddComponent<UnityEngine.UI.Image>();
-                // //image.color = new Color(1f, 0f, 0f, 0.5f); // 半透明の赤
-
-                // var rt = container.AddComponent<RectTransform>();
-                // rt.anchorMin = new Vector2(0.5f, 0.5f);
-                // rt.anchorMax = new Vector2(0.5f, 0.5f);
-                // rt.pivot = new Vector2(0.5f, 0.5f);
-                // rt.anchoredPosition = new Vector2(-10f, 10f);
-                // rt.sizeDelta = new Vector2(300f, 150f);
-
                 instance = BeatSaberUI.CreateViewController<MemoPanelController>();
 
                 Plugin.Log?.Info($"instance.gameObject = {instance?.gameObject}");
@@ -87,20 +70,6 @@ namespace MapMemo.UI
 
                 var parentRt = view.transform as RectTransform;
                 Plugin.Log?.Info($"Parent anchorMin: {parentRt.anchorMin}, anchorMax: {parentRt.anchorMax}, pivot: {parentRt.pivot}, sizeDelta: {parentRt.sizeDelta}");
-
-
-                // for (int i = 0; i < instance.transform.childCount; i++)
-                // {
-                //     var child = instance.transform.GetChild(i) as RectTransform;
-                //     Plugin.Log?.Info($"Child[{i}] = {child.name}, anchoredPosition = {child.anchoredPosition}");
-                // }
-
-                // var controller = view.GetComponentInChildren<MemoPanelController>(true);
-                // if (controller != null)
-                // {
-                //     var rt = controller.transform as RectTransform;
-                //     rt.anchoredPosition = new Vector2(100f, 1100f);
-                // }
                 Plugin.Log?.Info("MemoPanelController.GetInstance: Created new instance:" + isInstance());
             }
 
@@ -172,24 +141,24 @@ namespace MapMemo.UI
         // }
 
 
-        /// <summary>
-        /// 初回表示時のセットアップ
-        /// </summary>  
-        protected override async void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
-        {
-            // TODO:本来ここが呼ばれるべきだが呼ばれていない(インスタンスを直接newしているため)
-            base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
-            if (!firstActivation) return;
+        // /// <summary>
+        // /// 初回表示時のセットアップ
+        // /// </summary>  
+        // protected override async void DidActivate(bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
+        // {
+        //     // TODO:本来ここが呼ばれるべきだが呼ばれていない(インスタンスを直接newしているため)
+        //     base.DidActivate(firstActivation, addedToHierarchy, screenSystemEnabling);
+        //     if (!firstActivation) return;
 
-            MapMemo.Plugin.Log?.Info($"MemoPanelController.DidActivate: firstActivation={firstActivation} addedToHierarchy={addedToHierarchy} screenSystemEnabling={screenSystemEnabling}");
-            // アクティベートされたインスタンスを設定する
-            instance = this;
-            if (HostGameObject == null)
-            {
-                HostGameObject = this.transform != null ? this.transform.gameObject : null;
-            }
-            await Refresh();
-        }
+        //     MapMemo.Plugin.Log?.Info($"MemoPanelController.DidActivate: firstActivation={firstActivation} addedToHierarchy={addedToHierarchy} screenSystemEnabling={screenSystemEnabling}");
+        //     // アクティベートされたインスタンスを設定する
+        //     instance = this;
+        //     if (HostGameObject == null)
+        //     {
+        //         HostGameObject = this.transform != null ? this.transform.gameObject : null;
+        //     }
+        //     await Refresh();
+        // }
 
         /// <summary>
         /// 編集ボタン押下時
