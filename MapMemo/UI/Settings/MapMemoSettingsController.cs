@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace MapMemo.UI.Settings
 {
-    public class MapMemoSettingsViewController : MonoBehaviour, INotifyPropertyChanged
+    public class MapMemoSettingsController : MonoBehaviour, INotifyPropertyChanged
     {
         private MemoSettingsManager settings = null;
 
