@@ -30,9 +30,13 @@ namespace MapMemo.UI.Edit
         private void OnCellSelectedInternal(TableView tableView, int index)
         {
             var selected = suggestionList.Data[index];
-            SuggestionSelected?.Invoke(selected.Text?.ToString(), selected.Subtext?.ToString());
+            // 選択された文字からリッチテキストを除去してから通知、サブテキストはリッチテキストにしてないのでそのまま渡す
+            SuggestionSelected?.Invoke(StripRichText(selected.Text?.ToString()), selected.Subtext?.ToString());
         }
-
+        private string StripRichText(string input)
+        {
+            return System.Text.RegularExpressions.Regex.Replace(input, "<.*?>", string.Empty);
+        }
         public void Clear()
         {
             suggestionList.Data.Clear();
@@ -42,14 +46,17 @@ namespace MapMemo.UI.Edit
 
         public void AddSuggestion(string value, string subText = null)
         {
+            CustomListTableData.CustomCellInfo cellInfo;
             if (string.IsNullOrEmpty(subText))
             {
-                suggestionList.Data.Add(new CustomListTableData.CustomCellInfo(value));
+                cellInfo = new CustomListTableData.CustomCellInfo(value);
             }
             else
             {
-                suggestionList.Data.Add(new CustomListTableData.CustomCellInfo(value, subText));
+                cellInfo = new CustomListTableData.CustomCellInfo(value, subText);
             }
+            cellInfo.Text = $"<color=#00FFFF>{cellInfo.Text}</color>";
+            suggestionList.Data.Add(cellInfo);
         }
 
         public void UpdateSuggestions(string pendingText)
