@@ -32,31 +32,7 @@ namespace MapMemo.UI.Edit
         [UIValue("historyMaxCount")] private int historyMaxCount = settings.HistoryMaxCount;
         [UIValue("historyShowCount")] private int historyShowCount = settings.HistoryShowCount;
 
-        [UIAction("on-history-max-count-change")]
-        private void OnHistoryMaxCountChange(int value)
-        {
-            historyMaxCount = value;
-            settings.HistoryMaxCount = value;
-            settings.Save();
-            InputHistoryManager.Instance.SetMaxHistoryCount(value);
-            UpdateSuggestions();
-        }
 
-        [UIAction("on-history-show-count-change")]
-        private void OnHistoryShowCountChange(int value)
-        {
-            historyShowCount = value;
-            settings.HistoryShowCount = value;
-            settings.Save();
-            UpdateSuggestions();
-        }
-
-        [UIAction("on-clear-history")]
-        private void OnClearHistory()
-        {
-            InputHistoryManager.Instance.ClearHistory();
-            UpdateSuggestions();
-        }
         public static MemoEditModalController Instance;
 
         private string key;
@@ -64,6 +40,10 @@ namespace MapMemo.UI.Edit
         private string songAuthor;
         // Shift 状態（true = 小文字モード）
         private bool isShift = false;
+
+        // かなモード状態（true = カタカナ、false = ひらがな）
+        private bool isKanaMode = false;
+
         [UIValue("memo")] private string memo = "";
         [UIComponent("modal")] private ModalView modal;
         [UIComponent("memoText")] private TextMeshProUGUI memoText;
@@ -406,56 +386,32 @@ namespace MapMemo.UI.Edit
         }
 
         // FormatLocal and EditLabel moved to MemoEditModalHelper
+        [UIAction("on-history-max-count-change")]
+        private void OnHistoryMaxCountChange(int value)
+        {
+            historyMaxCount = value;
+            settings.HistoryMaxCount = value;
+            settings.Save();
+            InputHistoryManager.Instance.SetMaxHistoryCount(value);
+            UpdateSuggestions();
+        }
 
-        [UIAction("on-char-a")] private void OnCharA() => Append("あ");
-        [UIAction("on-char-i")] private void OnCharI() => Append("い");
-        [UIAction("on-char-u")] private void OnCharU() => Append("う");
-        [UIAction("on-char-e")] private void OnCharE() => Append("え");
-        [UIAction("on-char-o")] private void OnCharO() => Append("お");
+        [UIAction("on-history-show-count-change")]
+        private void OnHistoryShowCountChange(int value)
+        {
+            historyShowCount = value;
+            settings.HistoryShowCount = value;
+            settings.Save();
+            UpdateSuggestions();
+        }
 
-        [UIAction("on-char-ka")] private void OnCharKa() => Append("か");
-        [UIAction("on-char-ki")] private void OnCharKi() => Append("き");
-        [UIAction("on-char-ku")] private void OnCharKu() => Append("く");
-        [UIAction("on-char-ke")] private void OnCharKe() => Append("け");
-        [UIAction("on-char-ko")] private void OnCharKo() => Append("こ");
+        [UIAction("on-clear-history")]
+        private void OnClearHistory()
+        {
+            InputHistoryManager.Instance.ClearHistory();
+            UpdateSuggestions();
+        }
 
-        [UIAction("on-char-sa")] private void OnCharSa() => Append("さ");
-        [UIAction("on-char-shi")] private void OnCharShi() => Append("し");
-        [UIAction("on-char-su")] private void OnCharSu() => Append("す");
-        [UIAction("on-char-se")] private void OnCharSe() => Append("せ");
-        [UIAction("on-char-so")] private void OnCharSo() => Append("そ");
-
-        [UIAction("on-char-ta")] private void OnCharTa() => Append("た");
-        [UIAction("on-char-chi")] private void OnCharChi() => Append("ち");
-        [UIAction("on-char-tsu")] private void OnCharTsu() => Append("つ");
-        [UIAction("on-char-te")] private void OnCharTe() => Append("て");
-        [UIAction("on-char-to")] private void OnCharTo() => Append("と");
-
-        [UIAction("on-char-na")] private void OnCharNa() => Append("な");
-        [UIAction("on-char-ni")] private void OnCharNi() => Append("に");
-        [UIAction("on-char-nu")] private void OnCharNu() => Append("ぬ");
-        [UIAction("on-char-ne")] private void OnCharNe() => Append("ね");
-        [UIAction("on-char-no")] private void OnCharNo() => Append("の");
-
-        [UIAction("on-char-ha")] private void OnCharHa() => Append("は");
-        [UIAction("on-char-hi")] private void OnCharHi() => Append("ひ");
-        [UIAction("on-char-fu")] private void OnCharFu() => Append("ふ");
-        [UIAction("on-char-he")] private void OnCharHe() => Append("へ");
-        [UIAction("on-char-ho")] private void OnCharHo() => Append("ほ");
-
-        [UIAction("on-char-ma")] private void OnCharMa() => Append("ま");
-        [UIAction("on-char-mi")] private void OnCharMi() => Append("み");
-        [UIAction("on-char-mu")] private void OnCharMu() => Append("む");
-        [UIAction("on-char-me")] private void OnCharMe() => Append("め");
-        [UIAction("on-char-mo")] private void OnCharMo() => Append("も");
-
-        [UIAction("on-char-ya")] private void OnCharYa() => Append("や");
-        [UIAction("on-char-yu")] private void OnCharYu() => Append("ゆ");
-        [UIAction("on-char-yo")] private void OnCharYo() => Append("よ");
-        [UIAction("on-char-wa")] private void OnCharWa() => Append("わ");
-        [UIAction("on-char-wo")] private void OnCharWo() => Append("を");
-
-        [UIAction("on-char-n")] private void OnCharN() => Append("ん");
         [UIAction("on-char-long")] private void OnCharLong() => Append("ー");
         // BSML 上では長音記号ボタンに複数の on-click 名が使われているため
         // 互換のためにエイリアスを用意する
@@ -567,94 +523,140 @@ namespace MapMemo.UI.Edit
         [UIAction("on-char-dollar")] private void OnCharDollar() => Append("$");
 
         // ら行
-        [UIAction("on-char-ra")] private void OnCharRa() => Append("ら");
-        [UIAction("on-char-ri")] private void OnCharRi() => Append("り");
-        [UIAction("on-char-ru")] private void OnCharRu() => Append("る");
-        [UIAction("on-char-re")] private void OnCharRe() => Append("れ");
-        [UIAction("on-char-ro")] private void OnCharRo() => Append("ろ");
+        [UIAction("on-char-ra")] private void OnCharRa() => Append(isKanaMode ? "ラ" : "ら");
+        [UIAction("on-char-ri")] private void OnCharRi() => Append(isKanaMode ? "リ" : "り");
+        [UIAction("on-char-ru")] private void OnCharRu() => Append(isKanaMode ? "ル" : "る");
+        [UIAction("on-char-re")] private void OnCharRe() => Append(isKanaMode ? "レ" : "れ");
+        [UIAction("on-char-ro")] private void OnCharRo() => Append(isKanaMode ? "ロ" : "ろ");
+
+        [UIAction("on-char-a")] private void OnCharA() => Append(isKanaMode ? "ア" : "あ");
+        [UIAction("on-char-i")] private void OnCharI() => Append(isKanaMode ? "イ" : "い");
+        [UIAction("on-char-u")] private void OnCharU() => Append(isKanaMode ? "ウ" : "う");
+        [UIAction("on-char-e")] private void OnCharE() => Append(isKanaMode ? "エ" : "え");
+        [UIAction("on-char-o")] private void OnCharO() => Append(isKanaMode ? "オ" : "お");
+        [UIAction("on-char-ka")] private void OnCharKa() => Append(isKanaMode ? "カ" : "か");
+        [UIAction("on-char-ki")] private void OnCharKi() => Append(isKanaMode ? "キ" : "き");
+        [UIAction("on-char-ku")] private void OnCharKu() => Append(isKanaMode ? "ク" : "く");
+        [UIAction("on-char-ke")] private void OnCharKe() => Append(isKanaMode ? "ケ" : "け");
+        [UIAction("on-char-ko")] private void OnCharKo() => Append(isKanaMode ? "コ" : "こ");
+        [UIAction("on-char-sa")] private void OnCharSa() => Append(isKanaMode ? "サ" : "さ");
+        [UIAction("on-char-shi")] private void OnCharShi() => Append(isKanaMode ? "シ" : "し");
+        [UIAction("on-char-su")] private void OnCharSu() => Append(isKanaMode ? "ス" : "す");
+        [UIAction("on-char-se")] private void OnCharSe() => Append(isKanaMode ? "セ" : "せ");
+        [UIAction("on-char-so")] private void OnCharSo() => Append(isKanaMode ? "ソ" : "そ");
+
+        [UIAction("on-char-ta")] private void OnCharTa() => Append(isKanaMode ? "タ" : "た");
+        [UIAction("on-char-chi")] private void OnCharChi() => Append(isKanaMode ? "チ" : "ち");
+        [UIAction("on-char-tsu")] private void OnCharTsu() => Append(isKanaMode ? "ツ" : "つ");
+        [UIAction("on-char-te")] private void OnCharTe() => Append(isKanaMode ? "テ" : "て");
+        [UIAction("on-char-to")] private void OnCharTo() => Append(isKanaMode ? "ト" : "と");
+
+        [UIAction("on-char-na")] private void OnCharNa() => Append(isKanaMode ? "ナ" : "な");
+        [UIAction("on-char-ni")] private void OnCharNi() => Append(isKanaMode ? "ニ" : "に");
+        [UIAction("on-char-nu")] private void OnCharNu() => Append(isKanaMode ? "ヌ" : "ぬ");
+        [UIAction("on-char-ne")] private void OnCharNe() => Append(isKanaMode ? "ネ" : "ね");
+        [UIAction("on-char-no")] private void OnCharNo() => Append(isKanaMode ? "ノ" : "の");
+
+        [UIAction("on-char-ha")] private void OnCharHa() => Append(isKanaMode ? "ハ" : "は");
+        [UIAction("on-char-hi")] private void OnCharHi() => Append(isKanaMode ? "ヒ" : "ひ");
+        [UIAction("on-char-fu")] private void OnCharFu() => Append(isKanaMode ? "フ" : "ふ");
+        [UIAction("on-char-he")] private void OnCharHe() => Append(isKanaMode ? "ヘ" : "へ");
+        [UIAction("on-char-ho")] private void OnCharHo() => Append(isKanaMode ? "ホ" : "ほ");
+
+        [UIAction("on-char-ma")] private void OnCharMa() => Append(isKanaMode ? "マ" : "ま");
+        [UIAction("on-char-mi")] private void OnCharMi() => Append(isKanaMode ? "ミ" : "み");
+        [UIAction("on-char-mu")] private void OnCharMu() => Append(isKanaMode ? "ム" : "む");
+        [UIAction("on-char-me")] private void OnCharMe() => Append(isKanaMode ? "メ" : "め");
+        [UIAction("on-char-mo")] private void OnCharMo() => Append(isKanaMode ? "モ" : "も");
+        [UIAction("on-char-ya")] private void OnCharYa() => Append(isKanaMode ? "ヤ" : "や");
+        [UIAction("on-char-yu")] private void OnCharYu() => Append(isKanaMode ? "ユ" : "ゆ");
+        [UIAction("on-char-yo")] private void OnCharYo() => Append(isKanaMode ? "ヨ" : "よ");
+        [UIAction("on-char-wa")] private void OnCharWa() => Append(isKanaMode ? "ワ" : "わ");
+        [UIAction("on-char-wo")] private void OnCharWo() => Append(isKanaMode ? "ヲ" : "を");
+        [UIAction("on-char-n")] private void OnCharN() => Append(isKanaMode ? "ン" : "ん");
 
         // 濁点
-        [UIAction("on-char-ga")] private void OnCharGa() => Append("が");
-        [UIAction("on-char-gi")] private void OnCharGi() => Append("ぎ");
-        [UIAction("on-char-gu")] private void OnCharGu() => Append("ぐ");
-        [UIAction("on-char-ge")] private void OnCharGe() => Append("げ");
-        [UIAction("on-char-go")] private void OnCharGo() => Append("ご");
-        [UIAction("on-char-za")] private void OnCharZa() => Append("ざ");
-        [UIAction("on-char-ji")] private void OnCharJi() => Append("じ");
-        [UIAction("on-char-zu")] private void OnCharZu() => Append("ず");
-        [UIAction("on-char-ze")] private void OnCharZe() => Append("ぜ");
-        [UIAction("on-char-zo")] private void OnCharZo() => Append("ぞ");
-        [UIAction("on-char-da")] private void OnCharDa() => Append("だ");
-        [UIAction("on-char-di")] private void OnCharDi() => Append("ぢ");
-        [UIAction("on-char-du")] private void OnCharDu() => Append("づ");
-        [UIAction("on-char-de")] private void OnCharDe() => Append("で");
-        [UIAction("on-char-do")] private void OnCharDo() => Append("ど");
-        [UIAction("on-char-ba")] private void OnCharBa() => Append("ば");
-        [UIAction("on-char-bi")] private void OnCharBi() => Append("び");
-        [UIAction("on-char-bu")] private void OnCharBu() => Append("ぶ");
-        [UIAction("on-char-be")] private void OnCharBe() => Append("べ");
-        [UIAction("on-char-bo")] private void OnCharBo() => Append("ぼ");
+        [UIAction("on-char-ga")] private void OnCharGa() => Append(isKanaMode ? "ガ" : "が");
+        [UIAction("on-char-gi")] private void OnCharGi() => Append(isKanaMode ? "ギ" : "ぎ");
+        [UIAction("on-char-gu")] private void OnCharGu() => Append(isKanaMode ? "グ" : "ぐ");
+        [UIAction("on-char-ge")] private void OnCharGe() => Append(isKanaMode ? "ゲ" : "げ");
+        [UIAction("on-char-go")] private void OnCharGo() => Append(isKanaMode ? "ゴ" : "ご");
+        [UIAction("on-char-za")] private void OnCharZa() => Append(isKanaMode ? "ザ" : "ざ");
+        [UIAction("on-char-ji")] private void OnCharJi() => Append(isKanaMode ? "ジ" : "じ");
+        [UIAction("on-char-zu")] private void OnCharZu() => Append(isKanaMode ? "ズ" : "ず");
+        [UIAction("on-char-ze")] private void OnCharZe() => Append(isKanaMode ? "ゼ" : "ぜ");
+        [UIAction("on-char-zo")] private void OnCharZo() => Append(isKanaMode ? "ゾ" : "ぞ");
+        [UIAction("on-char-da")] private void OnCharDa() => Append(isKanaMode ? "ダ" : "だ");
+        [UIAction("on-char-di")] private void OnCharDi() => Append(isKanaMode ? "ヂ" : "ぢ");
+        [UIAction("on-char-du")] private void OnCharDu() => Append(isKanaMode ? "ヅ" : "づ");
+        [UIAction("on-char-de")] private void OnCharDe() => Append(isKanaMode ? "デ" : "で");
+        [UIAction("on-char-do")] private void OnCharDo() => Append(isKanaMode ? "ド" : "ど");
+        [UIAction("on-char-ba")] private void OnCharBa() => Append(isKanaMode ? "バ" : "ば");
+        [UIAction("on-char-bi")] private void OnCharBi() => Append(isKanaMode ? "ビ" : "び");
+        [UIAction("on-char-bu")] private void OnCharBu() => Append(isKanaMode ? "ブ" : "ぶ");
+        [UIAction("on-char-be")] private void OnCharBe() => Append(isKanaMode ? "ベ" : "べ");
+        [UIAction("on-char-bo")] private void OnCharBo() => Append(isKanaMode ? "ボ" : "ぼ");
 
         // 半濁点
-        [UIAction("on-char-pa")] private void OnCharPa() => Append("ぱ");
-        [UIAction("on-char-pi")] private void OnCharPi() => Append("ぴ");
-        [UIAction("on-char-pu")] private void OnCharPu() => Append("ぷ");
-        [UIAction("on-char-pe")] private void OnCharPe() => Append("ぺ");
-        [UIAction("on-char-po")] private void OnCharPo() => Append("ぽ");
+        [UIAction("on-char-pa")] private void OnCharPa() => Append(isKanaMode ? "パ" : "ぱ");
+        [UIAction("on-char-pi")] private void OnCharPi() => Append(isKanaMode ? "ピ" : "ぴ");
+        [UIAction("on-char-pu")] private void OnCharPu() => Append(isKanaMode ? "プ" : "ぷ");
+        [UIAction("on-char-pe")] private void OnCharPe() => Append(isKanaMode ? "ペ" : "ぺ");
+        [UIAction("on-char-po")] private void OnCharPo() => Append(isKanaMode ? "ポ" : "ぽ");
 
         // 小文字（ひらがな）
-        [UIAction("on-char-xtu")] private void OnCharXtu() => Append("っ");
-        [UIAction("on-char-xya")] private void OnCharXya() => Append("ゃ");
-        [UIAction("on-char-xyu")] private void OnCharXyu() => Append("ゅ");
-        [UIAction("on-char-xyo")] private void OnCharXyo() => Append("ょ");
+        [UIAction("on-char-xtu")] private void OnCharXtu() => Append(isKanaMode ? "ッ" : "っ");
+        [UIAction("on-char-xya")] private void OnCharXya() => Append(isKanaMode ? "ャ" : "ゃ");
+        [UIAction("on-char-xyu")] private void OnCharXyu() => Append(isKanaMode ? "ュ" : "ゅ");
+        [UIAction("on-char-xyo")] private void OnCharXyo() => Append(isKanaMode ? "ョ" : "ょ");
 
         // カタカナ基本
-        [UIAction("on-char-ka-a")] private void OnCharKaA() => Append("ア");
-        [UIAction("on-char-ka-i")] private void OnCharKaI() => Append("イ");
-        [UIAction("on-char-ka-u")] private void OnCharKaU() => Append("ウ");
-        [UIAction("on-char-ka-e")] private void OnCharKaE() => Append("エ");
-        [UIAction("on-char-ka-o")] private void OnCharKaO() => Append("オ");
-        [UIAction("on-char-ka-ka")] private void OnCharKaKa() => Append("カ");
-        [UIAction("on-char-ka-ki")] private void OnCharKaKi() => Append("キ");
-        [UIAction("on-char-ka-ku")] private void OnCharKaKu() => Append("ク");
-        [UIAction("on-char-ka-ke")] private void OnCharKaKe() => Append("ケ");
-        [UIAction("on-char-ka-ko")] private void OnCharKaKo() => Append("コ");
-        [UIAction("on-char-ka-sa")] private void OnCharKaSa() => Append("サ");
-        [UIAction("on-char-ka-shi")] private void OnCharKaShi() => Append("シ");
-        [UIAction("on-char-ka-su")] private void OnCharKaSu() => Append("ス");
-        [UIAction("on-char-ka-se")] private void OnCharKaSe() => Append("セ");
-        [UIAction("on-char-ka-so")] private void OnCharKaSo() => Append("ソ");
-        [UIAction("on-char-ka-ta")] private void OnCharKaTa() => Append("タ");
-        [UIAction("on-char-ka-chi")] private void OnCharKaChi() => Append("チ");
-        [UIAction("on-char-ka-tsu")] private void OnCharKaTsu() => Append("ツ");
-        [UIAction("on-char-ka-te")] private void OnCharKaTe() => Append("テ");
-        [UIAction("on-char-ka-to")] private void OnCharKaTo() => Append("ト");
-        [UIAction("on-char-ka-na")] private void OnCharKaNa() => Append("ナ");
-        [UIAction("on-char-ka-ni")] private void OnCharKaNi() => Append("ニ");
-        [UIAction("on-char-ka-nu")] private void OnCharKaNu() => Append("ヌ");
-        [UIAction("on-char-ka-ne")] private void OnCharKaNe() => Append("ネ");
-        [UIAction("on-char-ka-no")] private void OnCharKaNo() => Append("ノ");
-        [UIAction("on-char-ka-ha")] private void OnCharKaHa() => Append("ハ");
-        [UIAction("on-char-ka-hi")] private void OnCharKaHi() => Append("ヒ");
-        [UIAction("on-char-ka-fu")] private void OnCharKaFu() => Append("フ");
-        [UIAction("on-char-ka-he")] private void OnCharKaHe() => Append("ヘ");
-        [UIAction("on-char-ka-ho")] private void OnCharKaHo() => Append("ホ");
-        [UIAction("on-char-ka-ma")] private void OnCharKaMa() => Append("マ");
-        [UIAction("on-char-ka-mi")] private void OnCharKaMi() => Append("ミ");
-        [UIAction("on-char-ka-mu")] private void OnCharKaMu() => Append("ム");
-        [UIAction("on-char-ka-me")] private void OnCharKaMe() => Append("メ");
-        [UIAction("on-char-ka-mo")] private void OnCharKaMo() => Append("モ");
-        [UIAction("on-char-ka-ya")] private void OnCharKaYa() => Append("ヤ");
-        [UIAction("on-char-ka-yu")] private void OnCharKaYu() => Append("ユ");
-        [UIAction("on-char-ka-yo")] private void OnCharKaYo() => Append("ヨ");
-        [UIAction("on-char-ka-wa")] private void OnCharKaWa() => Append("ワ");
-        [UIAction("on-char-ka-wo")] private void OnCharKaWo() => Append("ヲ");
-        [UIAction("on-char-ka-ra")] private void OnCharKaRa() => Append("ラ");
-        [UIAction("on-char-ka-ri")] private void OnCharKaRi() => Append("リ");
-        [UIAction("on-char-ka-ru")] private void OnCharKaRu() => Append("ル");
-        [UIAction("on-char-ka-re")] private void OnCharKaRe() => Append("レ");
-        [UIAction("on-char-ka-ro")] private void OnCharKaRo() => Append("ロ");
-        [UIAction("on-char-ka-n")] private void OnCharKaN() => Append("ン");
+        [UIAction("on-char-ka-a")] private void OnCharKaA() => Append(isKanaMode ? "ア" : "あ");
+        [UIAction("on-char-ka-i")] private void OnCharKaI() => Append(isKanaMode ? "イ" : "い");
+        [UIAction("on-char-ka-u")] private void OnCharKaU() => Append(isKanaMode ? "ウ" : "う");
+        [UIAction("on-char-ka-e")] private void OnCharKaE() => Append(isKanaMode ? "エ" : "え");
+        [UIAction("on-char-ka-o")] private void OnCharKaO() => Append(isKanaMode ? "オ" : "お");
+        [UIAction("on-char-ka-ka")] private void OnCharKaKa() => Append(isKanaMode ? "カ" : "か");
+        [UIAction("on-char-ka-ki")] private void OnCharKaKi() => Append(isKanaMode ? "キ" : "き");
+        [UIAction("on-char-ka-ku")] private void OnCharKaKu() => Append(isKanaMode ? "ク" : "く");
+        [UIAction("on-char-ka-ke")] private void OnCharKaKe() => Append(isKanaMode ? "ケ" : "け");
+        [UIAction("on-char-ka-ko")] private void OnCharKaKo() => Append(isKanaMode ? "コ" : "こ");
+        [UIAction("on-char-ka-sa")] private void OnCharKaSa() => Append(isKanaMode ? "サ" : "さ");
+        [UIAction("on-char-ka-shi")] private void OnCharKaShi() => Append(isKanaMode ? "シ" : "し");
+        [UIAction("on-char-ka-su")] private void OnCharKaSu() => Append(isKanaMode ? "ス" : "す");
+        [UIAction("on-char-ka-se")] private void OnCharKaSe() => Append(isKanaMode ? "セ" : "せ");
+        [UIAction("on-char-ka-so")] private void OnCharKaSo() => Append(isKanaMode ? "ソ" : "そ");
+        [UIAction("on-char-ka-ta")] private void OnCharKaTa() => Append(isKanaMode ? "タ" : "た");
+        [UIAction("on-char-ka-chi")] private void OnCharKaChi() => Append(isKanaMode ? "チ" : "ち");
+        [UIAction("on-char-ka-tsu")] private void OnCharKaTsu() => Append(isKanaMode ? "ツ" : "つ");
+        [UIAction("on-char-ka-te")] private void OnCharKaTe() => Append(isKanaMode ? "テ" : "て");
+        [UIAction("on-char-ka-to")] private void OnCharKaTo() => Append(isKanaMode ? "ト" : "と");
+        [UIAction("on-char-ka-na")] private void OnCharKaNa() => Append(isKanaMode ? "ナ" : "な");
+        [UIAction("on-char-ka-ni")] private void OnCharKaNi() => Append(isKanaMode ? "ニ" : "に");
+        [UIAction("on-char-ka-nu")] private void OnCharKaNu() => Append(isKanaMode ? "ヌ" : "ぬ");
+        [UIAction("on-char-ka-ne")] private void OnCharKaNe() => Append(isKanaMode ? "ネ" : "ね");
+        [UIAction("on-char-ka-no")] private void OnCharKaNo() => Append(isKanaMode ? "ノ" : "の");
+        [UIAction("on-char-ka-ha")] private void OnCharKaHa() => Append(isKanaMode ? "ハ" : "は");
+        [UIAction("on-char-ka-hi")] private void OnCharKaHi() => Append(isKanaMode ? "ヒ" : "ひ");
+        [UIAction("on-char-ka-fu")] private void OnCharKaFu() => Append(isKanaMode ? "フ" : "ふ");
+        [UIAction("on-char-ka-he")] private void OnCharKaHe() => Append(isKanaMode ? "ヘ" : "へ");
+        [UIAction("on-char-ka-ho")] private void OnCharKaHo() => Append(isKanaMode ? "ホ" : "ほ");
+        [UIAction("on-char-ka-ma")] private void OnCharKaMa() => Append(isKanaMode ? "マ" : "ま");
+        [UIAction("on-char-ka-mi")] private void OnCharKaMi() => Append(isKanaMode ? "ミ" : "み");
+        [UIAction("on-char-ka-mu")] private void OnCharKaMu() => Append(isKanaMode ? "ム" : "む");
+        [UIAction("on-char-ka-me")] private void OnCharKaMe() => Append(isKanaMode ? "メ" : "め");
+        [UIAction("on-char-ka-mo")] private void OnCharKaMo() => Append(isKanaMode ? "モ" : "も");
+        [UIAction("on-char-ka-ya")] private void OnCharKaYa() => Append(isKanaMode ? "ヤ" : "や");
+        [UIAction("on-char-ka-yu")] private void OnCharKaYu() => Append(isKanaMode ? "ユ" : "ゆ");
+        [UIAction("on-char-ka-yo")] private void OnCharKaYo() => Append(isKanaMode ? "ヨ" : "よ");
+        [UIAction("on-char-ka-wa")] private void OnCharKaWa() => Append(isKanaMode ? "ワ" : "わ");
+        [UIAction("on-char-ka-wo")] private void OnCharKaWo() => Append(isKanaMode ? "ヲ" : "を");
+        [UIAction("on-char-ka-ra")] private void OnCharKaRa() => Append(isKanaMode ? "ラ" : "ら");
+        [UIAction("on-char-ka-ri")] private void OnCharKaRi() => Append(isKanaMode ? "リ" : "り");
+        [UIAction("on-char-ka-ru")] private void OnCharKaRu() => Append(isKanaMode ? "ル" : "る");
+        [UIAction("on-char-ka-re")] private void OnCharKaRe() => Append(isKanaMode ? "レ" : "れ");
+        [UIAction("on-char-ka-ro")] private void OnCharKaRo() => Append(isKanaMode ? "ロ" : "ろ");
+        [UIAction("on-char-ka-n")] private void OnCharKaN() => Append(isKanaMode ? "ン" : "ん");
 
         // カタカナ濁点
         [UIAction("on-char-ka-ga")] private void OnCharKaGa() => Append("ガ");
@@ -696,15 +698,16 @@ namespace MapMemo.UI.Edit
         {
             // Shift をトグルして A〜Z ボタン表示を切替
             isShift = !isShift;
-            try
-            {
-                MemoEditModalHelper.UpdateAlphaButtonLabels(this.modal, this.isShift);
-            }
-            catch (Exception e)
-            {
-                Plugin.Log?.Warn($"MemoEditModal.OnCharShift: UpdateAlphaButtonLabels failed: {e.Message}");
-            }
+            MemoEditModalHelper.UpdateAlphaButtonLabels(this.modal, this.isShift);
         }
+        [UIAction("on-char-toggle-kana")]
+        private void OnCharToggleKana()
+        {
+            isKanaMode = !isKanaMode;
+            MemoEditModalHelper.UpdateKanaModeButtonLabel(this.modal, this.isKanaMode);
+
+        }
+
         /// <summary>
         /// 確定ボタン押下時の処理
         /// </summary>
