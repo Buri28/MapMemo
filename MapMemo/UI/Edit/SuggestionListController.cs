@@ -105,7 +105,6 @@ namespace MapMemo.UI.Edit
             var matches = DictionaryManager.GetMatches(search)
                 .Distinct()
                 .ToList();
-
             foreach (var pair in matches)
             {
                 if (already.Add(pair))
