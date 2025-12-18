@@ -113,7 +113,7 @@
         </horizontal>
       </vertical>
     </tab>
-    <tab tags="keyboard-tabs" tab-name="あ" child-align='TopCenter'>
+    <tab tags="keyboard-tabs" tab-name="あ/ア" child-align='TopCenter'>
       <vertical anchor-pos-y="0" anchor-pos-x="5">
         <horizontal spacing="0.5">
         <!-- 左端: 小文字・長音列 → 濁点列（ぱ/ば/だ/ざ/が） → 基本行（わ→ら→や→ま→は→な→た→さ→か→あ） -->
@@ -233,16 +233,17 @@
         <clickable-text text="え" on-click="on-char-e" pref-width="6" pref-height="5" />
         <clickable-text text="お" on-click="on-char-o" pref-width="6" pref-height="5" />
       </vertical>
-      <vertical spacing="1">
+      <vertical spacing="0">
         <button text="Back" on-click="on-char-backspace" pref-width="15" />
-        <button text="⏎Enter" on-click="on-char-enter" pref-height="15" pref-width="15" />
+        <button text="⏎Enter" on-click="on-char-enter" pref-height="10" pref-width="15" />
+        <button text="かな"  on-click="on-char-toggle-kana" pref-width="15" />
         <button text="Space" on-click="on-char-space" pref-width="15" />
       </vertical>
     </horizontal>
       </vertical>
     </tab>
 
-    <tab tags="keyboard-tabs" tab-name="ア" child-align='TopCenter'>
+    <tab tags="keyboard-tabs" tab-name="😄" child-align='TopCenter'>
       <vertical anchor-pos-y="0" anchor-pos-x="5">
         <horizontal spacing="0.5">
       <!-- 左端: 小文字/長音 → 濁点列（パ/バ/ダ/ザ/ガ） → 基本行（ワ→ラ→ヤ→マ→ハ→ナ→タ→サ→カ→ア） -->

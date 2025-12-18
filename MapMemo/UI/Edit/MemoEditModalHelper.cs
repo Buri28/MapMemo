@@ -5,6 +5,7 @@ using TMPro;
 using HMUI;
 using UnityEngine.UI;
 using BeatSaberMarkupLanguage.Components;
+using System.Globalization;
 
 namespace MapMemo.UI.Edit
 {
@@ -47,20 +48,17 @@ namespace MapMemo.UI.Edit
 
         public static void UpdateAlphaButtonLabels(ModalView modal, bool isShift)
         {
-            if (modal == null)
-            {
-                MapMemo.Plugin.Log?.Warn("MemoEditModal.UpdateAlphaButtonLabels: modal is null, cannot collect buttons");
-                return;
-            }
-            if (modal.gameObject == null)
-            {
-                MapMemo.Plugin.Log?.Warn("MemoEditModal.UpdateAlphaButtonLabels: modal.gameObject is null, cannot collect buttons");
-                return;
-            }
+            if (modal == null) return;
+
+            // if (modal.gameObject == null)
+            // {
+            //     Plugin.Log?.Warn("MemoEditModal.UpdateAlphaButtonLabels: modal.gameObject is null, cannot collect buttons");
+            //     return;
+            // }
             try
             {
                 var comps = modal.gameObject.GetComponentsInChildren<ClickableText>(true);
-                MapMemo.Plugin.Log?.Info("MemoEditModal.UpdateAlphaButtonLabels: " + comps.Count() + " ClickableText components found under modal");
+                Plugin.Log?.Info("MemoEditModal.UpdateAlphaButtonLabels: " + comps.Count() + " ClickableText components found under modal");
                 foreach (var btn in comps)
                 {
                     try
@@ -74,9 +72,52 @@ namespace MapMemo.UI.Edit
             }
             catch (Exception ex)
             {
-                MapMemo.Plugin.Log?.Warn($"MemoEditModalHelper.UpdateAlphaButtonLabels: {ex.Message}");
+                Plugin.Log?.Warn($"MemoEditModalHelper.UpdateAlphaButtonLabels: {ex.Message}");
             }
         }
+        public static void UpdateKanaModeButtonLabel(ModalView modal, bool isKanaMode)
+        {
+            if (modal == null) return;
+            try
+            {
+                foreach (var btn in modal.gameObject.GetComponentsInChildren<ClickableText>(true))
+                {
+                    var stored = btn.text.Trim().Replace("　", "");
+
+                    var labelConverted = isKanaMode ?
+                        HiraganaToKatakana(stored) :
+                        KatakanaToHiragana(stored);
+                    Plugin.Log?.Info($"MemoEditModalHelper.UpdateKanaModeButtonLabel: changing button label from '{stored}' to '{labelConverted}'");
+                    btn.text = EditLabel(labelConverted);
+                }
+
+                var kanaModeButton = modal.gameObject.GetComponentsInChildren<TextMeshProUGUI>(true)
+                    .FirstOrDefault(btn => btn.text.Trim().Replace("　", "") == "かな"
+                                        || btn.text.Trim().Replace("　", "") == "カナ");
+                if (kanaModeButton != null)
+                {
+                    string label = isKanaMode ? "カナ" : "かな";
+                    kanaModeButton.text = EditLabel(label);
+                }
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log?.Warn($"MemoEditModalHelper.UpdateKanaModeButtonLabel: {ex.Message}");
+            }
+        }
+        private static string HiraganaToKatakana(string input)
+        {
+            return new string(input.Select(c =>
+                (c >= 'ぁ' && c <= 'ゖ') ? (char)(c + 0x60) : c
+            ).ToArray());
+        }
+        private static string KatakanaToHiragana(string input)
+        {
+            return new string(input.Select(c =>
+                (c >= 'ァ' && c <= 'ヶ') ? (char)(c - 0x60) : c
+            ).ToArray());
+        }
+
 
         public static void RepositionModalToLeftHalf(ModalView modal)
         {
