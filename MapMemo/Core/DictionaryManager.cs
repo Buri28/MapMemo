@@ -89,8 +89,15 @@ namespace MapMemo.Core
         public static IEnumerable<KeyValuePair<string, string>> GetMatches(string prefix)
         {
             EnsureLoaded();
-            if (string.IsNullOrEmpty(prefix) || prefix == ",") return Enumerable.Empty<KeyValuePair<string, string>>();
-            return dictionaryWords.Where(pair => pair.Key != null && pair.Key.StartsWith(prefix));
+            if (string.IsNullOrEmpty(prefix) || prefix == ",")
+            {
+                return Enumerable.Empty<KeyValuePair<string, string>>();
+            }
+            Plugin.Log?.Info($"DictionaryManager: Searching for prefix '{prefix}'" +
+                $" among {dictionaryWords.Count} dictionary words.");
+            return dictionaryWords.Where(
+                pair => pair.Key != null ?
+                        pair.Key.StartsWith(prefix) : pair.Value.StartsWith(prefix));
         }
     }
 }
