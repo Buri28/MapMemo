@@ -75,7 +75,7 @@ namespace MapMemo.UI.Edit
             var already = new HashSet<KeyValuePair<string, string>>();
             AddHistorySuggestions(search, already);
             AddDictionarySuggestions(search, already);
-            AddEmojiSuggestions(search);
+            AddEmojiSuggestions(search, already);
 
             UpdateSelection();
             suggestionList.TableView.ReloadData();
@@ -86,7 +86,7 @@ namespace MapMemo.UI.Edit
             AddSuggestion("");
         }
 
-        private void AddEmojiSuggestions(string search)
+        private void AddEmojiSuggestions(string search, HashSet<KeyValuePair<string, string>> already)
         {
             if (string.IsNullOrEmpty(search)) return;
 
@@ -101,7 +101,10 @@ namespace MapMemo.UI.Edit
                     if (MemoEditModalHelper.IsEmojiSupported(
                         search, emoji, codePoint, range.Start, range.End))
                     {
-                        AddSuggestion(emoji);
+                        if (already.Add(new KeyValuePair<string, string>(search, emoji)))
+                        {
+                            AddSuggestion(emoji, search);
+                        }
                     }
                 }
                 return;
@@ -115,7 +118,8 @@ namespace MapMemo.UI.Edit
             var historyMatches = history
                 .AsEnumerable()
                 .Reverse()
-                .Where(h => (h.Key != null && h.Key.StartsWith(search)) || h.Value.StartsWith(search))
+                .Where(h => (h.Key != null && h.Key.StartsWith(search))
+                            || h.Value.StartsWith(search))
                 .Distinct()
                 .Take(historyShowCount)
                 .ToList();
