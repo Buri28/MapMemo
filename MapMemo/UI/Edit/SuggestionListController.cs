@@ -4,6 +4,7 @@ using System.Linq;
 using BeatSaberMarkupLanguage.Components;
 using HMUI;
 using MapMemo.Core;
+using TMPro;
 
 namespace MapMemo.UI.Edit
 {
@@ -74,6 +75,7 @@ namespace MapMemo.UI.Edit
             var already = new HashSet<KeyValuePair<string, string>>();
             AddHistorySuggestions(search, already);
             AddDictionarySuggestions(search, already);
+            AddEmojiSuggestions(search);
 
             UpdateSelection();
             suggestionList.TableView.ReloadData();
@@ -82,6 +84,28 @@ namespace MapMemo.UI.Edit
         private void AddEmptySuggestion()
         {
             AddSuggestion("");
+        }
+
+        private void AddEmojiSuggestions(string search)
+        {
+            if (string.IsNullOrEmpty(search)) return;
+
+            var supportedEmojis = MemoEditModalHelper.emojiMap;
+            // 絵文字マップのキーに該当する場合は、そのキーに対する絵文字をすべて追加
+            if (supportedEmojis.ContainsKey(search))
+            {
+                var range = supportedEmojis[search];
+                for (int codePoint = range.Start; codePoint <= range.End; codePoint++)
+                {
+                    string emoji = char.ConvertFromUtf32(codePoint);
+                    if (MemoEditModalHelper.IsEmojiSupported(
+                        search, emoji, codePoint, range.Start, range.End))
+                    {
+                        AddSuggestion(emoji);
+                    }
+                }
+                return;
+            }
         }
 
         private void AddHistorySuggestions(string search, HashSet<KeyValuePair<string, string>> already)

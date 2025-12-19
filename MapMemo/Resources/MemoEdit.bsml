@@ -98,7 +98,8 @@
         <horizontal spacing="0.5"> <!-- 8 -->
           <!-- チルダはレイアウトが崩れるため対象外とする -->
           <button text="Shift" on-click="on-char-shift" pref-width="15" />
-          <button text="" pref-width="15" interactable="false" background-color="0,0,0,0"/>
+          <clickable-text text="⚔🎶" id="char-saber" on-click="on-char-saber" pref-width="6" pref-height="5"/>
+          <button text="" pref-width="12" interactable="false" background-color="0,0,0,0"/>
           <clickable-text text="&lt;" id="char-less" on-click="on-char-less" pref-width="6" pref-height="5"/>
           <clickable-text text="&gt;" id="char-greater" on-click="on-char-greater" pref-width="6" pref-height="5"/>
           <clickable-text text="/" id="char-slash" on-click="on-char-slash" pref-width="6" pref-height="5"/>
@@ -178,9 +179,9 @@
       </vertical>
       <vertical spacing="0.5">
         <clickable-text text="や" id="char-ya" on-click="on-char-ya" pref-width="6" pref-height="5" />
-        <clickable-text text="　" id="char-empty-3" pref-width="6" pref-height="5" on-click="on-char-empty-3"/>
+        <clickable-text text="～" id="char-tilde" pref-width="6" pref-height="5" />
         <clickable-text text="ゆ" id="char-yu" on-click="on-char-yu" pref-width="6" pref-height="5" />
-        <clickable-text text="　" id="char-empty-4" pref-width="6" pref-height="5" on-click="on-char-empty-4"/>
+        <clickable-text text="　" id="char-empty-4" pref-width="6" pref-height="5" />
         <clickable-text text="よ" id="char-yo" on-click="on-char-yo" pref-width="6" pref-height="5" />
       </vertical>
       <vertical spacing="0.5">
@@ -236,139 +237,176 @@
       <vertical spacing="0">
         <button text="Back" on-click="on-char-backspace" pref-width="15" />
         <button text="⏎Enter" on-click="on-char-enter" pref-height="10" pref-width="15" />
-        <button text="かな"  on-click="on-char-toggle-kana" pref-width="15" />
+        <button text="カナ"  on-click="on-char-toggle-kana" pref-width="15" />
         <button text="Space" on-click="on-char-space" pref-width="15" />
       </vertical>
     </horizontal>
       </vertical>
     </tab>
-
-    <tab tags="keyboard-tabs" tab-name="😄" child-align='TopCenter'>
+    <!-- <tab tags="keyboard-tabs" tab-name="BS" child-align='TopCenter'>
       <vertical anchor-pos-y="0" anchor-pos-x="5">
-        <horizontal spacing="0.5">
-      <!-- 左端: 小文字/長音 → 濁点列（パ/バ/ダ/ザ/ガ） → 基本行（ワ→ラ→ヤ→マ→ハ→ナ→タ→サ→カ→ア） -->
-      <!-- 小文字・長音列 -->
-      <vertical spacing="0.5">
-        <clickable-text text="ー" id="char-ka-cho" on-click="on-char-ka-cho" pref-width="6" pref-height="5" />
-        <clickable-text text="ャ" id="char-ka-xya" on-click="on-char-ka-xya" pref-width="6" pref-height="5" />
-        <clickable-text text="ュ" id="char-ka-xyu" on-click="on-char-ka-xyu" pref-width="6" pref-height="5" />
-        <clickable-text text="ョ" id="char-ka-xyo" on-click="on-char-ka-xyo" pref-width="6" pref-height="5" />
-        <clickable-text text="ッ" id="char-ka-xtu" on-click="on-char-ka-xtu" pref-width="6" pref-height="5" />
+        <horizontal spacing="0.5" child-align="MiddleCenter">
+          <clickable-text text="⌫ Backspace" id="char-backspace" on-click="on-char-backspace" pref-width="20" pref-height="10"/>
+        </horizontal>
+        <horizontal spacing="0.5" child-align="MiddleCenter"> 
+          <clickable-text text="⏎ Enter" id="char-enter" on-click="on-char-enter" pref-width="20" pref-height="10"/>
+        </horizontal>
+        <horizontal spacing="0.5" child-align="MiddleCenter">
+          <clickable-text text="Space" id="char-space" on-click="on-char-space" pref-width="50" pref-height="10"/>
+        </horizontal>
       </vertical>
-      <!-- 濁点・半濁音列 -->
-      <vertical spacing="0.5">
-        <clickable-text text="パ" id="char-ka-pa" on-click="on-char-ka-pa" pref-width="6" pref-height="5" />
-        <clickable-text text="ピ" id="char-ka-pi" on-click="on-char-ka-pi" pref-width="6" pref-height="5" />
-        <clickable-text text="プ" id="char-ka-pu" on-click="on-char-ka-pu" pref-width="6" pref-height="5" />
-        <clickable-text text="ペ" id="char-ka-pe" on-click="on-char-ka-pe" pref-width="6" pref-height="5" />
-        <clickable-text text="ポ" id="char-ka-po" on-click="on-char-ka-po" pref-width="6" pref-height="5" />
-      </vertical>
-      <vertical spacing="0.5">
-        <clickable-text text="バ" id="char-ka-ba" on-click="on-char-ka-ba" pref-width="6" pref-height="5" />
-        <clickable-text text="ビ" id="char-ka-bi" on-click="on-char-ka-bi" pref-width="6" pref-height="5" />
-        <clickable-text text="ブ" id="char-ka-bu" on-click="on-char-ka-bu" pref-width="6" pref-height="5" />
-        <clickable-text text="ベ" id="char-ka-be" on-click="on-char-ka-be" pref-width="6" pref-height="5" />
-        <clickable-text text="ボ" id="char-ka-bo" on-click="on-char-ka-bo" pref-width="6" pref-height="5" />
-      </vertical>
-      <vertical spacing="0.5">
-        <clickable-text text="ダ" id="char-ka-da" on-click="on-char-ka-da" pref-width="6" pref-height="5" />
-        <clickable-text text="ヂ" id="char-ka-di" on-click="on-char-ka-di" pref-width="6" pref-height="5" />
-        <clickable-text text="ヅ" id="char-ka-du" on-click="on-char-ka-du" pref-width="6" pref-height="5" />
-        <clickable-text text="デ" id="char-ka-de" on-click="on-char-ka-de" pref-width="6" pref-height="5" />
-        <clickable-text text="ド" id="char-ka-do" on-click="on-char-ka-do" pref-width="6" pref-height="5" />
-      </vertical>
-      <vertical spacing="0.5">
-        <clickable-text text="ザ" id="char-ka-za" on-click="on-char-ka-za" pref-width="6" pref-height="5" />
-        <clickable-text text="ジ" id="char-ka-ji" on-click="on-char-ka-ji" pref-width="6" pref-height="5" />
-        <clickable-text text="ズ" id="char-ka-zu" on-click="on-char-ka-zu" pref-width="6" pref-height="5" />
-        <clickable-text text="ゼ" id="char-ka-ze" on-click="on-char-ka-ze" pref-width="6" pref-height="5" />
-        <clickable-text text="ゾ" id="char-ka-zo" on-click="on-char-ka-zo" pref-width="6" pref-height="5" />
-      </vertical>
-      <vertical spacing="0.5">
-        <clickable-text text="ガ" id="char-ka-ga" on-click="on-char-ka-ga" pref-width="6" pref-height="5" />
-        <clickable-text text="ギ" id="char-ka-gi" on-click="on-char-ka-gi" pref-width="6" pref-height="5" />
-        <clickable-text text="グ" id="char-ka-gu" on-click="on-char-ka-gu" pref-width="6" pref-height="5" />
-        <clickable-text text="ゲ" id="char-ka-ge" on-click="on-char-ka-ge" pref-width="6" pref-height="5" />
-        <clickable-text text="ゴ" id="char-ka-go" on-click="on-char-ka-go" pref-width="6" pref-height="5" />
-      </vertical>
-      <!-- 基本行: ワ→ラ→ヤ→マ→ハ→ナ→タ→サ→カ→ア（右端） -->
-      <vertical spacing="0.5">
-        <clickable-text text="ワ" id="char-ka-wa" on-click="on-char-ka-wa" pref-width="6" pref-height="5" />
-        <clickable-text text="　" id="char-ka-empty-1" pref-width="6" pref-height="5" />
-        <clickable-text text="ヲ" id="char-ka-wo" on-click="on-char-ka-wo" pref-width="6" pref-height="5" />
-        <clickable-text text="　" id="char-ka-empty-2" pref-width="6" pref-height="5" />
-        <clickable-text text="ン" id="char-ka-n" on-click="on-char-ka-n" pref-width="6" pref-height="5" />
-      </vertical>
-      <vertical spacing="0.5">
-        <clickable-text text="ラ" id="char-ka-ra" on-click="on-char-ka-ra" pref-width="6" pref-height="5" />
-        <clickable-text text="リ" id="char-ka-ri" on-click="on-char-ka-ri" pref-width="6" pref-height="5" />
-        <clickable-text text="ル" id="char-ka-ru" on-click="on-char-ka-ru" pref-width="6" pref-height="5" />
-        <clickable-text text="レ" id="char-ka-re" on-click="on-char-ka-re" pref-width="6" pref-height="5" />
-        <clickable-text text="ロ" id="char-ka-ro" on-click="on-char-ka-ro" pref-width="6" pref-height="5" />
-      </vertical>
-      <vertical spacing="0.5">
-        <clickable-text text="ヤ" id="char-ka-ya" on-click="on-char-ka-ya" pref-width="6" pref-height="5" />
-        <clickable-text text="　" id="char-ka-empty-3" pref-width="6" pref-height="5" />
-        <clickable-text text="ユ" id="char-ka-yu" on-click="on-char-ka-yu" pref-width="6" pref-height="5" />
-        <clickable-text text="　" id="char-ka-empty-4" pref-width="6" pref-height="5" />
-        <clickable-text text="ヨ" id="char-ka-yo" on-click="on-char-ka-yo" pref-width="6" pref-height="5" />
-      </vertical>
-      <vertical spacing="0.5">
-        <clickable-text text="マ" id="char-ka-ma" on-click="on-char-ka-ma" pref-width="6" pref-height="5" />
-        <clickable-text text="ミ" id="char-ka-mi" on-click="on-char-ka-mi" pref-width="6" pref-height="5" />
-        <clickable-text text="ム" id="char-ka-mu" on-click="on-char-ka-mu" pref-width="6" pref-height="5" />
-        <clickable-text text="メ" id="char-ka-me" on-click="on-char-ka-me" pref-width="6" pref-height="5" />
-        <clickable-text text="モ" id="char-ka-mo" on-click="on-char-ka-mo" pref-width="6" pref-height="5" />
-      </vertical>
-      <vertical spacing="0.5">
-        <clickable-text text="ハ" id="char-ka-ha" on-click="on-char-ka-ha" pref-width="6" pref-height="5" />
-        <clickable-text text="ヒ" id="char-ka-hi" on-click="on-char-ka-hi" pref-width="6" pref-height="5" />
-        <clickable-text text="フ" id="char-ka-fu" on-click="on-char-ka-fu" pref-width="6" pref-height="5" />
-        <clickable-text text="ヘ" id="char-ka-he" on-click="on-char-ka-he" pref-width="6" pref-height="5" />
-        <clickable-text text="ホ" id="char-ka-ho" on-click="on-char-ka-ho" pref-width="6" pref-height="5" />
-      </vertical>
-      <vertical spacing="0.5">
-        <clickable-text text="ナ" id="char-ka-na" on-click="on-char-ka-na" pref-width="6" pref-height="5" />
-        <clickable-text text="ニ" id="char-ka-ni" on-click="on-char-ka-ni" pref-width="6" pref-height="5" />
-        <clickable-text text="ヌ" id="char-ka-nu" on-click="on-char-ka-nu" pref-width="6" pref-height="5" />
-        <clickable-text text="ネ" id="char-ka-ne" on-click="on-char-ka-ne" pref-width="6" pref-height="5" />
-        <clickable-text text="ノ" id="char-ka-no" on-click="on-char-ka-no" pref-width="6" pref-height="5" />
-      </vertical>
-      <vertical spacing="0.5">
-        <clickable-text text="タ" id="char-ka-ta" on-click="on-char-ka-ta" pref-width="6" pref-height="5" />
-        <clickable-text text="チ" id="char-ka-chi" on-click="on-char-ka-chi" pref-width="6" pref-height="5" />
-        <clickable-text text="ツ" id="char-ka-tsu" on-click="on-char-ka-tsu" pref-width="6" pref-height="5" />
-        <clickable-text text="テ" id="char-ka-te" on-click="on-char-ka-te" pref-width="6" pref-height="5" />
-        <clickable-text text="ト" id="char-ka-to" on-click="on-char-ka-to" pref-width="6" pref-height="5" />
-      </vertical>
-      <vertical spacing="0.5">
-        <clickable-text text="サ" id="char-ka-sa" on-click="on-char-ka-sa" pref-width="6" pref-height="5" />
-        <clickable-text text="シ" id="char-ka-shi" on-click="on-char-ka-shi" pref-width="6" pref-height="5" />
-        <clickable-text text="ス" id="char-ka-su" on-click="on-char-ka-su" pref-width="6" pref-height="5" />
-        <clickable-text text="セ" id="char-ka-se" on-click="on-char-ka-se" pref-width="6" pref-height="5" />
-        <clickable-text text="ソ" id="char-ka-so" on-click="on-char-ka-so" pref-width="6" pref-height="5" />
-      </vertical>
-      <vertical spacing="0.5">
-        <clickable-text text="カ" id="char-ka-ka" on-click="on-char-ka-ka" pref-width="6" pref-height="5" />
-        <clickable-text text="キ" id="char-ka-ki" on-click="on-char-ka-ki" pref-width="6" pref-height="5" />
-        <clickable-text text="ク" id="char-ka-ku" on-click="on-char-ka-ku" pref-width="6" pref-height="5" />
-        <clickable-text text="ケ" id="char-ka-ke" on-click="on-char-ka-ke" pref-width="6" pref-height="5" />
-        <clickable-text text="コ" id="char-ka-ko" on-click="on-char-ka-ko" pref-width="6" pref-height="5" />
-      </vertical>
-      <!-- 右端: ア行（無子音） -->
-      <vertical spacing="0.5">
-        <clickable-text text="ア" id="char-ka-a" on-click="on-char-ka-a" pref-width="6" pref-height="5" />
-        <clickable-text text="イ" id="char-ka-i" on-click="on-char-ka-i" pref-width="6" pref-height="5" />
-        <clickable-text text="ウ" id="char-ka-u" on-click="on-char-ka-u" pref-width="6" pref-height="5" />
-        <clickable-text text="エ" id="char-ka-e" on-click="on-char-ka-e" pref-width="6" pref-height="5" />
-        <clickable-text text="オ" id="char-ka-o" on-click="on-char-ka-o" pref-width="6" pref-height="5" />
-      </vertical>
-      <vertical spacing="0.5">
+    </tab> -->
+    <tab tags="keyboard-tabs" tab-name="🙂" child-align='TopCenter'>
+      <vertical anchor-pos-y="0" anchor-pos-x="5">
+        <!-- Centered, face-focused emoji grid (3 rows x 16 columns) -->
+
+        <!-- NG Emoji 🤩❤️🥰🥳🥲🤯🧠🧡🤨🤮 -->
+        <!-- ボツ：😃 -->
+        <!-- 重複文字は排除 -->
+        <horizontal spacing="0.5" child-align="MiddleCenter">
+        <clickable-text text="😀" id="char-emoji-1" pref-width="4" pref-height="5"/>
+        <clickable-text text="😧" id="char-emoji-2" pref-width="4" pref-height="5"/>
+        <clickable-text text="😸" id="char-emoji-3" pref-width="4" pref-height="5"/>
+        <clickable-text text="🙅" id="char-emoji-4" pref-width="4" pref-height="5"/>   
+        <clickable-text text="🌰" id="char-emoji-5" pref-width="4" pref-height="5"/>
+
+        <clickable-text text="🍅" id="char-emoji-6" pref-width="4" pref-height="5"/>
+        <clickable-text text="🍔" id="char-emoji-7" pref-width="4" pref-height="5"/>
+        <clickable-text text="🍨" id="char-emoji-8" pref-width="4" pref-height="5"/>
+        <clickable-text text="🍵" id="char-emoji-9" pref-width="4" pref-height="5"/>
+        <clickable-text text="🚀" id="char-emoji-10" pref-width="4" pref-height="5"/>
+        
+        <clickable-text text="🚐" id="char-emoji-11" pref-width="4" pref-height="5"/>
+        <clickable-text text="🚥" id="char-emoji-12" pref-width="4" pref-height="5"/>
+        <clickable-text text="🛩" id="char-emoji-13" pref-width="4" pref-height="5"/>
         <button text="Back" on-click="on-char-backspace" pref-width="15" />
-        <button text="⏎Enter" on-click="on-char-enter" pref-height="15" pref-width="15" />
+      </horizontal>
+      <horizontal spacing="0.5" child-align="MiddleCenter">
+        <!-- <clickable-text text="🦰1" id="char-emoji-16" pref-width="4" pref-height="5"/>
+        <clickable-text text="🧕2" id="char-emoji-17" pref-width="4" pref-height="5"/>
+        <clickable-text text="🧧3" id="char-emoji-18" pref-width="4" pref-height="5"/>
+        <clickable-text text="🧻4" id="char-emoji-19" pref-width="4" pref-height="5"/>
+        <clickable-text text="🩹5" id="char-emoji-20" pref-width="4" pref-height="5"/>
+        
+        <clickable-text text="🪙6" id="char-emoji-21" pref-width="4" pref-height="5"/>
+        <clickable-text text="🪭7" id="char-emoji-22" pref-width="4" pref-height="5"/>
+        <clickable-text text="🫂8" id="char-emoji-23" pref-width="4" pref-height="5"/>
+        <clickable-text text="🫠9" id="char-emoji-24" pref-width="4" pref-height="5"/>
+        <clickable-text text="🫰10" id="char-emoji-25" pref-width="4" pref-height="5"/> -->
+        
+        <clickable-text text="☀" id="char-emoji-26" pref-width="4" pref-height="5"/>
+        
+        <clickable-text text="☕" id="char-emoji-27" pref-width="4" pref-height="5"/>
+        <clickable-text text="☪" id="char-emoji-28" pref-width="4" pref-height="5"/>
+        <clickable-text text="☿" id="char-emoji-29" pref-width="4" pref-height="5"/>
+        <clickable-text text="♔" id="char-emoji-30" pref-width="4" pref-height="5"/>
+        <clickable-text text="♩" id="char-emoji-31" pref-width="4" pref-height="5"/>
+        <button text="" pref-width="15" interactable="false" background-color="0,0,0,0"/>
+      </horizontal>
+      <horizontal spacing="0.5" child-align="MiddleCenter">
+        <clickable-text text="♾" id="char-emoji-32" pref-width="4" pref-height="5"/>
+        <clickable-text text="⚒" id="char-emoji-33" pref-width="4" pref-height="5"/>
+        <clickable-text text="⚢" id="char-emoji-34" pref-width="4" pref-height="5"/>
+        <clickable-text text="⚽" id="char-emoji-35" pref-width="4" pref-height="5"/>
+        <clickable-text text="⛍" id="char-emoji-36" pref-width="4" pref-height="5"/>
+        
+        <clickable-text text="⛢" id="char-emoji-37" pref-width="4" pref-height="5"/>
+        <clickable-text text="⛰" id="char-emoji-38" pref-width="4" pref-height="5"/>
+        <clickable-text text="✀" id="char-emoji-39" pref-width="4" pref-height="5"/>
+        <clickable-text text="✓" id="char-emoji-40" pref-width="4" pref-height="5"/>
+        <clickable-text text="✦" id="char-emoji-41" pref-width="4" pref-height="5"/>
+        
+        <clickable-text text="✀" id="char-emoji-42" pref-width="4" pref-height="5"/>
+        <clickable-text text="✺" id="char-emoji-43" pref-width="4" pref-height="5"/>
+        <clickable-text text="❏" id="char-emoji-44" pref-width="4" pref-height="5"/>
+        <clickable-text text="❨" id="char-emoji-45" pref-width="4" pref-height="5"/>
+        <clickable-text text="❶" id="char-emoji-46" pref-width="4" pref-height="5"/>
+        <button text="" pref-width="15" interactable="false" background-color="0,0,0,0"/>
+      </horizontal>
+      <horizontal spacing="0.5" child-align="MiddleCenter">
+        <clickable-text text="➔" id="char-emoji-47" pref-width="4" pref-height="5"/>
+        <clickable-text text="🀄" id="char-emoji-48" pref-width="4" pref-height="5"/>
+        <clickable-text text="🄀" id="char-emoji-50" pref-width="4" pref-height="5"/>
+        <clickable-text text="🄐" id="char-emoji-51" pref-width="4" pref-height="5"/>
+        
+        <clickable-text text="🄰" id="char-emoji-52" pref-width="4" pref-height="5"/>
+        <clickable-text text="🅐" id="char-emoji-53" pref-width="4" pref-height="5"/>
+        <clickable-text text="🅰" id="char-emoji-54" pref-width="4" pref-height="5"/>
+        <clickable-text text="🆊" id="char-emoji-55" pref-width="4" pref-height="5"/>
+        <clickable-text text="🇦" id="char-emoji-56" pref-width="4" pref-height="5"/>
+        
+        <clickable-text text="🈀" id="char-emoji-57" pref-width="4" pref-height="5"/>
+        <clickable-text text="🉀" id="char-emoji-58" pref-width="4" pref-height="5"/>
+        <clickable-text text="🟠" id="char-emoji-59" pref-width="4" pref-height="5"/>
         <button text="Space" on-click="on-char-space" pref-width="15" />
-      </vertical>
-    </horizontal>
+      </horizontal>       
+
+			<!-- { "😀", ("Emoticons", "Faces", 1, 0x1F600, 0x1F613) }, // 😀〜😓 20
+            { "😔", ("Emoticons", "Faces", 2, 0x1F614, 0x1F626) },       // 😔〜😦 20
+            { "😧", ("Emoticons", "Faces", 3, 0x1F627, 0x1F637) },       // 😧〜😷 17
+            { "😸", ("Emoticons", "Faces", 4, 0x1F638, 0x1F644) },       // 😸〜🙄 13
+            { "🙅", ("Emoticons", "Faces", 5, 0x1F645, 0x1F64F) },       // 🙅〜🙏 13
+
+            { "🌰", ("Pictographs", "Nature - Flowers", 1, 0x1F330, 0x1F344) }, // 🌰〜🍄 20
+            { "🍅", ("Pictographs", "Nature - Fruits", 2, 0x1F345, 0x1F353) }, // 🍅〜🍓 15
+            { "🍔", ("Pictographs", "Nature - Food", 3, 0x1F354, 0x1F367) }, // 🍔〜🍧 20
+            { "🍨", ("Pictographs", "Nature - Food", 4, 0x1F368, 0x1F374) }, // 🍨〜🍴 20
+            { "🍵", ("Pictographs", "Nature - Food", 5, 0x1F375, 0x1F37F) }, // 🍵〜🍿 11
+
+            { "🚀", ("Transport", "Vehicles - Land", 1, 0x1F680, 0x1F68F) },    // 🚀〜🚏 16
+            { "🚐", ("Transport", "Vehicles - Land", 2, 0x1F690, 0x1F6A4) },    // 🚐〜🚤 21
+            { "🚥", ("Transport", "Vehicles - Air", 3, 0x1F6A5, 0x1F6EC) },     // 🚥〜🛬 16
+            { "🛍", ("Transport", "Vehicles - Other", 4, 0x1F6ED, 0x1F6FF) },    // 🛍〜🛿 19
+
+            { "🦰", ("Supplemental", "Body Parts", 1, 0x1F9B0, 0x1F9D4) },      // 🦰〜🧔 15
+            { "🧕", ("Supplemental", "People - Professions", 2, 0x1F9D5, 0x1F9E6) }, // 🧕〜🧦 18
+            { "🧧", ("ExtendedA", "Objects - Magic", 3, 0x1F9E7, 0x1F9FA) },    // 🧧〜🧺 20
+            { "🧻", ("ExtendedA", "Objects - Magic", 4, 0x1F9FB, 0x1FA78) },    // 🧻〜🩸 20
+            { "🩹", ("ExtendedA", "Objects - Magic", 5, 0x1FA79, 0x1FA98) },    // 🩹〜🪘 20
+            { "🪙", ("ExtendedA", "Objects - Magic", 6, 0x1FA99, 0x1FAAC) },    // 🪙〜🪬 20
+            { "🪭", ("ExtendedA", "Objects - Magic", 7, 0x1FAAD, 0x1FAC1) },    // 🪭〜🫁 20
+            { "🫂", ("ExtendedA", "Objects - Magic", 8, 0x1FAC2, 0x1FADB) },    // 🫂〜🫛 18
+            { "🫠", ("ExtendedA", "Objects - Magic", 9, 0x1FAE0, 0x1FAE8) },    // 🫠〜🫨 9
+            { "🫰", ("ExtendedA", "Objects - Magic", 10, 0x1FAF0, 0x1FAF8) },    // 🫰〜🫸 9
+
+            { "☀", ("MiscSymbols", "Weather", 1, 0x2600, 0x2614) },            // ☀️〜☔ 21
+            { "☕", ("MiscSymbols", "Weather", 2, 0x2615, 0x2629) },            // ☕〜☩ 21
+            { "☪", ("MiscSymbols", "Weather", 3, 0x262A, 0x263E) },            // ☪〜☾ 21
+            { "☿", ("MiscSymbols", "Weather", 4, 0x263F, 0x2653) },            // ☿〜♓ 21
+            { "♔", ("MiscSymbols", "Weather", 5, 0x2654, 0x2668) },            // ♔〜♨ 21
+            { "♩", ("MiscSymbols", "Weather", 6, 0x2669, 0x267D) },            // ♩〜♽ 21
+            { "♾", ("MiscSymbols", "Weather", 7, 0x267E, 0x2691) },            // ♾〜⚑ 21 ⚔
+            { "⚒", ("MiscSymbols", "Weather", 8, 0x2692, 0x26A1) },            // ⚒〜⚡ 16
+            
+            { "⚢", ("MiscSymbols", "Weather", 9, 0x26A2, 0x26BC) },            // ⚢〜⚼ 27
+            { "⚽", ("MiscSymbols", "Weather", 10, 0x26BD, 0x26CC) },            // ⚽〜⛌ 16 ⛌ 
+            { "⛍", ("MiscSymbols", "Weather", 11, 0x26CD, 0x26E1) },            // ⛍〜⛡ 21
+            { "⛢", ("MiscSymbols", "Weather", 12, 0x26E2, 0x26EF) },            // ⛢〜⛯ 14
+            { "⛰", ("MiscSymbols", "Weather", 13, 0x26F0, 0x26FF) },            // ⛰〜⛿ 21
+
+            { "✀", ("Dingbats", "Effects - Sparkles", 1, 0x2700, 0x2712) },    // 〜✒ 19
+            { "✓", ("Dingbats", "Effects - Sparkles", 2, 0x2713, 0x2725) },    // 〜✥ 19
+            { "✦", ("Dingbats", "Effects - Sparkles", 3, 0x2726, 0x2739) },    // 〜✹ 20
+            { "✺", ("Dingbats", "Effects - Sparkles", 4, 0x273A, 0x274E) },    // 〜❎ 21
+            { "❏", ("Dingbats", "Effects - Sparkles", 5, 0x274F, 0x2767) },    // 〜❧ 25   
+
+            { "❨", ("Dingbats", "Effects - Sparkles", 6, 0x2768, 0x2775) },    // 〜❵ 192
+            { "❶", ("Dingbats", "Effects - Sparkles", 7, 0x2776, 0x2793) },    // 〜➓ 30
+            { "➔", ("Dingbats", "Effects - Sparkles", 8, 0x2794, 0x27BF) },    // 〜➿ 44
+            { "🀄", ("Mahjong", "Game Tiles", 1, 0x1F000, 0x1F02B) },          // 🀄〜🂫 44
+            { "🎴", ("PlayingCards", "Game Cards", 1, 0x1F0A0, 0x1F0FF) },     // 🎴〜🃿 96
+
+            { "🄀", ("EnclosedAlpha", "Alphanumeric Buttons", 1, 0x1F100, 0x1F10A) }, // 〜🄊 10  
+            { "🄐", ("EnclosedAlpha", "Alphanumeric Buttons", 2, 0x1F110, 0x1F12E) }, // 〜🄮 31
+            { "🄰", ("EnclosedAlpha", "Alphanumeric Buttons", 3, 0x1F130, 0x1F14F) }, // 〜🅏 32
+            { "🅐", ("EnclosedAlpha", "Alphanumeric Buttons", 4, 0x1F150, 0x1F169) }, // 〜🅩 26
+            { "🅰", ("EnclosedAlpha", "Alphanumeric Buttons", 5, 0x1F170, 0x1F189) }, // 〜🆉 26
+            { "🆊", ("EnclosedAlpha", "Alphanumeric Buttons", 4, 0x1F18A, 0x1F19A) }, // 〜🆚 17
+            { "🇦", ("EnclosedAlpha", "Alphanumeric Buttons", 6, 0x1F1E6, 0x1F1FF) }, // 〜🇿 26
+
+            { "🈀", ("EnclosedIdeo", "Japanese Symbols", 1, 0x1F200, 0x1F23B) },     // 〜🈻 47  
+            { "🉀", ("GeoShapes", "Colored Squares", 1, 0x1F240, 0x1F265) },    // 〜🉥 17
+            { "🟠", ("GeoShapes", "Colored Squares", 1, 0x1F7E0, 0x1F7EB) },    // ～🟫 12 -->
       </vertical>
     </tab>
 
