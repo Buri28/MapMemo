@@ -1,5 +1,7 @@
 using System;
+using System.Text;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using BeatSaberMarkupLanguage.Components;
 using HMUI;
@@ -90,6 +92,7 @@ namespace MapMemo.UI.Edit
         {
             if (string.IsNullOrEmpty(search)) return;
 
+            Plugin.Log?.Info($"SuggestionListController: Adding emoji suggestions for '{search}'");
             var supportedEmojis = MemoEditModalHelper.emojiMap;
             // 絵文字マップのキーに該当する場合は、そのキーに対する絵文字をすべて追加
             if (supportedEmojis.ContainsKey(search))
@@ -103,6 +106,7 @@ namespace MapMemo.UI.Edit
                     {
                         if (already.Add(new KeyValuePair<string, string>(search, emoji)))
                         {
+                            Plugin.Log?.Info($"Adding emoji suggestion: '{emoji}' for key '{search}'");
                             AddSuggestion(emoji, search);
                         }
                     }
@@ -118,8 +122,9 @@ namespace MapMemo.UI.Edit
             var historyMatches = history
                 .AsEnumerable()
                 .Reverse()
-                .Where(h => (h.Key != null && h.Key.StartsWith(search))
-                            || h.Value.StartsWith(search))
+                .Where(h =>
+                        (h.Key != null && StartsWithTextElement(h.Key, search)) ||
+                        StartsWithTextElement(h.Value, search))
                 .Distinct()
                 .Take(historyShowCount)
                 .ToList();
@@ -128,10 +133,52 @@ namespace MapMemo.UI.Edit
             {
                 if (already.Add(h))
                 {
+                    Plugin.Log?.Info($"Adding history suggestion: Key='{h.Key}', Value='{h.Value}'");
                     AddSuggestion(h.Value, h.Key);
                 }
             }
         }
+        // private static bool StartsWithTextElement(string text, string search)
+        // {
+        //     if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(search)) return false;
+
+        //     Plugin.Log?.Info("StartsWithTextElement(text:search):" + DumpCodePoints(GetTextElements(text))
+        //     + ":" + DumpCodePoints(GetTextElements(search)));
+
+        //     var textEnum = StringInfo.GetTextElementEnumerator(text);
+        //     var searchEnum = StringInfo.GetTextElementEnumerator(search);
+
+        //     if (!textEnum.MoveNext() || !searchEnum.MoveNext()) return false;
+
+        //     string firstTextElement = textEnum.GetTextElement();
+        //     string searchElement = searchEnum.GetTextElement();
+
+        //     return firstTextElement == searchElement;
+        // }
+        // private static IEnumerable<string> GetTextElements(string text)
+        // {
+        //     var enumerator = StringInfo.GetTextElementEnumerator(text);
+        //     while (enumerator.MoveNext())
+        //     {
+        //         yield return enumerator.GetTextElement();
+        //     }
+        // }
+        // private static string DumpCodePoints(IEnumerable<string> text)
+        // {
+        //     return string.Join(" ", text.Select(r => $"U+{r:X}"));
+        // }
+        public static bool StartsWithTextElement(string text, string search)
+        {
+            if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(search)) return false;
+
+            var textEnum = StringInfo.GetTextElementEnumerator(text);
+            var searchEnum = StringInfo.GetTextElementEnumerator(search);
+
+            if (!textEnum.MoveNext() || !searchEnum.MoveNext()) return false;
+
+            return textEnum.GetTextElement() == searchEnum.GetTextElement();
+        }
+
 
         private void AddDictionarySuggestions(string search, HashSet<KeyValuePair<string, string>> already)
         {
@@ -144,6 +191,7 @@ namespace MapMemo.UI.Edit
             {
                 if (already.Add(pair))
                 {
+                    Plugin.Log?.Info($"Adding dictionary suggestion: Key='{pair.Key}', Value='{pair.Value}'");
                     AddSuggestion(pair.Value, pair.Key);
                 }
             }

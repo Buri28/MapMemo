@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using MapMemo.UI.Edit;
 
 namespace MapMemo.Core
 {
@@ -97,7 +98,8 @@ namespace MapMemo.Core
                 $" among {dictionaryWords.Count} dictionary words.");
             return dictionaryWords.Where(
                 pair => pair.Key != null ?
-                        pair.Key.StartsWith(prefix) : pair.Value.StartsWith(prefix));
+                        SuggestionListController.StartsWithTextElement(pair.Key, prefix) :
+                        SuggestionListController.StartsWithTextElement(pair.Value, prefix));
         }
     }
 }

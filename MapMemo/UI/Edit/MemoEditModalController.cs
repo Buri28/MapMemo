@@ -432,14 +432,12 @@ namespace MapMemo.UI.Edit
         }
 
         [UIAction("on-char-space")] private void OnCharSpace() => Append(" ");
-        // [UIAction("on-char-newline")] private void OnCharNewline() => Append("\n");
         [UIAction("on-char-backspace")]
         private void OnCharBackspace()
         {
             if (pendingText.Length > 0)
             {
-                // 未確定文字列から削除
-                pendingText = pendingText.Substring(0, pendingText.Length - 1);
+                pendingText = RemoveLastTextElement(pendingText);
                 memo = confirmedText + GetPendingText();
                 NotifyPropertyChanged("memo");
                 UpdateMemoText(memo);
@@ -452,13 +450,24 @@ namespace MapMemo.UI.Edit
                 return;
             }
 
-            confirmedText = confirmedText.Substring(0, confirmedText.Length - 1);
+            confirmedText = RemoveLastTextElement(confirmedText);
             memo = confirmedText;
             NotifyPropertyChanged("memo");
             UpdateMemoText(memo);
             UpdateSuggestions();
         }
 
+        private static string RemoveLastTextElement(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return text;
+
+            var si = new StringInfo(text);
+            int count = si.LengthInTextElements;
+
+            if (count <= 1) return string.Empty;
+
+            return si.SubstringByTextElements(0, count - 1);
+        }
 
         [UIAction("on-char-shift")]
         private void OnCharShift()
