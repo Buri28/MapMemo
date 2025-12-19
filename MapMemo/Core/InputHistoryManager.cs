@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using MapMemo.UI.Edit;
 using UnityEngine;
 
 namespace MapMemo.Core
@@ -50,8 +51,15 @@ namespace MapMemo.Core
             if (string.IsNullOrEmpty(text)) return;
             if (historyList == null) historyList = new List<KeyValuePair<string, string>>();
             text = text.Trim().Replace("\r", "").Replace("\n", "");
-            if (string.IsNullOrWhiteSpace(text) || text.Length < 2) return;
-            if (MapMemo.UI.Edit.MemoEditModalHelper.IsOnlyEmoji(text)) return;
+
+
+            if (string.IsNullOrWhiteSpace(text)) return;
+
+            // 絵文字は1文字でも履歴に追加するが、絵文字以外の1文字は無視する
+            if (!MemoEditModalHelper.IsOnlyEmoji(text) && text.Length < 2)
+            {
+                return;
+            }
 
             historyList.RemoveAll(x => x.Key == subText && x.Value == text);
             historyList.Add(new KeyValuePair<string, string>(subText, text));

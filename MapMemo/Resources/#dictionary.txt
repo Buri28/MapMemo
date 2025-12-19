@@ -133,6 +133,14 @@ ff9
 miss
 pepega
 pp
+⚔,Easy
+⚔,Expert
+⚔,Expert+
+⚔,Hard
+⚔,JD
+⚔,Normal
+⚔,PP
+⚔,RT
 あじがしない,味がしない
 あじがする,味がする
 あせだく,汗だく
