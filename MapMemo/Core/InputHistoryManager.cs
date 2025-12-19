@@ -51,6 +51,7 @@ namespace MapMemo.Core
             if (historyList == null) historyList = new List<KeyValuePair<string, string>>();
             text = text.Trim().Replace("\r", "").Replace("\n", "");
             if (string.IsNullOrWhiteSpace(text) || text.Length < 2) return;
+            if (MapMemo.UI.Edit.MemoEditModalHelper.IsOnlyEmoji(text)) return;
 
             historyList.RemoveAll(x => x.Key == subText && x.Value == text);
             historyList.Add(new KeyValuePair<string, string>(subText, text));
