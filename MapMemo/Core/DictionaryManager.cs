@@ -97,9 +97,10 @@ namespace MapMemo.Core
             Plugin.Log?.Info($"DictionaryManager: Searching for prefix '{prefix}'" +
                 $" among {dictionaryWords.Count} dictionary words.");
             return dictionaryWords.Where(
-                pair => pair.Key != null ?
-                        SuggestionListController.StartsWithTextElement(pair.Key, prefix) :
-                        SuggestionListController.StartsWithTextElement(pair.Value, prefix));
+                pair =>
+                    (!string.IsNullOrEmpty(pair.Key) && SuggestionListController.StartsWithTextElement(pair.Key, prefix)) ||
+                    (!string.IsNullOrEmpty(pair.Value) && SuggestionListController.StartsWithTextElement(pair.Value, prefix))
+            );
         }
     }
 }
