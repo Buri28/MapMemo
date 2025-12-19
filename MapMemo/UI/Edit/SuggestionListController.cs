@@ -167,16 +167,28 @@ namespace MapMemo.UI.Edit
         // {
         //     return string.Join(" ", text.Select(r => $"U+{r:X}"));
         // }
-        public static bool StartsWithTextElement(string text, string search)
+        public static bool StartsWithTextElement(string text, string prefix)
         {
-            if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(search)) return false;
+            if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(prefix)) return false;
 
             var textEnum = StringInfo.GetTextElementEnumerator(text);
-            var searchEnum = StringInfo.GetTextElementEnumerator(search);
+            var prefixEnum = StringInfo.GetTextElementEnumerator(prefix);
 
-            if (!textEnum.MoveNext() || !searchEnum.MoveNext()) return false;
+            var textBuilder = new List<string>();
+            var prefixBuilder = new List<string>();
 
-            return textEnum.GetTextElement() == searchEnum.GetTextElement();
+            while (prefixEnum.MoveNext())
+            {
+                prefixBuilder.Add(prefixEnum.GetTextElement());
+            }
+
+            for (int i = 0; i < prefixBuilder.Count; i++)
+            {
+                if (!textEnum.MoveNext()) return false;
+                textBuilder.Add(textEnum.GetTextElement());
+            }
+
+            return string.Join("", textBuilder) == string.Join("", prefixBuilder);
         }
 
 
