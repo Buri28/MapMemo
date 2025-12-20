@@ -97,21 +97,25 @@ namespace MapMemo.UI.Edit
             // 絵文字マップのキーに該当する場合は、そのキーに対する絵文字をすべて追加
             if (supportedEmojis.ContainsKey(search))
             {
-                var range = supportedEmojis[search];
-                for (int codePoint = range.Start; codePoint <= range.End; codePoint++)
+                var (keyNo, category, rangeList) = supportedEmojis[search];
+
+                foreach (var range in rangeList)
                 {
-                    string emoji = char.ConvertFromUtf32(codePoint);
-                    if (MemoEditModalHelper.IsEmojiSupported(
-                        search, emoji, codePoint, range.Start, range.End))
+                    for (int codePoint = range.Start; codePoint <= range.End; codePoint++)
                     {
-                        if (already.Add(new KeyValuePair<string, string>(search, emoji)))
+                        string emoji = char.ConvertFromUtf32(codePoint);
+                        if (MemoEditModalHelper.IsEmojiSupported(
+                            search, emoji, codePoint, range.Start, range.End))
                         {
-                            Plugin.Log?.Info($"Adding emoji suggestion: '{emoji}' for key '{search}'");
-                            AddSuggestion(emoji, search);
+                            if (already.Add(new KeyValuePair<string, string>(search, emoji)))
+                            {
+                                Plugin.Log?.Info($"Adding emoji suggestion: '{emoji}' for key '{search}'");
+                                AddSuggestion(emoji, search);
+                            }
                         }
                     }
+                    return;
                 }
-                return;
             }
         }
 
