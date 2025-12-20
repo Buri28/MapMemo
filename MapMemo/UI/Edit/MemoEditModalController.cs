@@ -45,6 +45,7 @@ namespace MapMemo.UI.Edit
 
         [UIComponent("suggestion-list")] private CustomListTableData suggestionList;
         private SuggestionListController suggestionController;
+        private KeyController keyController;
 
         private LevelContext levelContext;
 
@@ -98,7 +99,7 @@ namespace MapMemo.UI.Edit
             }
 
             // ボタンの見た目を整えるヘルパーを呼び出す
-            MemoEditModalHelper.InitializeClickableText(Instance.modal, Instance.isShift);
+            Instance.keyController.InitializeAppearance(Instance.isShift);
             // サジェストリストを初期化する
             Instance.suggestionController.Clear();
 
@@ -158,6 +159,11 @@ namespace MapMemo.UI.Edit
         private void OnPostParse()
         {
             Plugin.Log?.Info("MemoEditModal: OnPostParse called — setting up pick list");
+
+            keyController = new KeyController(
+                modal.gameObject.GetComponentsInChildren<ClickableText>(true),
+                modal.gameObject.GetComponentsInChildren<TextMeshProUGUI>(true)
+            );
             suggestionController = new SuggestionListController(suggestionList, historyShowCount);
             suggestionController.SuggestionSelected += (value, subtext) =>
             {
@@ -171,7 +177,7 @@ namespace MapMemo.UI.Edit
             };
 
             // ボタンのクリックリスナーを設定
-            MemoEditModalHelper.SetupKeyClickListeners(this.modal);
+            keyController.SetupKeyClickListeners();
         }
 
         private void OnEnable()
@@ -179,8 +185,8 @@ namespace MapMemo.UI.Edit
             // モーダルが有効化されたときに呼ばれる
             Plugin.Log?.Info("MemoEditModal: OnEnable called");
 
-            // A〜Z ボタンのラベルを更新する
-            MemoEditModalHelper.UpdateAlphaButtonLabels(this.modal, this.isShift);
+            // ボタンのラベルを更新する
+            keyController.UpdateAlphaButtonLabels(isShift);
         }
         // RepositionModalToLeftHalf moved to MemoEditModalHelper.RepositionModalToLeftHalf
 
@@ -460,14 +466,13 @@ namespace MapMemo.UI.Edit
         {
             // Shift をトグルして A〜Z ボタン表示を切替
             isShift = !isShift;
-            MemoEditModalHelper.UpdateAlphaButtonLabels(this.modal, this.isShift);
+            keyController.UpdateAlphaButtonLabels(isShift);
         }
         [UIAction("on-char-toggle-kana")]
         private void OnCharToggleKana()
         {
             isKanaMode = !isKanaMode;
-            MemoEditModalHelper.UpdateKanaModeButtonLabel(this.modal, this.isKanaMode);
-
+            keyController.UpdateKanaModeButtonLabel(isKanaMode);
         }
 
         /// <summary>
