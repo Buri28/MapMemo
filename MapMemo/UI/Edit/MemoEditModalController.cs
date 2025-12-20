@@ -13,6 +13,7 @@ using System.Globalization;
 using System.IO;
 using MapMemo.UI.Menu;
 using MapMemo.Core;
+using BeatSaberMarkupLanguage.Parser;
 
 namespace MapMemo.UI.Edit
 {
@@ -45,6 +46,9 @@ namespace MapMemo.UI.Edit
         [UIComponent("suggestion-list")] private CustomListTableData suggestionList;
         private SuggestionListController suggestionController;
 
+        [UIParams]
+        public BSMLParserParams parserParams;
+
         // 辞書語リストは DictionaryManager が管理する
 
         //// ◆画面初期表示関連メソッド Start ◆////
@@ -52,14 +56,14 @@ namespace MapMemo.UI.Edit
         /// <summary>
         /// モーダルのインスタンスを取得または生成する
         /// </summary>
-        /// <param name="entry"></param>
+        /// <param name="existingMemoInfo"></param>
         /// <param name="parent"></param>
         /// <param name="key"></param>
         /// <param name="songName"></param>
         /// <param name="songAuthor"></param>
         /// <returns></returns>
         public static MemoEditModalController GetInstance(
-            MemoEntry entry,
+            MemoEntry existingMemoInfo,
             MemoPanelController parent,
             string key,
             string songName,
@@ -68,6 +72,7 @@ namespace MapMemo.UI.Edit
             if (ReferenceEquals(Instance, null))
             {
                 Plugin.Log?.Info("MemoEditModal.GetInstance: creating new modal instance");
+                // インスタンスを生成
                 Instance = BeatSaberUI.CreateViewController<MemoEditModalController>();
 
                 Instance.ParseBSML(
@@ -75,17 +80,17 @@ namespace MapMemo.UI.Edit
                         typeof(MemoEditModalController).Assembly,
                         "MapMemo.Resources.MemoEdit.bsml"),
                         parent.HostGameObject);
-                // 初回のみロード
+                // 初回のみ辞書ファイルと入力履歴ファイルを読み込み
                 DictionaryManager.Load();
                 InputHistoryManager.Instance.LoadHistory(Path.Combine("UserData", "MapMemo"), settings.HistoryMaxCount);
             }
-            // Instance.parentPanel = parent;
+            // 必要なパラメータを設定
             Instance.key = key;
             Instance.songName = songName;
             Instance.songAuthor = songAuthor;
-            // Instance.memoText.maxVisibleLines = 5;
-            Instance.memo = entry?.memo ?? "";
-            Instance.lastUpdated.text = entry != null ? "Updated:" + MemoEditModalHelper.FormatLocal(entry.updatedAt) : "";
+            Instance.memo = existingMemoInfo?.memo ?? "";
+            Instance.lastUpdated.text = existingMemoInfo != null ? "Updated:" + MemoEditModalHelper.FormatLocal(existingMemoInfo.updatedAt) : "";
+
             if (Instance.memoText != null)
             {
                 Instance.memoText.richText = true;
@@ -93,12 +98,18 @@ namespace MapMemo.UI.Edit
                 Instance.confirmedText = Instance.memo;
                 Instance.pendingText = "";
             }
+
             // A〜Z ボタンの見た目を整えるヘルパーを呼び出す
-            MemoEditModalHelper.ApplyAlphaButtonCosmetics(Instance.modal, Instance.isShift);
+            MemoEditModalHelper.InitializeClickableText(Instance.modal, Instance.isShift);
             // サジェストリストを初期化する
             Instance.suggestionController.Clear();
+
+            // 使える絵文字をログ出力
+            MemoEditModalHelper.WriteDebugLog("MemoEditModal.GetInstance: Available emojis:");
+
             return Instance;
         }
+
         // ApplyAlphaButtonCosmetics moved to MemoEditModalHelper.ApplyAlphaButtonCosmetics
         /// <summary>
         /// モーダル表示
@@ -110,9 +121,10 @@ namespace MapMemo.UI.Edit
         public static void Show(
             MemoPanelController parent, string key, string songName, string songAuthor)
         {
-            // 同期ロードを使って UI スレッドで確実に更新する
-            var existing = MemoRepository.Load(key, songName, songAuthor);
-            var modalCtrl = MemoEditModalController.GetInstance(existing, parent, key, songName, songAuthor);
+            // 既存のメモを読み込む
+            var existingMemoInfo = MemoRepository.Load(key, songName, songAuthor);
+            var modalCtrl = MemoEditModalController.GetInstance(
+                existingMemoInfo, parent, key, songName, songAuthor);
 
             Plugin.Log?.Info("MemoEditModal.Show: reusing existing parsed modal instance");
             // 表示は既にバインド済みの modal を利用して行う
@@ -124,6 +136,30 @@ namespace MapMemo.UI.Edit
                 modalCtrl.modal?.Show(true, true);
                 // 画面の左側半分あたりに表示するように位置調整
                 MemoEditModalHelper.RepositionModalToLeftHalf(modalCtrl.modal);
+
+                // デバッグ: parserParams 経由で要素にアクセスできるか確認
+                if (Instance.parserParams == null)
+                {
+                    Debug.LogWarning("parserParams が null です！");
+                }
+                var obj = Instance.parserParams.GetObjectsWithTag("char-emoji-1").FirstOrDefault();
+                if (obj != null)
+                {
+                    var clickable = obj.GetComponent<ClickableText>();
+                    if (clickable != null)
+                    {
+                        clickable.text = "😀";
+                        Debug.Log($"取得成功！text: {clickable.text}");
+                    }
+                    else
+                    {
+                        Debug.Log("ClickableText コンポーネントが見つかりません。");
+                    }
+                }
+                else
+                {
+                    Debug.Log("オブジェクトが見つかりません。");
+                }
             }
             catch (System.Exception ex)
             {
@@ -326,32 +362,6 @@ namespace MapMemo.UI.Edit
             }
             return true;
         }
-
-        // Append and immediately commit (used for emoji clicks so they become confirmed instantly)
-        // Modified: only auto-commit if there was no pending text before the append
-        // public void AppendEmoji(string s)
-        // {
-        //     if (string.IsNullOrEmpty(s)) return;
-        //     // Determine whether there were pending (unconfirmed) characters before appending
-
-        //     var hadPending = !string.IsNullOrEmpty(pendingText);
-
-        //     if (Append(s, false))
-        //     {
-        //         InputHistoryManager.Instance.AddHistory(s);
-        //         if (!hadPending)
-        //         {
-        //             CommitMemo();
-        //             UpdateSuggestions();
-        //             if (Plugin.VerboseLogs) Plugin.Log?.Info($"AppendEmoji: auto-committed '{s}'");
-        //         }
-        //         else
-        //         {
-        //             UpdateSuggestions();
-        //             if (Plugin.VerboseLogs) Plugin.Log?.Info($"AppendEmoji: appended '{s}' without commit (pending present)");
-        //         }
-        //     }
-        // }
 
         private void ClearSuggestions()
         {

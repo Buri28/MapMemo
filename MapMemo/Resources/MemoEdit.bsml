@@ -246,64 +246,75 @@
     <tab tags="keyboard-tabs" tab-name="🙂" child-align='TopCenter'>
       <vertical anchor-pos-y="0" anchor-pos-x="5">
         <horizontal spacing="0.5" child-align="MiddleCenter">
-          <clickable-text text="😀" id="char-emoji-1" pref-width="4" pref-height="5"/>
-          <clickable-text text="😧" id="char-emoji-2" pref-width="4" pref-height="5"/>
-          <clickable-text text="😸" id="char-emoji-3" pref-width="4" pref-height="5"/>
-          <clickable-text text="🙅" id="char-emoji-4" pref-width="4" pref-height="5"/>   
-          <clickable-text text="🌰" id="char-emoji-5" pref-width="4" pref-height="5"/>
-
-          <clickable-text text="🍅" id="char-emoji-6" pref-width="4" pref-height="5"/>
-          <clickable-text text="🍔" id="char-emoji-7" pref-width="4" pref-height="5"/>
-          <clickable-text text="🍨" id="char-emoji-8" pref-width="4" pref-height="5"/>
-          <clickable-text text="🍵" id="char-emoji-9" pref-width="4" pref-height="5"/>
-          <clickable-text text="🚀" id="char-emoji-10" pref-width="4" pref-height="5"/>
-          
-          <clickable-text text="🚐" id="char-emoji-11" pref-width="4" pref-height="5"/>
-          <clickable-text text="🚥" id="char-emoji-12" pref-width="4" pref-height="5"/>
-          <clickable-text text="🛩" id="char-emoji-13" pref-width="4" pref-height="5"/>
-          <clickable-text text="☀" id="char-emoji-26" pref-width="4" pref-height="5"/>
-          <clickable-text text="☕" id="char-emoji-27" pref-width="4" pref-height="5"/>        
+          <clickable-text text="char-emoji-1" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-2" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-3" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-4" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-5" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-6" pref-width="4" pref-height="5"/>   
+          <clickable-text text="char-emoji-7" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-8" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-9" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-10" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-11" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-12" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-13" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-14" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-15" pref-width="4" pref-height="5"/>
           <button text="Back" on-click="on-char-backspace" pref-width="15" />
         </horizontal>
         <horizontal spacing="0.5" child-align="MiddleCenter">      
-          <clickable-text text="☪" id="char-emoji-28" pref-width="4" pref-height="5"/>
-          <clickable-text text="☿" id="char-emoji-29" pref-width="4" pref-height="5"/>
-          <clickable-text text="♔" id="char-emoji-30" pref-width="4" pref-height="5"/>
-          <clickable-text text="♩" id="char-emoji-31" pref-width="4" pref-height="5"/>
-          <clickable-text text="♾" id="char-emoji-32" pref-width="4" pref-height="5"/>
-
-          <clickable-text text="⚒" id="char-emoji-33" pref-width="4" pref-height="5"/>
-          <clickable-text text="⚢" id="char-emoji-34" pref-width="4" pref-height="5"/>
-          <clickable-text text="⚽" id="char-emoji-35" pref-width="4" pref-height="5"/>
-          <clickable-text text="⛍" id="char-emoji-36" pref-width="4" pref-height="5"/>
-          <clickable-text text="⛢" id="char-emoji-37" pref-width="4" pref-height="5"/>
-
-          <clickable-text text="⛰" id="char-emoji-38" pref-width="4" pref-height="5"/>
-          <clickable-text text="✀" id="char-emoji-39" pref-width="4" pref-height="5"/>
-          <clickable-text text="✓" id="char-emoji-40" pref-width="4" pref-height="5"/>
-          <clickable-text text="✦" id="char-emoji-41" pref-width="4" pref-height="5"/>
-          <clickable-text text="✺" id="char-emoji-43" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-16" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-17" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-18" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-19" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-20" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-21" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-22" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-23" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-24" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-25" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-26" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-27" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-28" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-29" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-30" pref-width="4" pref-height="5"/>
+          <button text="⏎Enter" on-click="on-char-enter" pref-height="10" pref-width="15" />
+        </horizontal>
+        <horizontal spacing="0.5" child-align="MiddleCenter">
+          <clickable-text text="char-emoji-31" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-32" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-33" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-34" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-35" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-36" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-37" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-38" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-39" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-40" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-41" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-42" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-43" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-44" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-45" pref-width="4" pref-height="5"/>
           <button text="" pref-width="15" interactable="false" background-color="0,0,0,0"/>
         </horizontal>
         <horizontal spacing="0.5" child-align="MiddleCenter">
-          
-          <clickable-text text="❏" id="char-emoji-44" pref-width="4" pref-height="5"/>
-          <clickable-text text="❨" id="char-emoji-45" pref-width="4" pref-height="5"/>
-          <clickable-text text="❶" id="char-emoji-46" pref-width="4" pref-height="5"/>
-          <clickable-text text="➔" id="char-emoji-47" pref-width="4" pref-height="5"/>
-          <clickable-text text="🀄" id="char-emoji-48" pref-width="4" pref-height="5"/>
-
-          <clickable-text text="🄀" id="char-emoji-50" pref-width="4" pref-height="5"/>
-          <clickable-text text="🄐" id="char-emoji-51" pref-width="4" pref-height="5"/>
-          <clickable-text text="🄰" id="char-emoji-52" pref-width="4" pref-height="5"/>
-          <clickable-text text="🅐" id="char-emoji-53" pref-width="4" pref-height="5"/>
-          <clickable-text text="🅰" id="char-emoji-54" pref-width="4" pref-height="5"/>
-          
-          <clickable-text text="🆊" id="char-emoji-55" pref-width="4" pref-height="5"/>
-          <clickable-text text="🇦" id="char-emoji-56" pref-width="4" pref-height="5"/>
-          <clickable-text text="🈀" id="char-emoji-57" pref-width="4" pref-height="5"/>
-          <clickable-text text="🉀" id="char-emoji-58" pref-width="4" pref-height="5"/>
-          <clickable-text text="🟠" id="char-emoji-59" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-46" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-47" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-48" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-49" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-50" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-51" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-52" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-53" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-54" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-55" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-56" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-57" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-58" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-59" pref-width="4" pref-height="5"/>
+          <clickable-text text="char-emoji-60" pref-width="4" pref-height="5"/>
           <button text="Space" on-click="on-char-space" pref-width="15" />
         </horizontal>
 

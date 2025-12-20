@@ -13,7 +13,12 @@ namespace MapMemo.UI.Edit
 {
     public static class MemoEditModalHelper
     {
-        public static void ApplyAlphaButtonCosmetics(ModalView modal, bool isShift)
+        /// <summary>
+        /// クリック可能なテキストコンポーネントの見た目を初期化する
+        /// </summary>
+        /// <param name="modal"></param>
+        /// <param name="isShift"></param>
+        public static void InitializeClickableText(ModalView modal, bool isShift)
         {
             if (modal == null) return;
             try
@@ -23,6 +28,7 @@ namespace MapMemo.UI.Edit
                     try
                     {
                         if (btn == null) continue;
+                        // ボタンの見た目を整える
                         btn.fontSize = 3.8f;
                         btn.fontStyle = FontStyles.Italic | FontStyles.Underline;
                         btn.alignment = TextAlignmentOptions.Center;
@@ -32,6 +38,7 @@ namespace MapMemo.UI.Edit
                         btn.outlineColor = Color.yellow;
                         btn.outlineWidth = 0.3f;
 
+                        // レイアウト要素を追加して幅を制限
                         var layout = btn.gameObject.GetComponent<LayoutElement>();
                         if (layout == null)
                             layout = btn.gameObject.AddComponent<LayoutElement>();
@@ -39,8 +46,20 @@ namespace MapMemo.UI.Edit
                         layout.minWidth = 5f;
 
                         var label = btn.text.Trim().Replace(" ", "");
-                        label = isShift ? label.ToLowerInvariant() : label.ToUpperInvariant();
-                        btn.text = EditLabel(label);
+                        // 識別用コンポーネントを追加
+                        var idComp = btn.gameObject.AddComponent<KeyIdentifier>();
+                        if (label.StartsWith("char-emoji-"))
+                        {
+                            // 絵文字の場合は初期設定のtextをidとして扱う
+                            idComp.Id = label;
+                            btn.text = MemoEditModalHelper.GetEmojiKeyById(label);
+                        }
+                        else
+                        {
+                            // ラベルの大文字小文字変換
+                            label = isShift ? label.ToLowerInvariant() : label.ToUpperInvariant();
+                            btn.text = EditLabel(label);
+                        }
                     }
                     catch { /* ignore per-button failures */ }
                 }
@@ -169,6 +188,8 @@ namespace MapMemo.UI.Edit
                 var msg = $"MemoEditModal.SetupKeyClickListeners: found {comps.Count()} ClickableText components under modal";
                 Plugin.Log?.Info(msg);
             }
+            // ここでラベルを埋める
+            PopulateEmojiButtons(modal);
 
             foreach (var btn in comps)
             {
@@ -185,26 +206,6 @@ namespace MapMemo.UI.Edit
             Plugin.Log?.Info("MemoEditModal.SetupEmojiClickListeners: completed emoji listener setup");
         }
 
-        // public static bool IsSingleEmoji(string s)
-        // {
-        //     // for (int i = 0; i < s.Length; i++)
-        //     if (s.Length == 1)
-        //     {
-        //         int i = 0;
-        //         var cat = CharUnicodeInfo.GetUnicodeCategory(s, i);
-        //         if (cat == UnicodeCategory.OtherSymbol) return true;
-        //         int cp = char.IsHighSurrogate(s[i]) && i + 1 < s.Length ? char.ConvertToUtf32(s, i) : s[i];
-
-        //         // common emoji/rich symbol ranges
-        //         if (cp >= 0x1F000 && cp <= 0x1FFFF) return true; // emojis/transport/misc symbols
-        //         if (cp >= 0x2600 && cp <= 0x26FF) return true; // miscellaneous symbols
-        //         if (cp >= 0x2700 && cp <= 0x27BF) return true; // dingbats
-
-        //         if (char.IsHighSurrogate(s[i]) && i + 1 < s.Length) i++; // skip low surrogate
-        //     }
-        //     return false;
-        // }
-
         public static bool IsOnlyEmoji(string input)
         {
             if (string.IsNullOrWhiteSpace(input)) return false;
@@ -218,27 +219,52 @@ namespace MapMemo.UI.Edit
             }
             return true;
         }
-
-        public static Dictionary<string, (string Block, string Subcategory, int Page, int Start, int End)> emojiMap
-            = new Dictionary<string, (string Block, string Subcategory, int Page, int Start, int End)>
+        public static void PopulateEmojiButtons(ModalView modal)
         {
-            { "😀", ("Emoticons", "Faces", 1, 0x1F600, 0x1F613) }, // 😀〜😓 20
-            { "😔", ("Emoticons", "Faces", 2, 0x1F614, 0x1F626) },       // 😔〜😦 20
-            { "😧", ("Emoticons", "Faces", 3, 0x1F627, 0x1F637) },       // 😧〜😷 17
-            { "😸", ("Emoticons", "Faces", 4, 0x1F638, 0x1F644) },       // 😸〜🙄 13
-            { "🙅", ("Emoticons", "Faces", 5, 0x1F645, 0x1F64F) },       // 🙅〜🙏 13
+            if (modal == null) return;
+            try
+            {
+                var comps = modal.gameObject.GetComponentsInChildren<ClickableText>(true);
+                foreach (var kv in emojiMap)
+                {
+                    var (keyNo, block, ranges) = kv.Value;
+                    string id = $"char-emoji-{keyNo}";
 
-            { "🌰", ("Pictographs", "Nature - Flowers", 1, 0x1F330, 0x1F344) }, // 🌰〜🍄 20
-            { "🍅", ("Pictographs", "Nature - Fruits", 2, 0x1F345, 0x1F353) }, // 🍅〜🍓 15
-            { "🍔", ("Pictographs", "Nature - Food", 3, 0x1F354, 0x1F367) }, // 🍔〜🍧 20
-            { "🍨", ("Pictographs", "Nature - Food", 4, 0x1F368, 0x1F374) }, // 🍨〜🍴 20
-            { "🍵", ("Pictographs", "Nature - Food", 5, 0x1F375, 0x1F37F) }, // 🍵〜🍿 11
-
-            { "🚀", ("Transport", "Vehicles - Land", 1, 0x1F680, 0x1F68F) },    // 🚀〜🚏 16
-            { "🚐", ("Transport", "Vehicles - Land", 2, 0x1F690, 0x1F6A4) },    // 🚐〜🚤 21
-            { "🚥", ("Transport", "Vehicles - Air", 3, 0x1F6A5, 0x1F6B0) },     // 🚥〜🚰 12
-            { "🛩", ("Transport", "Vehicles - Air", 4, 0x1F6E9, 0x1F6EC) },     // 🛩〜🛬 4
-
+                    Plugin.Log?.Info($"PopulateEmojiButtons: populating button id='{id}' with emoji '{kv.Key}' from block '{block}' ");
+                    var btn = comps.FirstOrDefault(c =>
+                        string.Equals(c.gameObject.name, id, StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(c.name, id, StringComparison.OrdinalIgnoreCase));
+                    if (btn != null)
+                    {
+                        Plugin.Log?.Info($"PopulateEmojiButtons: found button for id='{id}', setting emoji '{kv.Key}'");
+                        btn.text = kv.Key; // 必要なら別の emoji を割り当てる
+                    }
+                }
+                Plugin.Log?.Info($"PopulateEmojiButtons: populated emoji buttons (count={emojiMap.Count})");
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log?.Warn($"PopulateEmojiButtons: {ex.Message}");
+            }
+        }
+        public static Dictionary<string, (int keyNo, string Block, List<(int Start, int End)>)> emojiMap
+            = new Dictionary<string, (int, string, List<(int, int)>)>
+        {
+            { "😀", (1, "Emoticons", new List<(int, int)>{(0x1F600, 0x1F613)}) },  // 😀〜😓 20
+            { "😔", (2, "Emoticons", new List<(int, int)>{(0x1F614, 0x1F626)}) },  // 😔〜😦 20
+            { "😧", (3, "Emoticons", new List<(int, int)>{(0x1F627, 0x1F637)}) },  // 😧〜😷 17
+            { "🤔", (4, "Emoticons", new List<(int, int)>{(0x1F910, 0x1F927)}) },  // 🤐〜🤧 24
+            { "😸", (5, "Emoticons", new List<(int, int)>{(0x1F638, 0x1F644)}) },  // 😸〜🙄 13
+            { "🙅", (6, "Emoticons", new List<(int, int)>{(0x1F645, 0x1F64F)}) },  // 🙅〜🙏 13
+            { "🌰", (7, "Pictographs", new List<(int, int)>{(0x1F330, 0x1F344)}) }, // 🌰〜🍄 20
+            { "🍅", (8, "Pictographs", new List<(int, int)>{(0x1F345, 0x1F353)}) }, // 🍅〜🍓 15
+            { "🍔", (9, "Pictographs", new List<(int, int)>{(0x1F354, 0x1F367)}) }, // 🍔〜🍧 20
+            { "🍨", (10, "Pictographs", new List<(int, int)>{(0x1F368, 0x1F374)}) }, // 🍨〜🍴 20
+            { "🍵", (11, "Pictographs", new List<(int, int)>{(0x1F375, 0x1F37F)}) }, // 🍵〜🍿 11
+            { "🚀", (12, "Transport", new List<(int, int)>{(0x1F680, 0x1F68F)}) },    // 🚀〜🚏 16
+            { "🚐", (13, "Transport", new List<(int, int)>{(0x1F690, 0x1F6A4)}) },    // 🚐〜🚤 21
+            { "🚥", (14, "Transport", new List<(int, int)>{(0x1F6A5, 0x1F6B0)}) },     // 🚥〜🚰 12
+            { "🛩", (15, "Transport", new List<(int, int)>{(0x1F6E9, 0x1F6EC)}) },     // 🛩〜🛬 4
             // ここは表示できない
             // { "🦰", ("Supplemental", "Body Parts", 1, 0x1F9B0, 0x1F9D4) },      // 🦰〜🧔 15
             // { "🧕", ("Supplemental", "People - Professions", 2, 0x1F9D5, 0x1F9E6) }, // 🧕〜🧦 18
@@ -251,43 +277,40 @@ namespace MapMemo.UI.Edit
             // { "🫠", ("ExtendedA", "Objects - Magic", 9, 0x1FAE0, 0x1FAE8) },    // 🫠〜🫨 9
             // { "🫰", ("ExtendedA", "Objects - Magic", 10, 0x1FAF0, 0x1FAF8) },    // 🫰〜🫸 9
 
-            { "☀", ("MiscSymbols", "Weather", 1, 0x2600, 0x2614) },            // ☀️〜☔ 21
-            { "☕", ("MiscSymbols", "Weather", 2, 0x2615, 0x2629) },            // ☕〜☩ 21
-            { "☪", ("MiscSymbols", "Weather", 3, 0x262A, 0x263E) },            // ☪〜☾ 21
-            { "☿", ("MiscSymbols", "Weather", 4, 0x263F, 0x2653) },            // ☿〜♓ 21
-            { "♔", ("MiscSymbols", "Weather", 5, 0x2654, 0x2668) },            // ♔〜♨ 21
-            { "♩", ("MiscSymbols", "Weather", 6, 0x2669, 0x267D) },            // ♩〜♽ 21
-            { "♾", ("MiscSymbols", "Weather", 7, 0x267E, 0x2691) },            // ♾〜⚑ 21 ⚔
-            { "⚒", ("MiscSymbols", "Weather", 8, 0x2692, 0x26A1) },            // ⚒〜⚡ 16
-            
-            { "⚢", ("MiscSymbols", "Weather", 9, 0x26A2, 0x26BC) },            // ⚢〜⚼ 27
-            { "⚽", ("MiscSymbols", "Weather", 10, 0x26BD, 0x26CC) },            // ⚽〜⛌ 16 ⛌ 
-            { "⛍", ("MiscSymbols", "Weather", 11, 0x26CD, 0x26E1) },            // ⛍〜⛡ 21
-            { "⛢", ("MiscSymbols", "Weather", 12, 0x26E2, 0x26EF) },            // ⛢〜⛯ 14
-            { "⛰", ("MiscSymbols", "Weather", 13, 0x26F0, 0x26FF) },            // ⛰〜⛿ 21
+            { "☀", (16, "MiscSymbols", new List<(int, int)>{(0x2600, 0x2614)}) },  // ☀️〜☔ 21
+            { "☕", (17, "MiscSymbols", new List<(int, int)>{(0x2615, 0x2629)}) }, // ☕〜☩ 21
+            { "☪", (18, "MiscSymbols", new List<(int, int)>{(0x262A, 0x263E)}) },  // ☪〜☾ 21
+            { "☿", (19, "MiscSymbols", new List<(int, int)>{(0x263F, 0x2653)}) },  // ☿〜♓ 21
+            { "♔", (20, "MiscSymbols", new List<(int, int)>{(0x2654, 0x2668)}) },  // ♔〜♨ 21
+            { "♩", (21,    "MiscSymbols", new List<(int, int)>{(0x2669, 0x267D)}) },   // ♩〜♽ 21
+            { "♾", (22, "MiscSymbols", new List<(int, int)>{(0x267E, 0x2691)}) },   // ♾〜⚑ 21 ⚔
+            { "⚒", (23, "MiscSymbols", new List<(int, int)>{(0x2692, 0x26A1)}) },   // ⚒〜⚡ 16
+            { "⚢", (24, "MiscSymbols", new List<(int, int)>{(0x26A2, 0x26BC)}) },   // ⚢〜⚼ 27
+            { "⚽", (25, "MiscSymbols", new List<(int, int)>{(0x26BD, 0x26CC)}) },  // ⚽〜⛌ 16 ⛌ 
+            { "⛍", (26, "MiscSymbols", new List<(int, int)>{(0x26CD, 0x26E1)}) },  // ⛍〜⛡ 21
+            { "⛢", (27, "MiscSymbols", new List<(int, int)>{(0x26E2, 0x26EF)}) },  // ⛢〜⛯ 14
+            { "⛰", (28, "MiscSymbols", new List<(int, int)>{(0x26F0, 0x26FF)}) },  // ⛰〜⛿ 21
+            { "✀", (29, "Dingbats", new List<(int, int)>{(0x2700, 0x2712)}) },    // 〜✒ 19
+            { "✓", (30, "Dingbats", new List<(int, int)>{(0x2713, 0x2725)}) },    // 〜✥ 19
 
-            { "✀", ("Dingbats", "Effects - Sparkles", 1, 0x2700, 0x2712) },    // 〜✒ 19
-            { "✓", ("Dingbats", "Effects - Sparkles", 2, 0x2713, 0x2725) },    // 〜✥ 19
-            { "✦", ("Dingbats", "Effects - Sparkles", 3, 0x2726, 0x2739) },    // 〜✹ 20
-            { "✺", ("Dingbats", "Effects - Sparkles", 4, 0x273A, 0x274E) },    // 〜❎ 21
-            { "❏", ("Dingbats", "Effects - Sparkles", 5, 0x274F, 0x2767) },    // 〜❧ 25   
-
-            { "❨", ("Dingbats", "Effects - Sparkles", 6, 0x2768, 0x2775) },    // 〜❵ 192
-            { "❶", ("Dingbats", "Effects - Sparkles", 7, 0x2776, 0x2793) },    // 〜➓ 30
-            { "➔", ("Dingbats", "Effects - Sparkles", 8, 0x2794, 0x27BF) },    // 〜➿ 44
-            { "🀄", ("Mahjong", "Game Tiles", 1, 0x1F000, 0x1F02B) },          // 🀄〜🂫 44
-
-            { "🄀", ("EnclosedAlpha", "Alphanumeric Buttons", 1, 0x1F100, 0x1F10A) }, // 〜🄊 10  
-            { "🄐", ("EnclosedAlpha", "Alphanumeric Buttons", 2, 0x1F110, 0x1F12E) }, // 〜🄮 31
-            { "🄰", ("EnclosedAlpha", "Alphanumeric Buttons", 3, 0x1F130, 0x1F14F) }, // 〜🅏 32
-            { "🅐", ("EnclosedAlpha", "Alphanumeric Buttons", 4, 0x1F150, 0x1F169) }, // 〜🅩 26
-            { "🅰", ("EnclosedAlpha", "Alphanumeric Buttons", 5, 0x1F170, 0x1F189) }, // 〜🆉 26
-            { "🆊", ("EnclosedAlpha", "Alphanumeric Buttons", 4, 0x1F18A, 0x1F19A) }, // 〜🆚 17
-            { "🇦", ("EnclosedAlpha", "Alphanumeric Buttons", 6, 0x1F1E6, 0x1F1FF) }, // 〜🇿 26
-
-            { "🈀", ("EnclosedIdeo", "Japanese Symbols", 1, 0x1F200, 0x1F23B) },     // 〜🈻 47  
-            { "🉀", ("GeoShapes", "Colored Squares", 1, 0x1F240, 0x1F265) },    // 〜🉥 17
-            { "🟠", ("GeoShapes", "Colored Squares", 1, 0x1F7E0, 0x1F7EB) },    // ～🟫 12
+            { "✦", (31, "Dingbats", new List<(int, int)>{(0x2726, 0x2739)}) },    // 〜✹ 20
+            { "✺", (32, "Dingbats", new List<(int, int)>{(0x273A, 0x274E)}) },    // 〜❎ 21
+            { "❏", (33, "Dingbats", new List<(int, int)>{(0x274F, 0x2767)}) },    // 〜❧ 25   
+            { "❨", (34, "Dingbats", new List<(int, int)>{(0x2768, 0x2775)}) },    // 〜❵ 192
+            { "❶", (35, "Dingbats", new List<(int, int)>{(0x2776, 0x2793)}) },    // 〜➓ 30
+            { "➔", (36, "Dingbats", new List<(int, int)>{(0x2794, 0x27BF)}) },    // 〜➿ 44
+            { "🀄", (37, "Mahjong", new List<(int, int)>{(0x1F000, 0x1F02B)}) },          // 🀄〜🂫 44
+            { "🄀", (38, "EnclosedAlpha", new List<(int, int)>{(0x1F100, 0x1F10A)}) }, // 〜🄊 10  
+            { "🄐", (39, "EnclosedAlpha", new List<(int, int)>{(0x1F110, 0x1F12E)}) }, // 〜🄮 31
+            { "🄰", (40, "EnclosedAlpha", new List<(int, int)>{(0x1F130, 0x1F14F)}) }, // 〜🅏 32
+            { "🅐", (41, "EnclosedAlpha", new List<(int, int)>{(0x1F150, 0x1F169)}) }, // 〜🅩 26
+            { "🅰", (42, "EnclosedAlpha", new List<(int, int)>{(0x1F170, 0x1F189)}) }, // 〜🆉 26
+            { "🆊", (43, "EnclosedAlpha", new List<(int, int)>{(0x1F18A, 0x1F19A)}) }, // 〜🆚 17
+            { "🇦", (44, "EnclosedAlpha", new List<(int, int)>{(0x1F1E6, 0x1F1FF)}) }, // 〜🇿 26
+            { "🈀", (45, "EnclosedIdeo", new List<(int, int)>{(0x1F200, 0x1F23B)}) },     // 〜🈻 47  
+ 
+            { "🉀", (46, "GeoShapes", new List<(int, int)>{(0x1F240, 0x1F265)}) },    // 〜🉥 17
+            { "🟠", (47, "GeoShapes", new List<(int, int)>{(0x1F7E0, 0x1F7EB)}) },    // ～🟫 12
         };
         private static readonly HashSet<int> excludedCodePoints = new HashSet<int>
         {
@@ -334,80 +357,85 @@ namespace MapMemo.UI.Edit
             0x1F2E2, 0x1F2E3, 0x1F2E4, 0x1F2E5, 0x1F2E6, 0x1F2E7, 0x1F2E8, 0x1F2E9,
             0x1F2EA, 0x1F2EB, 0x1F2EC, 0x1F2ED, 0x1F2EE, 0x1F2EF, 0x1F2F0, 0x1F2F1,
             0x1F2F2, 0x1F2F3, 0x1F2F4, 0x1F2F5, 0x1F2F6, 0x1F2F7, 0x1F2F8, 0x1F2F9,
-            0x1F2FA, 0x1F2FB, 0x1F2FC, 0x1F2FD, 0x1F2FE, 0x1F2FF, 0x1FABE
+            0x1F2FA, 0x1F2FB, 0x1F2FC, 0x1F2FD, 0x1F2FE, 0x1F2FF, 0x1FABE, 0x1F91F
         };
-
-        // public static Dictionary<string, (string Block, string Subcategory, int Page, int Start, int End)> GetEmojiMap()
-        // {
-        //     return emojiMap
-        //         .Where(kv =>
-        //         {
-        //             var (block, subcategory, page, start, end) = kv.Value;
-
-        //             // Plugin.Log?.Info($"MemoEditModalHelper.GetEmojiMap: checking emoji range '{kv.Key}' ({block}/{subcategory}) U+{start:X}-U+{end:X}");
-        //             for (int codePoint = start; codePoint <= end; codePoint++)
-        //             {
-        //                 string emoji = char.ConvertFromUtf32(codePoint);
-
-        //                 if (IsEmojiSupported(kv.Key, emoji, codePoint, start, end))
-        //                 {
-        //                     // Plugin.Log?.Info($"MemoEditModalHelper.GetEmojiMap: including emoji range '{kv.Key}' ({block}/{subcategory}) U+{start:X}-U+{end:X}");
-        //                     return true;
-        //                 }
-        //             }
-
-        //             return true;
-        //         })
-        //         .ToDictionary(kv => kv.Key, kv => kv.Value);
-        // }
-        // public static Dictionary<string, (string Block, string Subcategory, int Page, int Start, int End)> GetEmojiMap()
-        // {
-        //     var result = new Dictionary<string, (string Block, string Subcategory, int Page, int Start, int End)>();
-
-        //     foreach (var kv in emojiMap)
-        //     {
-        //         var (block, subcategory, page, start, end) = kv.Value;
-
-        //         var filtered = Enumerable.Range(start, end - start + 1)
-        //             .Where(cp => !excludedCodePoints.Contains(cp))
-        //             .ToList();
-
-        //         if (filtered.Count > 0)
-        //         {
-        //             int newStart = filtered.First();
-        //             int newEnd = filtered.Last();
-        //             Plugin.Log?.Info($"MemoEditModalHelper.GetEmojiMap: including emoji range '{kv.Key}' ({block}/{subcategory}) U+{newStart:X}-U+{newEnd:X}");
-        //             result[kv.Key] = (block, subcategory, page, newStart, newEnd);
-        //         }
-        //     }
-
-        //     return result;
-        // }
-
 
         public static bool IsEmojiSupported(string key, string emoji, int codePoint, int start, int end)
         {
-            if (excludedCodePoints.Contains(codePoint))
-            {
-                // WriteDebugLog($"key '{key}' emoji '{emoji}' code point 0x{codePoint:X} (range 0x{start:X}-0x{end:X}) is excluded");
-                return false;
-            }
-            WriteDebugLog($"key '{key}' emoji '{emoji}' code point 0x{codePoint:X} (range 0x{start:X}-0x{end:X})");
-            return true;
+            return !excludedCodePoints.Contains(codePoint);
         }
-
-        private static void WriteDebugLog(string message)
+        public static string GetEmojiKeyById(string id)
         {
-            string path = Path.Combine(Application.persistentDataPath,
-                Path.Combine(Environment.CurrentDirectory, "emoji_debug_log.txt"));
-            File.AppendAllText(path, message + Environment.NewLine);
+            if (id.StartsWith("char-emoji-"))
+            {
+                if (int.TryParse(id.Substring("char-emoji-".Length), out int keyNo))
+                {
+                    return GetEmojiKeyByKeyNo(keyNo);
+                }
+            }
+            return "";
+        }
+        public static string GetEmojiKeyByKeyNo(int keyNo)
+        {
+            foreach (var kv in emojiMap)
+            {
+                var (kNo, block, ranges) = kv.Value;
+                if (kNo == keyNo)
+                {
+                    return kv.Key;
+                }
+            }
+            return "";
         }
 
+        // デバッグ用に全絵文字を出力
+        public static void WriteDebugLog(string message)
+        {
+            message = "All Emoji List \n\n" + message + "\n";
+            foreach (var kv in emojiMap)
+            {
+                var (keyNo, block, ranges) = kv.Value;
+                message += $"\nBlock '{block}' key '{kv.Key}'\n";
+                foreach (var (start, end) in ranges)
+                {
+                    for (int codePoint = start; codePoint <= end; codePoint++)
+                    {
+                        string emoji = char.ConvertFromUtf32(codePoint);
+                        message += $"key '{kv.Key}' emoji '{emoji}' code point 0x{codePoint:X} (range 0x{start:X}-0x{end:X})\n";
+                    }
+                }
+            }
+            string path = Path.Combine(Application.persistentDataPath,
+                Path.Combine(Environment.CurrentDirectory, "UserData", "MapMemo", "_all_emoji_log.txt"));
+            File.WriteAllText(path, message + Environment.NewLine);
+        }
+
+
+        /// 絵文字かどうかを判定する
+        /// <param name="textElement">判定する文字列（テキスト要素）1文字</param>   
         public static bool IsEmoji(string textElement)
         {
             int codepoint = Char.ConvertToUtf32(textElement, 0);
             Plugin.Log?.Info($"MemoEditModalHelper.IsEmoji: checking textElement '{textElement}' codepoint 0x{codepoint:X}");
-            return emojiMap.Values.Any(range => codepoint >= range.Start && codepoint <= range.End);
+
+            // 絵文字かどうかを判定
+            foreach (var kv in emojiMap)
+            {
+                var (keyNo, block, ranges) = kv.Value;
+                foreach (var (start, end) in ranges)
+                {
+                    if (codepoint >= start && codepoint <= end)
+                    {
+                        bool supported = IsEmojiSupported(kv.Key, textElement, codepoint, start, end);
+                        if (supported)
+                        {
+                            Plugin.Log?.Info($"MemoEditModalHelper.IsEmoji: textElement '{textElement}' codepoint 0x{codepoint:X} is emoji in block '{block}' range 0x{start:X}-0x{end:X}");
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
     }
 
