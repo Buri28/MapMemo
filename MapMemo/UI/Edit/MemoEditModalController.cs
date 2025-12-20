@@ -285,10 +285,15 @@ namespace MapMemo.UI.Edit
         {
             pendingText = "";
             memo = confirmedText;
-            foreach (var ch in s)
+
+            if (string.IsNullOrEmpty(s)) return;
+
+            var iter = System.Globalization.StringInfo.GetTextElementEnumerator(s);
+            while (iter.MoveNext())
             {
-                Append(ch.ToString(), false);
+                Append(iter.GetTextElement(), false);
             }
+
             InputHistoryManager.Instance.AddHistory(s, subText);
             // 確定処理
             CommitMemo();
@@ -369,13 +374,35 @@ namespace MapMemo.UI.Edit
         }
 
 
-        private int GetLastLineLength(string text)
+        private double GetLastLineLength(string text)
         {
             if (string.IsNullOrEmpty(text)) return 0;
 
             var lines = text.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
             var lastLine = lines.LastOrDefault() ?? "";
-            return lastLine.Length;
+
+            var enumerator = StringInfo.GetTextElementEnumerator(lastLine);
+            double length = 0.0;
+            while (enumerator.MoveNext())
+            {
+                var elem = enumerator.GetTextElement();
+                // ASCII のアルファベットのみを半分扱いにする
+                length += IsAsciiAlphabet(elem) ? 0.5 : 1.0;
+            }
+
+            return length;
+        }
+
+        private static bool IsAsciiAlphabet(string textElement)
+        {
+            if (string.IsNullOrEmpty(textElement)) return false;
+            if (textElement.Length == 1)
+            {
+                var c = textElement[0];
+                return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+            }
+            // 複数文字（結合文字など）はアルファベット扱いしない
+            return false;
         }
 
         private bool isOverMaxLine(string text, int maxLines)
