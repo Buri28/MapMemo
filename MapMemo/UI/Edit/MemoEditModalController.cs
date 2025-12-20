@@ -31,10 +31,10 @@ namespace MapMemo.UI.Edit
         // private string songName;
         // private string songAuthor;
         // Shift 状態（true = 小文字モード）
-        private bool isShift = false;
+        public bool isShift = false;
 
         // かなモード状態（true = カタカナ、false = ひらがな）
-        private bool isKanaMode = false;
+        public bool isKanaMode = false;
 
         [UIValue("memo")] private string memo = "";
         [UIComponent("modal")] private ModalView modal;
@@ -87,6 +87,7 @@ namespace MapMemo.UI.Edit
             // 必要なパラメータを設定 (LevelContext を使用)
             Instance.memo = existingMemoInfo?.memo ?? "";
             Instance.lastUpdated.text = existingMemoInfo != null ? "Updated:" + MemoEditModalHelper.FormatLocal(existingMemoInfo.updatedAt) : "";
+            Instance.levelContext = levelContext;
 
             // メモ内容を初期化
             if (Instance.memoText != null)

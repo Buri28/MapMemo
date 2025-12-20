@@ -107,7 +107,7 @@ namespace MapMemo.UI.Edit
                 var entry = MapMemo.Core.KeyManager.Instance?.FindForClickableTextEntry(ct);
                 if (entry == null)
                 {
-                    Plugin.Log?.Info($"ApplyKeyBindings: no KeyEntry found for ClickableText '{ct.gameObject.name}' with text '{ct.text}'");
+                    // Plugin.Log?.Info($"ApplyKeyBindings: no KeyEntry found for ClickableText '{ct.gameObject.name}' with text '{ct.text}'");
                     return;
                 }
 
@@ -116,14 +116,14 @@ namespace MapMemo.UI.Edit
                 if (string.Equals(entry.type, "EmojiRange", StringComparison.OrdinalIgnoreCase))
                 {
                     // 絵文字の場合のラベル設定
-                    Plugin.Log?.Info($"ApplyKeyBindings: setting EmojiRange label '{entry.label}' for ClickableText '{ct.gameObject.name}'");
+                    // Plugin.Log?.Info($"ApplyKeyBindings: setting EmojiRange label '{entry.label}' for ClickableText '{ct.gameObject.name}'");
                     ct.text = entry.label;
                 }
                 else if (string.Equals(entry.type, "Literal", StringComparison.OrdinalIgnoreCase))
                 {
                     // リテラル文字の場合のラベル設定
                     var label = entry.label ?? entry.@char ?? "";
-                    Plugin.Log?.Info($"ApplyKeyBindings: setting Literal label '{label}' for ClickableText '{ct.gameObject.name}'");
+                    Plugin.Log?.Info($": setting Literal label '{label}' for ClickableText '{ct.gameObject.name}'");
                     ct.text = EditLabel(label);
                 }
                 // すでに登録されているリスナーに KeyEntry をセット
@@ -133,7 +133,7 @@ namespace MapMemo.UI.Edit
             }
             catch (Exception ex)
             {
-                Plugin.Log?.Warn($"ApplyKeyBindings failed: {ex.Message}");
+                Plugin.Log?.Warn($" failed: {ex.Message}");
             }
         }
 
@@ -184,7 +184,7 @@ namespace MapMemo.UI.Edit
                     var labelConverted = isKanaMode ?
                         HiraganaToKatakana(stored) :
                         KatakanaToHiragana(stored);
-                    Plugin.Log?.Info($"MemoEditModalHelper.UpdateKanaModeButtonLabel: changing button label from '{stored}' to '{labelConverted}'");
+                    // Plugin.Log?.Info($"MemoEditModalHelper.UpdateKanaModeButtonLabel: changing button label from '{stored}' to '{labelConverted}'");
                     btn.text = EditLabel(labelConverted);
                 }
 
@@ -208,7 +208,7 @@ namespace MapMemo.UI.Edit
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        private static string HiraganaToKatakana(string input)
+        public static string HiraganaToKatakana(string input)
         {
             return new string(input.Select(c =>
                 (c >= 'ぁ' && c <= 'ゖ') ? (char)(c + 0x60) : c
@@ -220,7 +220,7 @@ namespace MapMemo.UI.Edit
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        private static string KatakanaToHiragana(string input)
+        public static string KatakanaToHiragana(string input)
         {
             return new string(input.Select(c =>
                 (c >= 'ァ' && c <= 'ヶ') ? (char)(c - 0x60) : c
