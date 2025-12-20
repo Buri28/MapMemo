@@ -35,7 +35,7 @@ namespace MapMemo.UI.Edit
             var selected = suggestionList.Data[index];
             // 選択された文字からリッチテキストを除去してから通知、サブテキストはそのまま渡す
             var text = StripRichText(selected.Text?.ToString() ?? "");
-            // ゼロ幅スペースは選択時には空文字扱いにする
+            // セルプール対策(ゼロ幅スペースは選択時には空文字扱いにする。空文字だと別のセルが退避されてしまう)
             text = text.Replace("\u200B", "");
             // 選択された文字からリッチテキストを除去してから通知、サブテキストはリッチテキストにしてないのでそのまま渡す
             SuggestionSelected?.Invoke(StripRichText(selected.Text?.ToString()), selected.Subtext?.ToString());
@@ -89,6 +89,7 @@ namespace MapMemo.UI.Edit
 
         private void AddEmptySuggestion()
         {
+            // セルプール対策(ゼロ幅スペースは選択時には空文字扱いにする。空文字だと別のセルが退避されてしまう)
             AddSuggestion("\u200B");
         }
 
