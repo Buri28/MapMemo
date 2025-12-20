@@ -25,10 +25,10 @@ namespace MapMemo.UI.Edit
             {
                 foreach (var btn in modal.gameObject.GetComponentsInChildren<ClickableText>(true))
                 {
-                    try
+                    if (btn == null) continue;
+
+                    // ボタンの見た目を整える
                     {
-                        if (btn == null) continue;
-                        // ボタンの見た目を整える
                         btn.fontSize = 3.8f;
                         btn.fontStyle = FontStyles.Italic | FontStyles.Underline;
                         btn.alignment = TextAlignmentOptions.Center;
@@ -37,14 +37,17 @@ namespace MapMemo.UI.Edit
                         btn.HighlightColor = new Color(1f, 0.3f, 0f, 1f);
                         btn.outlineColor = Color.yellow;
                         btn.outlineWidth = 0.3f;
-
-                        // レイアウト要素を追加して幅を制限
+                    }
+                    // レイアウト要素を追加して幅を制限
+                    {
                         var layout = btn.gameObject.GetComponent<LayoutElement>();
                         if (layout == null)
                             layout = btn.gameObject.AddComponent<LayoutElement>();
                         layout.preferredWidth = 5f;
                         layout.minWidth = 5f;
-
+                    }
+                    // ラベルを設定
+                    {
                         var label = btn.text.Trim().Replace(" ", "");
                         // 識別用コンポーネントを追加
                         var idComp = btn.gameObject.AddComponent<KeyIdentifier>();
@@ -61,12 +64,15 @@ namespace MapMemo.UI.Edit
                             btn.text = EditLabel(label);
                         }
                     }
-                    catch { /* ignore per-button failures */ }
                 }
             }
             catch { /* ignore overall failures */ }
         }
-
+        /// <summary>
+        /// A〜Z ボタンの大文字と小文字を切り替える
+        /// </summary>
+        /// <param name="modal"></param>
+        /// <param name="isShift"></param>
         public static void UpdateAlphaButtonLabels(ModalView modal, bool isShift)
         {
             if (modal == null) return;
@@ -91,6 +97,12 @@ namespace MapMemo.UI.Edit
                 Plugin.Log?.Warn($"MemoEditModalHelper.UpdateAlphaButtonLabels: {ex.Message}");
             }
         }
+
+        /// <summary>
+        /// カナモードボタンのラベルを切り替える
+        /// </summary>
+        /// <param name="modal"></param>
+        /// <param name="isKanaMode"></param>
         public static void UpdateKanaModeButtonLabel(ModalView modal, bool isKanaMode)
         {
             if (modal == null) return;
@@ -121,12 +133,24 @@ namespace MapMemo.UI.Edit
                 Plugin.Log?.Warn($"MemoEditModalHelper.UpdateKanaModeButtonLabel: {ex.Message}");
             }
         }
+
+        /// <summary>
+        /// ひらがなをカタカナに変換する
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         private static string HiraganaToKatakana(string input)
         {
             return new string(input.Select(c =>
                 (c >= 'ぁ' && c <= 'ゖ') ? (char)(c + 0x60) : c
             ).ToArray());
         }
+
+        /// <summary>
+        /// カタカナをひらがなに変換する
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
         private static string KatakanaToHiragana(string input)
         {
             return new string(input.Select(c =>
@@ -134,7 +158,10 @@ namespace MapMemo.UI.Edit
             ).ToArray());
         }
 
-
+        /// <summary>
+        /// モーダル画面の位置調整を行う(画面左半分に移動する)
+        /// </summary>
+        /// <param name="modal"></param>
         public static void RepositionModalToLeftHalf(ModalView modal)
         {
             if (modal == null) return;
@@ -179,7 +206,10 @@ namespace MapMemo.UI.Edit
             return $"{local:yyyy/MM/dd HH:mm:ss}";
         }
 
-
+        /// <summary>
+        /// クリック可能なテキストコンポーネントにクリックリスナーを設定する
+        /// </summary>
+        /// <param name="modal"></param>
         public static void SetupKeyClickListeners(ModalView modal)
         {
             var comps = modal.gameObject.GetComponentsInChildren<ClickableText>(true);
@@ -188,8 +218,6 @@ namespace MapMemo.UI.Edit
                 var msg = $"MemoEditModal.SetupKeyClickListeners: found {comps.Count()} ClickableText components under modal";
                 Plugin.Log?.Info(msg);
             }
-            // ここでラベルを埋める
-            PopulateEmojiButtons(modal);
 
             foreach (var btn in comps)
             {
@@ -219,34 +247,7 @@ namespace MapMemo.UI.Edit
             }
             return true;
         }
-        public static void PopulateEmojiButtons(ModalView modal)
-        {
-            if (modal == null) return;
-            try
-            {
-                var comps = modal.gameObject.GetComponentsInChildren<ClickableText>(true);
-                foreach (var kv in emojiMap)
-                {
-                    var (keyNo, block, ranges) = kv.Value;
-                    string id = $"char-emoji-{keyNo}";
 
-                    Plugin.Log?.Info($"PopulateEmojiButtons: populating button id='{id}' with emoji '{kv.Key}' from block '{block}' ");
-                    var btn = comps.FirstOrDefault(c =>
-                        string.Equals(c.gameObject.name, id, StringComparison.OrdinalIgnoreCase)
-                        || string.Equals(c.name, id, StringComparison.OrdinalIgnoreCase));
-                    if (btn != null)
-                    {
-                        Plugin.Log?.Info($"PopulateEmojiButtons: found button for id='{id}', setting emoji '{kv.Key}'");
-                        btn.text = kv.Key; // 必要なら別の emoji を割り当てる
-                    }
-                }
-                Plugin.Log?.Info($"PopulateEmojiButtons: populated emoji buttons (count={emojiMap.Count})");
-            }
-            catch (Exception ex)
-            {
-                Plugin.Log?.Warn($"PopulateEmojiButtons: {ex.Message}");
-            }
-        }
         public static Dictionary<string, (int keyNo, string Block, List<(int Start, int End)>)> emojiMap
             = new Dictionary<string, (int, string, List<(int, int)>)>
         {

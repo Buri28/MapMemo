@@ -22,23 +22,23 @@ namespace MapMemo.UI.Menu
         public static MemoPanelController instance;
         // 現在のホストオブジェクト
         public GameObject HostGameObject { get; set; }
-
-        private string Key { get; set; }
-        private string SongName { get; set; }
-        private string SongAuthor { get; set; }
-
+        // 現在のレベルコンテキスト
+        private LevelContext levelContext;
+        // ペンアイコンテキスト
         [UIComponent("pen-text")] private ClickableText penText;
-
+        // BSMLリソース名
         public string ResourceName => "MapMemo.Resources.MemoPanel.bsml";
 
+        /// <summary>
+        /// インスタンスが存在するかどうか
+        /// 
         public static bool isInstance() => !ReferenceEquals(instance, null);
-
 
         /// <summary>
         /// 既存の LastInstance を使って表示を更新するユーティリティ
         /// </summary>
         public static MemoPanelController GetInstance(
-            MonoBehaviour view, string key, string songName, string songAuthor)
+            MonoBehaviour view, LevelContext levelContext)
         {
             if (!isInstance())
             {
@@ -64,24 +64,27 @@ namespace MapMemo.UI.Menu
                 child.pivot = new Vector2(0.5f, 1f);
                 child.anchoredPosition = Vector2.zero;
                 child.sizeDelta = new Vector2(0f, 56f); // 親と同じ高さに
-                //child.anchoredPosition = new Vector2(2f, -14f);
-                //child.anchoredPosition = new Vector2(17f, 28f);
-                child.anchoredPosition = new Vector2(14f, 13f);
+
+                // ペンパネルの位置調整
+                //child.anchoredPosition = new Vector2(2f, -14f);　//　下の方
+                //child.anchoredPosition = new Vector2(17f, 28f);　//　上の方
+                child.anchoredPosition = new Vector2(14f, 13f); // 中央寄り
 
                 var parentRt = view.transform as RectTransform;
                 Plugin.Log?.Info($"Parent anchorMin: {parentRt.anchorMin}, anchorMax: {parentRt.anchorMax}, pivot: {parentRt.pivot}, sizeDelta: {parentRt.sizeDelta}");
                 Plugin.Log?.Info("MemoPanelController.GetInstance: Created new instance:" + isInstance());
             }
 
-            instance.Key = key;
-            instance.SongName = songName;
-            instance.SongAuthor = songAuthor;
+            instance.levelContext = levelContext;
             instance.HostGameObject = view.gameObject;
 
             instance.Refresh();
             return instance;
         }
-        /// BSMLをパースする
+
+        /// <summary>
+        /// BSMLを解析してホストにアタッチする
+        /// </summary>
         public void ParseBSML(string bsml, GameObject host)
         {
             Plugin.Log?.Info("MemoPanelController: BSML parsed and attached to host '" + host.name + "'");
@@ -94,12 +97,12 @@ namespace MapMemo.UI.Menu
         [UIAction("on-edit-click")]
         public void OnEditClick()
         {
-            MapMemo.Plugin.Log?.Info($"MemoPanel: Edit click key='{Key}' song='{SongName}' author='{SongAuthor}'");
-            MemoEditModalController.Show(instance, Key ?? "unknown", SongName ?? "", SongAuthor ?? "");
+            MapMemo.Plugin.Log?.Info($"MemoPanel: Edit click key='{levelContext.GetLevelId()}' song='{levelContext.GetSongName()}' author='{levelContext.GetSongAuthor()}'");
+            MemoEditModalController.Show(instance, levelContext);
         }
 
         /// <summary>
-        /// ホバーヒント設定ユーティリティ
+        /// ホバーヒントを設定する
         /// </summary>
         /// <param name="go"></param>
         /// <param name="hint"></param>
@@ -112,14 +115,15 @@ namespace MapMemo.UI.Menu
 
             hover.text = hint;
         }
+
         /// <summary>
-        /// 表示内容の更新
+        /// 表示内容を更新する
         /// </summary>
         public Task Refresh()
         {
-            Plugin.Log?.Info($"MemoPanel: Refresh called for key='{Key}' song='{SongName}' author='{SongAuthor}'");
+            Plugin.Log?.Info($"MemoPanel: Refresh called for key='{levelContext.GetLevelId()}' song='{levelContext.GetSongName()}' author='{levelContext.GetSongAuthor()}'");
             // 同期ロードを使って確実に現在の Key に紐づくデータを取得する
-            var entry = MemoRepository.Load(Key, SongName, SongAuthor);
+            var entry = MemoRepository.Load(levelContext.GetLevelId(), levelContext.GetSongName(), levelContext.GetSongAuthor());
 
             var parentLayout = penText.transform.parent.GetComponent<HorizontalLayoutGroup>();
             if (parentLayout != null)
@@ -132,11 +136,11 @@ namespace MapMemo.UI.Menu
             if (layout == null)
                 layout = penText.gameObject.AddComponent<LayoutElement>();
 
-            layout.preferredWidth = 10f; // 幅を250に制限
+            layout.preferredWidth = 10f; // 幅を制限
             layout.flexibleWidth = 0f;    // 自動伸縮を無効に
             if (entry == null)
             {
-                MapMemo.Plugin.Log?.Info("MemoPanel: No memo entry found for key='" + Key + "'");
+                MapMemo.Plugin.Log?.Info("MemoPanel: No memo entry found for key='" + levelContext.GetLevelId() + "'");
                 penText.color = Color.cyan;
                 penText.faceColor = Color.cyan;
                 penText.HighlightColor = Color.green;
@@ -146,7 +150,7 @@ namespace MapMemo.UI.Menu
             }
             else
             {
-                MapMemo.Plugin.Log?.Info("MemoPanel: Memo entry found for key='" + Key + "'");
+                MapMemo.Plugin.Log?.Info("MemoPanel: Memo entry found for key='" + levelContext.GetLevelId() + "'");
 
                 penText.text = "　📝";
                 penText.color = Color.yellow;
@@ -163,7 +167,7 @@ namespace MapMemo.UI.Menu
                     colors.highlightedColor = Color.yellow;
                     colors.pressedColor = Color.yellow;
                     colors.selectedColor = Color.yellow;
-                    colors.disabledColor = Color.gray; // お好みで
+                    colors.disabledColor = Color.gray;
                     button.colors = colors;
                     button.transition = Selectable.Transition.None;
                 }
@@ -174,19 +178,18 @@ namespace MapMemo.UI.Menu
             return Task.CompletedTask;
         }
 
-        private static string MakeSummary(string text, int max)
-        {
-            if (string.IsNullOrEmpty(text)) return "";
-            text = text.Replace("\n", " ");
-            return text.Length <= max ? text : text.Substring(0, max) + "…";
-        }
-
+        /// <summary>
+        /// UTC日時をローカル日時に変換してフォーマットする 
+        /// </summary>
         private static string FormatLocal(DateTime utc)
         {
             var local = utc.ToLocalTime();
             return $"{local:yyyy/MM/dd HH:mm}";
         }
 
+        /// <summary>
+        /// ツールチップ用のテキストを作成する
+        /// </summary>
         private static string MakeTooltipLine(string text, int max)
         {
             if (string.IsNullOrEmpty(text)) return "";

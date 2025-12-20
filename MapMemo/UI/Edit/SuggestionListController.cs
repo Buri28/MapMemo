@@ -142,35 +142,7 @@ namespace MapMemo.UI.Edit
                 }
             }
         }
-        // private static bool StartsWithTextElement(string text, string search)
-        // {
-        //     if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(search)) return false;
 
-        //     Plugin.Log?.Info("StartsWithTextElement(text:search):" + DumpCodePoints(GetTextElements(text))
-        //     + ":" + DumpCodePoints(GetTextElements(search)));
-
-        //     var textEnum = StringInfo.GetTextElementEnumerator(text);
-        //     var searchEnum = StringInfo.GetTextElementEnumerator(search);
-
-        //     if (!textEnum.MoveNext() || !searchEnum.MoveNext()) return false;
-
-        //     string firstTextElement = textEnum.GetTextElement();
-        //     string searchElement = searchEnum.GetTextElement();
-
-        //     return firstTextElement == searchElement;
-        // }
-        // private static IEnumerable<string> GetTextElements(string text)
-        // {
-        //     var enumerator = StringInfo.GetTextElementEnumerator(text);
-        //     while (enumerator.MoveNext())
-        //     {
-        //         yield return enumerator.GetTextElement();
-        //     }
-        // }
-        // private static string DumpCodePoints(IEnumerable<string> text)
-        // {
-        //     return string.Join(" ", text.Select(r => $"U+{r:X}"));
-        // }
         public static bool StartsWithTextElement(string text, string prefix)
         {
             if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(prefix)) return false;

@@ -22,10 +22,7 @@ namespace MapMemo.UI.Patches
             //var viewController = __instance as StandardLevelDetailViewController;
             var mapLevel = beatmapLevel as BeatmapLevel;
 
-
-            string songName = mapLevel.songName;
-            string songAuthor = mapLevel.songAuthorName;
-            string levelId = mapLevel.levelID;
+            LevelContext levelContext = new LevelContext(mapLevel);
             Plugin.Log?.Info($"SetData called with level: {mapLevel.songName} by {mapLevel.songAuthorName}, ID: {mapLevel.levelID}");
 
             // 詳細画面のViewを取得
@@ -33,29 +30,13 @@ namespace MapMemo.UI.Patches
                 .GetField("_standardLevelDetailView", BindingFlags.NonPublic | BindingFlags.Instance);
             var view = field?.GetValue(__instance) as StandardLevelDetailView;
 
-            if (!string.IsNullOrEmpty(songName) || !string.IsNullOrEmpty(songAuthor) || !string.IsNullOrEmpty(levelId))
+            if (!levelContext.IsValid())
             {
-                SelectedLevelState.Update(
-                    NormalizeUnknown(songName), NormalizeUnknown(songAuthor), NormalizeUnknown(levelId));
-            }
-            Plugin.Log?.Info($"MapMemo: Resolved song info name='{songName}' author='{songAuthor}' levelId='{levelId}'");
-            string key = NormalizeUnknown(levelId);
-
-            if (key.Equals("unknown", StringComparison.OrdinalIgnoreCase) || key.Equals("unknown|unknown", StringComparison.OrdinalIgnoreCase))
-            {
-                Plugin.Log?.Warn($"MapMemo: Suppressing SelectionHook due to non-meaningful key='{key}'");
+                Plugin.Log?.Warn($"MapMemo: Suppressing SelectionHook due to non-meaningful key='{levelContext.GetLevelId()}'");
                 return;
             }
-            SelectionHook.OnSongSelected(view, key, NormalizeUnknown(songName), NormalizeUnknown(songAuthor)).ConfigureAwait(false);
+            SelectionHook.OnSongSelected(view, levelContext).ConfigureAwait(false);
         }
 
-        private static string NormalizeUnknown(string s)
-        {
-            if (string.IsNullOrWhiteSpace(s)) return "unknown";
-            var trimmed = s.Trim();
-            if (trimmed.Equals("unknown", StringComparison.OrdinalIgnoreCase)) return "unknown";
-            if (trimmed.Equals("!Not Defined!", StringComparison.OrdinalIgnoreCase)) return "unknown";
-            return trimmed;
-        }
     }
 }

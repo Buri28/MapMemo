@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using MapMemo.Core;
 using MapMemo.UI.Menu;
 using ModestTree;
 using UnityEngine;
@@ -11,18 +12,17 @@ namespace MapMemo.Patches
     {
         //private static MemoPanelController currentPanel;
         public static async Task OnSongSelected(
-            MonoBehaviour view, string key, string songName, string songAuthor)
+            MonoBehaviour view, LevelContext levelContext)
         {
             // viewはStandardLevelDetailViewを想定
-            Plugin.Log?.Info($"SelectionHook: OnSongSelected parent='{view?.name}' key='{key}' song='{songName}' author='{songAuthor}'");
+            Plugin.Log?.Info($"SelectionHook: OnSongSelected parent='{view?.name}' key='{levelContext.GetLevelId()}' song='{levelContext.GetSongName()}' author='{levelContext.GetSongAuthor()}'");
             if (view == null) return;
 
             bool isInstance = MemoPanelController.isInstance();
 
-            var ctrl = MemoPanelController.GetInstance(view, key, songName, songAuthor);
+            var ctrl = MemoPanelController.GetInstance(view, levelContext);
             await ctrl.Refresh();
         }
-
 
         private static bool IsMeaningful(string s)
         {

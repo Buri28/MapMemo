@@ -24,14 +24,7 @@ namespace MapMemo.UI.Edit
                 if (string.IsNullOrEmpty(txt)) return;
                 Plugin.Log?.Info($"KeyClickListener: Key '{txt}' clicked, appending to memo");
 
-                // if (MemoEditModalHelper.IsEmojiString(txt))
-                // {
-                //     MemoEditModalController.Instance.AppendEmoji(txt);
-                // }
-                // else
-                // {
                 MemoEditModalController.Instance.Append(txt);
-                // }
             }
             catch (Exception ex)
             {
