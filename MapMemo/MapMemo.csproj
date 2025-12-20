@@ -125,8 +125,9 @@
     <EmbeddedResource Include="Resources\#dictionary.txt">
       <LogicalName>MapMemo.Resources.#dictionary.txt</LogicalName>
     </EmbeddedResource>
-
-
+    <EmbeddedResource Include="Resources\#key_bindings.json">
+      <LogicalName>MapMemo.Resources.#key_bindings.json</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>

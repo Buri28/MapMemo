@@ -93,28 +93,22 @@ namespace MapMemo.UI.Edit
             if (string.IsNullOrEmpty(search)) return;
 
             Plugin.Log?.Info($"SuggestionListController: Adding emoji suggestions for '{search}'");
-            var supportedEmojis = MemoEditModalHelper.emojiMap;
+            var supportedEmojis = KeyManager.Instance.supportedEmojiMap;
             // 絵文字マップのキーに該当する場合は、そのキーに対する絵文字をすべて追加
-            if (supportedEmojis.ContainsKey(search))
+            foreach (var kvp in supportedEmojis)
             {
-                var (keyNo, category, rangeList) = supportedEmojis[search];
-
-                foreach (var range in rangeList)
+                var key = kvp.Key;
+                if (StartsWithTextElement(key, search))
                 {
-                    for (int codePoint = range.Start; codePoint <= range.End; codePoint++)
+                    var emojiList = kvp.Value;
+                    foreach (var emoji in emojiList)
                     {
-                        string emoji = char.ConvertFromUtf32(codePoint);
-                        if (MemoEditModalHelper.IsEmojiSupported(
-                            search, emoji, codePoint, range.Start, range.End))
+                        if (already.Add(new KeyValuePair<string, string>(key, emoji)))
                         {
-                            if (already.Add(new KeyValuePair<string, string>(search, emoji)))
-                            {
-                                Plugin.Log?.Info($"Adding emoji suggestion: '{emoji}' for key '{search}'");
-                                AddSuggestion(emoji, search);
-                            }
+                            Plugin.Log?.Info($"Adding emoji suggestion: '{emoji}' for key '{key}'");
+                            AddSuggestion(emoji, key);
                         }
                     }
-                    return;
                 }
             }
         }

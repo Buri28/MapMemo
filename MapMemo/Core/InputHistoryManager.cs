@@ -56,7 +56,7 @@ namespace MapMemo.Core
             if (string.IsNullOrWhiteSpace(text)) return;
 
             // 絵文字は1文字でも履歴に追加するが、絵文字以外の1文字は無視する
-            if (!MemoEditModalHelper.IsOnlyEmoji(text) && text.Length < 2)
+            if (!KeyManager.Instance.IsOnlyEmoji(text) && text.Length < 2)
             {
                 return;
             }

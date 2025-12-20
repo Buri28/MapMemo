@@ -71,28 +71,73 @@ namespace MapMemo.UI.Edit
                         layout.preferredWidth = 5f;
                         layout.minWidth = 5f;
                     }
-                    // ラベルを設定
-                    {
-                        var label = btn.text.Trim().Replace(" ", "");
-                        // 識別用コンポーネントを追加
-                        var idComp = btn.gameObject.AddComponent<KeyIdentifier>();
-                        if (label.StartsWith("char-emoji-"))
-                        {
-                            // 絵文字の場合は初期設定のtextをidとして扱う
-                            idComp.Id = label;
-                            btn.text = MemoEditModalHelper.GetEmojiKeyById(label);
-                        }
-                        else
-                        {
-                            // ラベルの大文字小文字変換
-                            label = isShift ? label.ToLowerInvariant() : label.ToUpperInvariant();
-                            btn.text = EditLabel(label);
-                        }
-                    }
+                    // // ラベルを設定
+                    // {
+                    //     var label = btn.text.Trim().Replace(" ", "");
+                    //     // 識別用コンポーネントを追加
+                    //     var idComp = btn.gameObject.AddComponent<KeyIdentifier>();
+                    //     if (label.StartsWith("emoji-"))
+                    //     {
+                    //         // 絵文字の場合は初期設定のtextをidとして扱う
+                    //         idComp.Id = label;
+                    //         btn.text = MemoEditModalHelper.GetEmojiKeyById(label);
+                    //     }
+                    //     else
+                    //     {
+                    //         // ラベルの大文字小文字変換
+                    //         label = isShift ? label.ToLowerInvariant() : label.ToUpperInvariant();
+                    //         btn.text = EditLabel(label);
+                    //     }
+                    // }
+                    ApplyKeyBindings(btn);
                 }
             }
             catch { /* ignore overall failures */ }
         }
+
+        /// <summary>
+        /// Apply key bindings from KeyManager to clickable-text elements under the modal.
+        /// This will overwrite the visible label (text) according to the loaded key bindings.
+        /// </summary>
+        private static void ApplyKeyBindings(ClickableText ct)
+        {
+            try
+            {
+                if (ct == null) return;
+                var entry = MapMemo.Core.KeyManager.Instance?.FindForClickableTextEntry(ct);
+                if (entry == null)
+                {
+                    Plugin.Log?.Info($"ApplyKeyBindings: no KeyEntry found for ClickableText '{ct.gameObject.name}' with text '{ct.text}'");
+                    return;
+                }
+
+                // BSML変更前のtextをidとして退避する
+                entry.id = ct.text.Trim().Replace("　", ""); // 全角スペースを除去
+                if (string.Equals(entry.type, "EmojiRange", StringComparison.OrdinalIgnoreCase))
+                {
+                    // 絵文字の場合のラベル設定
+                    Plugin.Log?.Info($"ApplyKeyBindings: setting EmojiRange label '{entry.label}' for ClickableText '{ct.gameObject.name}'");
+                    ct.text = entry.label;
+                }
+                else if (string.Equals(entry.type, "Literal", StringComparison.OrdinalIgnoreCase))
+                {
+                    // リテラル文字の場合のラベル設定
+                    var label = entry.label ?? entry.@char ?? "";
+                    Plugin.Log?.Info($"ApplyKeyBindings: setting Literal label '{label}' for ClickableText '{ct.gameObject.name}'");
+                    ct.text = EditLabel(label);
+                }
+                // すでに登録されているリスナーに KeyEntry をセット
+                var listener = ct.gameObject.GetComponent<KeyClickListener>();
+                listener.controller = MemoEditModalController.Instance;
+                listener.SetKeyEntry(entry);
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log?.Warn($"ApplyKeyBindings failed: {ex.Message}");
+            }
+        }
+
+
 
         /// <summary>
         /// A〜Z ボタンの大文字と小文字を切り替える

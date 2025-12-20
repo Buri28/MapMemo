@@ -81,11 +81,10 @@ namespace MapMemo.UI.Edit
                 // 初回のみ辞書ファイルと入力履歴ファイルを読み込み
                 DictionaryManager.Load();
                 InputHistoryManager.Instance.LoadHistory(Path.Combine("UserData", "MapMemo"), settings.HistoryMaxCount);
+                // キーバインド設定を読み込む (UserData に resource をコピーしてからロード)
+                KeyManager.Instance.Load(Path.Combine("UserData", "MapMemo"));
             }
             // 必要なパラメータを設定 (LevelContext を使用)
-            // Instance.key = levelContext?.GetLevelId() ?? "unknown";
-            // Instance.songName = levelContext?.GetSongName() ?? "unknown";
-            // Instance.songAuthor = levelContext?.GetSongAuthor() ?? "unknown";
             Instance.memo = existingMemoInfo?.memo ?? "";
             Instance.lastUpdated.text = existingMemoInfo != null ? "Updated:" + MemoEditModalHelper.FormatLocal(existingMemoInfo.updatedAt) : "";
 
@@ -104,7 +103,7 @@ namespace MapMemo.UI.Edit
             Instance.suggestionController.Clear();
 
             // 使える絵文字をログ出力
-            MemoEditModalHelper.WriteDebugLog("MemoEditModal.GetInstance: Available emojis:");
+            // MemoEditModalHelper.WriteDebugLog("MemoEditModal.GetInstance: Available emojis:");
 
             return Instance;
         }
@@ -164,12 +163,11 @@ namespace MapMemo.UI.Edit
                 modal.gameObject.GetComponentsInChildren<ClickableText>(true),
                 modal.gameObject.GetComponentsInChildren<TextMeshProUGUI>(true)
             );
+
             suggestionController = new SuggestionListController(suggestionList, historyShowCount);
             suggestionController.SuggestionSelected += (value, subtext) =>
             {
                 Plugin.Log?.Info($"選択されたのは: {value}");
-                // ログ出力用
-                MemoEditModalHelper.IsEmoji(value);
 
                 if (string.IsNullOrEmpty(value)) return;
                 AppendSelectedString(value, subtext);

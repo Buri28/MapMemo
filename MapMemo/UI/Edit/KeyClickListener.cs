@@ -10,16 +10,50 @@ namespace MapMemo.UI.Edit
     public class KeyClickListener : MonoBehaviour, IPointerClickHandler
     {
         public MemoEditModalController controller;
+        // Populated by ApplyKeyBindings when available
+        public MapMemo.Core.KeyEntry keyEntry;
+        public void SetKeyEntry(MapMemo.Core.KeyEntry entry) { this.keyEntry = entry; }
+
         public void OnPointerClick(PointerEventData eventData)
         {
             try
             {
                 Plugin.Log?.Info("EmojiClickListener: OnPointerClick called");
 
-                // Try ClickableText first
                 string txt = null;
-                var ct = GetComponent<ClickableText>();
-                if (ct != null) txt = ct.text.Trim().Replace("　", "");
+
+                // Prefer configured KeyEntry when present
+                if (keyEntry != null)
+                {
+                    if (string.Equals(keyEntry.type, "Literal", StringComparison.OrdinalIgnoreCase))
+                    {
+                        txt = keyEntry.@char ?? keyEntry.label;
+                    }
+                    else if (string.Equals(keyEntry.type, "EmojiRange", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Prefer explicit label, fallback to first codepoint in ranges
+                        if (!string.IsNullOrEmpty(keyEntry.label)) txt = keyEntry.label;
+                        else if (keyEntry.ranges != null && keyEntry.ranges.Count > 0)
+                        {
+                            var r = keyEntry.ranges[0];
+                            if (!string.IsNullOrEmpty(r.start))
+                            {
+                                if (int.TryParse(r.start.StartsWith("0x", StringComparison.OrdinalIgnoreCase) ? r.start.Substring(2) : r.start,
+                                    System.Globalization.NumberStyles.HexNumber, null, out int cp))
+                                {
+                                    txt = char.ConvertFromUtf32(cp);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Fallback: ClickableText.text
+                if (string.IsNullOrEmpty(txt))
+                {
+                    var ct = GetComponent<ClickableText>();
+                    if (ct != null) txt = ct.text.Trim().Replace("　", "");
+                }
 
                 if (string.IsNullOrEmpty(txt)) return;
                 Plugin.Log?.Info($"KeyClickListener: Key '{txt}' clicked, appending to memo");
