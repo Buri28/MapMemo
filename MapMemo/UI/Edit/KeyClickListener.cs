@@ -54,6 +54,23 @@ namespace MapMemo.UI.Edit
                     var ct = GetComponent<ClickableText>();
                     if (ct != null) txt = ct.text.Trim().Replace("　", "");
                 }
+                if (MemoEditModalController.Instance.isKanaMode)
+                {
+                    // かなモードの場合、ひらがな・カタカナ変換を行う
+                    txt = KeyController.HiraganaToKatakana(txt);
+                }
+                else
+                {
+                    txt = KeyController.KatakanaToHiragana(txt);
+                }
+                if (MemoEditModalController.Instance.isShift)
+                {
+                    txt = txt.ToLowerInvariant();
+                }
+                else
+                {
+                    txt = txt.ToUpperInvariant();
+                }
 
                 if (string.IsNullOrEmpty(txt)) return;
                 Plugin.Log?.Info($"KeyClickListener: Key '{txt}' clicked, appending to memo");

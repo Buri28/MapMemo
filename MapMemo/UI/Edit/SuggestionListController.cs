@@ -33,6 +33,10 @@ namespace MapMemo.UI.Edit
         private void OnCellSelectedInternal(TableView tableView, int index)
         {
             var selected = suggestionList.Data[index];
+            // 選択された文字からリッチテキストを除去してから通知、サブテキストはそのまま渡す
+            var text = StripRichText(selected.Text?.ToString() ?? "");
+            // ゼロ幅スペースは選択時には空文字扱いにする
+            text = text.Replace("\u200B", "");
             // 選択された文字からリッチテキストを除去してから通知、サブテキストはリッチテキストにしてないのでそのまま渡す
             SuggestionSelected?.Invoke(StripRichText(selected.Text?.ToString()), selected.Subtext?.ToString());
         }
@@ -85,7 +89,7 @@ namespace MapMemo.UI.Edit
 
         private void AddEmptySuggestion()
         {
-            AddSuggestion("");
+            AddSuggestion("\u200B");
         }
 
         private void AddEmojiSuggestions(string search, HashSet<KeyValuePair<string, string>> already)
