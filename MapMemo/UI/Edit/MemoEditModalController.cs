@@ -24,12 +24,12 @@ namespace MapMemo.UI.Edit
         [UIValue("historyMaxCount")] private int historyMaxCount = settings.HistoryMaxCount;
         [UIValue("historyShowCount")] private int historyShowCount = settings.HistoryShowCount;
 
-
+        // モーダルのシングルトンインスタンス
         public static MemoEditModalController Instance;
 
-        private string key;
-        private string songName;
-        private string songAuthor;
+        // private string key;
+        // private string songName;
+        // private string songAuthor;
         // Shift 状態（true = 小文字モード）
         private bool isShift = false;
 
@@ -46,8 +46,7 @@ namespace MapMemo.UI.Edit
         [UIComponent("suggestion-list")] private CustomListTableData suggestionList;
         private SuggestionListController suggestionController;
 
-        [UIParams]
-        public BSMLParserParams parserParams;
+        private LevelContext levelContext;
 
         // 辞書語リストは DictionaryManager が管理する
 
@@ -65,9 +64,7 @@ namespace MapMemo.UI.Edit
         public static MemoEditModalController GetInstance(
             MemoEntry existingMemoInfo,
             MemoPanelController parent,
-            string key,
-            string songName,
-            string songAuthor)
+            LevelContext levelContext)
         {
             if (ReferenceEquals(Instance, null))
             {
@@ -84,13 +81,14 @@ namespace MapMemo.UI.Edit
                 DictionaryManager.Load();
                 InputHistoryManager.Instance.LoadHistory(Path.Combine("UserData", "MapMemo"), settings.HistoryMaxCount);
             }
-            // 必要なパラメータを設定
-            Instance.key = key;
-            Instance.songName = songName;
-            Instance.songAuthor = songAuthor;
+            // 必要なパラメータを設定 (LevelContext を使用)
+            // Instance.key = levelContext?.GetLevelId() ?? "unknown";
+            // Instance.songName = levelContext?.GetSongName() ?? "unknown";
+            // Instance.songAuthor = levelContext?.GetSongAuthor() ?? "unknown";
             Instance.memo = existingMemoInfo?.memo ?? "";
             Instance.lastUpdated.text = existingMemoInfo != null ? "Updated:" + MemoEditModalHelper.FormatLocal(existingMemoInfo.updatedAt) : "";
 
+            // メモ内容を初期化
             if (Instance.memoText != null)
             {
                 Instance.memoText.richText = true;
@@ -99,7 +97,7 @@ namespace MapMemo.UI.Edit
                 Instance.pendingText = "";
             }
 
-            // A〜Z ボタンの見た目を整えるヘルパーを呼び出す
+            // ボタンの見た目を整えるヘルパーを呼び出す
             MemoEditModalHelper.InitializeClickableText(Instance.modal, Instance.isShift);
             // サジェストリストを初期化する
             Instance.suggestionController.Clear();
@@ -115,16 +113,18 @@ namespace MapMemo.UI.Edit
         /// モーダル表示
         /// </summary>
         /// <param name="parent">親パネルコントローラー</param>
-        /// <param name="key">メモのキー</param>
-        /// <param name="songName">曲名</param>
-        /// <param name="songAuthor">曲の作者</param>
+        /// <param name="levelContext">メモのキー</param>
         public static void Show(
-            MemoPanelController parent, string key, string songName, string songAuthor)
+            MemoPanelController parent, LevelContext levelContext)
         {
-            // 既存のメモを読み込む
+            // 既存のメモを読み込む (LevelContext を使用してキー/曲情報を解決)
+            var key = levelContext?.GetLevelId() ?? "unknown";
+            var songName = levelContext?.GetSongName() ?? "unknown";
+            var songAuthor = levelContext?.GetSongAuthor() ?? "unknown";
+
             var existingMemoInfo = MemoRepository.Load(key, songName, songAuthor);
             var modalCtrl = MemoEditModalController.GetInstance(
-                existingMemoInfo, parent, key, songName, songAuthor);
+                existingMemoInfo, parent, levelContext);
 
             Plugin.Log?.Info("MemoEditModal.Show: reusing existing parsed modal instance");
             // 表示は既にバインド済みの modal を利用して行う
@@ -136,30 +136,6 @@ namespace MapMemo.UI.Edit
                 modalCtrl.modal?.Show(true, true);
                 // 画面の左側半分あたりに表示するように位置調整
                 MemoEditModalHelper.RepositionModalToLeftHalf(modalCtrl.modal);
-
-                // デバッグ: parserParams 経由で要素にアクセスできるか確認
-                if (Instance.parserParams == null)
-                {
-                    Debug.LogWarning("parserParams が null です！");
-                }
-                var obj = Instance.parserParams.GetObjectsWithTag("char-emoji-1").FirstOrDefault();
-                if (obj != null)
-                {
-                    var clickable = obj.GetComponent<ClickableText>();
-                    if (clickable != null)
-                    {
-                        clickable.text = "😀";
-                        Debug.Log($"取得成功！text: {clickable.text}");
-                    }
-                    else
-                    {
-                        Debug.Log("ClickableText コンポーネントが見つかりません。");
-                    }
-                }
-                else
-                {
-                    Debug.Log("オブジェクトが見つかりません。");
-                }
             }
             catch (System.Exception ex)
             {
@@ -194,7 +170,7 @@ namespace MapMemo.UI.Edit
                 suggestionController.Clear();
             };
 
-            // Attach emoji click listeners: extracted to a helper for readability
+            // ボタンのクリックリスナーを設定
             MemoEditModalHelper.SetupKeyClickListeners(this.modal);
         }
 
@@ -212,7 +188,7 @@ namespace MapMemo.UI.Edit
         // UpdateAlphaButtonLabels moved to MemoEditModalHelper.UpdateAlphaButtonLabels
         //// ◆画面初期表示関連メソッド End ◆////
 
-
+        /// 確定処理
         private void CommitMemo()
         {
             // 確定処理
@@ -242,9 +218,9 @@ namespace MapMemo.UI.Edit
                 //if (text.Length > 256) text = text.Substring(0, 256);
                 var entry = new MemoEntry
                 {
-                    key = key ?? "unknown",
-                    songName = songName ?? "unknown",
-                    songAuthor = songAuthor ?? "unknown",
+                    key = levelContext.GetLevelId(),
+                    songName = levelContext.GetSongName(),
+                    songAuthor = levelContext.GetSongAuthor(),
                     memo = text
                 };
                 Plugin.Log?.Info($"MemoEditModal.OnSave: key='{entry.key}' song='{entry.songName}' author='{entry.songAuthor}' len={text.Length}");
