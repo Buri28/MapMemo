@@ -28,7 +28,6 @@ namespace MapMemo.Core
         public string type { get; set; }
         public string label { get; set; }
         public string @char { get; set; }
-        public string block { get; set; }
         public List<RangeModel> ranges { get; set; }
 
         // BSMLの変更前のtextから識別するidを取得して退避するためのプロパティ
