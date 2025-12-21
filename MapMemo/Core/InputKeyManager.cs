@@ -13,18 +13,17 @@ namespace MapMemo.Core
     // Models for deserialization
     public class KeyBindingsConfig
     {
-        public List<KeyEntry> keys { get; set; }
+        public List<InputKeyEntry> keys { get; set; }
         public List<string> excluded { get; set; }
     }
 
-    public class KeyEntry
+    public class InputKeyEntry
     {
         public int keyNo { get; set; }
         public string type { get; set; }
         public string label { get; set; }
         public string @char { get; set; }
         public string block { get; set; }
-        public string matchOn { get; set; }
         public List<RangeModel> ranges { get; set; }
 
         // BSMLの変更前のtextから識別するidを取得して退避するためのプロパティ
@@ -37,12 +36,12 @@ namespace MapMemo.Core
         public string end { get; set; }
     }
 
-    public class KeyManager : MonoBehaviour
+    public class InputKeyManager : MonoBehaviour
     {
         private string bindingsFilePath;
-        public static KeyManager Instance { get; private set; }
+        public static InputKeyManager Instance { get; private set; }
 
-        public List<KeyEntry> Keys { get; private set; } = new List<KeyEntry>();
+        public List<InputKeyEntry> Keys { get; private set; } = new List<InputKeyEntry>();
 
         public Dictionary<string, List<string>> supportedEmojiMap = null;
 
@@ -62,7 +61,7 @@ namespace MapMemo.Core
         /// <summary>
         /// Load key bindings from the user's data directory (copies embedded resource if missing).
         /// </summary>
-        public KeyManager Load(string userDataDir)
+        public InputKeyManager Load(string userDataDir)
         {
             Directory.CreateDirectory(userDataDir);
             bindingsFilePath = Path.Combine(userDataDir, "#key_bindings.json");
@@ -71,8 +70,36 @@ namespace MapMemo.Core
             LoadFromFile();
             supportedEmojiMap = GetSupportedEmojiMap();
 
+            if (Plugin.VerboseLogs)
+            {
+                WriteDebugLog("", supportedEmojiMap);
+            }
             return this;
         }
+
+        // デバッグ用に全絵文字を出力
+        private static void WriteDebugLog(string message,
+            Dictionary<string, List<string>> emojiMap)
+        {
+            int totalEmojis = emojiMap.Values.Sum(list => list.Count);
+            message = $"All Emoji List ({totalEmojis} emojis)\n" + message + "\n";
+
+            foreach (var kvList in emojiMap)
+            {
+                message += $"\nKey '{kvList.Key}' has {kvList.Value.Count} emojis:\n";
+                foreach (var emoji in kvList.Value)
+                {
+                    int codePoint = char.ConvertToUtf32(emoji, 0);
+                    message += $"key '{kvList.Key}' emoji '{emoji}' code point 0x{codePoint:X}\n";
+                }
+            }
+            message += "\nEnd of Emoji List";
+
+            string path = Path.Combine(Application.persistentDataPath,
+            Path.Combine(Environment.CurrentDirectory, "UserData", "MapMemo", "_all_emoji_log.txt"));
+            File.WriteAllText(path, message + Environment.NewLine);
+        }
+
 
         private void CopyEmbeddedIfMissing(bool forceOverwrite = false)
         {
@@ -80,7 +107,7 @@ namespace MapMemo.Core
             {
                 if (File.Exists(bindingsFilePath) && !forceOverwrite) return;
 
-                var asm = typeof(KeyManager).Assembly;
+                var asm = typeof(InputKeyManager).Assembly;
                 var resourceName = "MapMemo.Resources.#key_bindings.json";
                 using (var stream = asm.GetManifestResourceStream(resourceName))
                 {
@@ -113,14 +140,14 @@ namespace MapMemo.Core
             {
                 if (!File.Exists(bindingsFilePath))
                 {
-                    Keys = new List<KeyEntry>();
+                    Keys = new List<InputKeyEntry>();
                     Plugin.Log?.Warn($"KeyManager: bindings file not found: {bindingsFilePath}");
                     return;
                 }
 
                 var json = File.ReadAllText(bindingsFilePath);
                 var cfg = JsonConvert.DeserializeObject<KeyBindingsConfig>(json);
-                Keys = cfg?.keys ?? new List<KeyEntry>();
+                Keys = cfg?.keys ?? new List<InputKeyEntry>();
 
                 // parse excluded codepoints (strings like "0x1FA7B" or decimal)
                 excludedRaw = cfg?.excluded ?? new List<string>();
@@ -146,7 +173,7 @@ namespace MapMemo.Core
                         // Retry load
                         var json2 = File.ReadAllText(bindingsFilePath);
                         var cfg2 = JsonConvert.DeserializeObject<KeyBindingsConfig>(json2);
-                        Keys = cfg2?.keys ?? new List<KeyEntry>();
+                        Keys = cfg2?.keys ?? new List<InputKeyEntry>();
                         excludedRaw = cfg2?.excluded ?? new List<string>();
                         ExcludedCodePoints = new HashSet<int>(excludedRaw
                             .Select(s => ParseHexOrDecimal(s))
@@ -160,14 +187,14 @@ namespace MapMemo.Core
                     Plugin.Log?.Error($"KeyManager: Recovery attempt failed: {rex}");
                 }
 
-                Keys = new List<KeyEntry>();
+                Keys = new List<InputKeyEntry>();
                 ExcludedCodePoints = new HashSet<int>();
 
 
             }
         }
 
-        public KeyEntry GetByKeyNo(int keyNo, string type)
+        public InputKeyEntry GetByKeyNo(int keyNo, string type)
         {
             return Keys.FirstOrDefault(k => k.keyNo == keyNo
                 && string.Equals(k.type, type, StringComparison.OrdinalIgnoreCase));
@@ -182,6 +209,7 @@ namespace MapMemo.Core
                     continue;
                 if (keyEntry.ranges == null || keyEntry.ranges.Count == 0)
                     continue;
+
                 var emojis = new List<string>();
                 foreach (var range in keyEntry.ranges)
                 {
@@ -231,7 +259,7 @@ namespace MapMemo.Core
         /// </summary>
         /// <param name="ct"></param>
         /// <returns></returns>
-        public KeyEntry FindForClickableTextEntry(ClickableText ct)
+        public InputKeyEntry FindForClickableTextEntry(ClickableText ct)
         {
             if (ct == null) return null;
             var txt = (ct.text ?? "").Trim().Replace("　", ""); // 全角スペースを除去
@@ -344,7 +372,7 @@ namespace MapMemo.Core
             // Prefer excluded list from KeyManager (JSON) when present; otherwise use built-in list.
             try
             {
-                var km = MapMemo.Core.KeyManager.Instance;
+                var km = MapMemo.Core.InputKeyManager.Instance;
                 if (km != null && km.ExcludedCodePoints != null && km.ExcludedCodePoints.Count > 0)
                 {
                     return !km.ExcludedCodePoints.Contains(codePoint);
