@@ -16,11 +16,16 @@ using MapMemo.Core;
 namespace MapMemo.UI.Menu
 {
     [HotReload]
+    /// <summary>
+    /// メモパネルのコントローラー。メニューのペンアイコン表示と更新を行います。
+    /// </summary>
     public class MemoPanelController : BSMLAutomaticViewController
     {
         // この段階でインスタンスを作るとUnityの管理外のためバインド対象外となる。
         public static MemoPanelController instance;
-        // 現在のホストオブジェクト
+        /// <summary>
+        /// ホストとなる GameObject（バインド対象）
+        /// </summary>
         public GameObject HostGameObject { get; set; }
         // 現在のレベルコンテキスト
         private LevelContext levelContext;
@@ -30,8 +35,8 @@ namespace MapMemo.UI.Menu
         public string ResourceName => "MapMemo.Resources.MemoPanel.bsml";
 
         /// <summary>
-        /// インスタンスが存在するかどうか
-        /// 
+        /// インスタンスが存在するかどうかを判定します。
+        /// </summary>
         public static bool isInstance() => !ReferenceEquals(instance, null);
 
         /// <summary>
@@ -92,7 +97,7 @@ namespace MapMemo.UI.Menu
         }
 
         /// <summary>
-        /// 編集ボタン押下時
+        /// 編集ボタン押下時の処理。エディットモーダルを表示します。
         /// </summary>
         [UIAction("on-edit-click")]
         public void OnEditClick()
@@ -102,10 +107,11 @@ namespace MapMemo.UI.Menu
         }
 
         /// <summary>
-        /// ホバーヒントを設定する
+        /// 指定した GameObject にホバーヒントを設定します。
+        /// 必要なら HoverHint コンポーネントを追加します。
         /// </summary>
-        /// <param name="go"></param>
-        /// <param name="hint"></param>
+        /// <param name="go">ホバーヒントを設定する対象の GameObject</param>
+        /// <param name="hint">表示するホバーテキスト</param>
         public void SetHoverHint(GameObject go, string hint)
         {
             // HoverHint が無ければ追加
@@ -117,7 +123,7 @@ namespace MapMemo.UI.Menu
         }
 
         /// <summary>
-        /// 表示内容を更新する
+        /// 表示内容を更新します。現在の LevelContext に紐づくメモを読み込み、ペンアイコンとツールチップを更新します。
         /// </summary>
         public Task Refresh()
         {
@@ -179,8 +185,10 @@ namespace MapMemo.UI.Menu
         }
 
         /// <summary>
-        /// UTC日時をローカル日時に変換してフォーマットする 
+        /// UTC日時をローカル日時に変換してフォーマットする。
         /// </summary>
+        /// <param name="utc">UTC の日時</param>
+        /// <returns>ローカル時刻をフォーマットした文字列（yyyy/MM/dd HH:mm）</returns>
         private static string FormatLocal(DateTime utc)
         {
             var local = utc.ToLocalTime();

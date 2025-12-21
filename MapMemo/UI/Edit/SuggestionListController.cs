@@ -11,13 +11,16 @@ using TMPro;
 namespace MapMemo.UI.Edit
 {
     /// <summary>
-    /// Suggestion list helper that owns the suggestion list UI and related logic.
+    /// サジェストリストの UI と関連ロジックを管理するヘルパー。
     /// </summary>
     public class SuggestionListController
     {
         private readonly CustomListTableData suggestionList;
         private int historyShowCount;
 
+        /// <summary>
+        /// サジェストが選択されたときに発火するイベント（value, subText）。
+        /// </summary>
         public event Action<string, string> SuggestionSelected;
 
         public SuggestionListController(CustomListTableData suggestionList, int historyShowCount)
@@ -30,6 +33,10 @@ namespace MapMemo.UI.Edit
             this.suggestionList.TableView.didSelectCellWithIdxEvent += OnCellSelectedInternal;
         }
 
+        /// <summary>
+        /// テーブルのセルが選択されたときに呼ばれる内部ハンドラ。
+        /// 選択されたセルのテキストからリッチテキストを除去して `SuggestionSelected` イベントを発火します。
+        /// </summary>
         private void OnCellSelectedInternal(TableView tableView, int index)
         {
             var selected = suggestionList.Data[index];
@@ -40,10 +47,16 @@ namespace MapMemo.UI.Edit
             // 選択された文字からリッチテキストを除去してから通知、サブテキストはリッチテキストにしてないのでそのまま渡す
             SuggestionSelected?.Invoke(StripRichText(selected.Text?.ToString()), selected.Subtext?.ToString());
         }
+        /// <summary>
+        /// リッチテキストタグを除去してプレーンテキストを返します。
+        /// </summary>
         private string StripRichText(string input)
         {
             return System.Text.RegularExpressions.Regex.Replace(input, "<.*?>", string.Empty);
         }
+        /// <summary>
+        /// サジェストリストをクリアして UI をリロードします。
+        /// </summary>
         public void Clear()
         {
             suggestionList.Data.Clear();
@@ -51,6 +64,9 @@ namespace MapMemo.UI.Edit
             suggestionList.TableView.ReloadData();
         }
 
+        /// <summary>
+        /// サジェスト項目をリストに追加します。subText はサブテキストとして表示されます。
+        /// </summary>
         public void AddSuggestion(string value, string subText = null)
         {
             CustomListTableData.CustomCellInfo cellInfo;
@@ -66,6 +82,9 @@ namespace MapMemo.UI.Edit
             suggestionList.Data.Add(cellInfo);
         }
 
+        /// <summary>
+        /// サジェスト候補を更新します。履歴／辞書／絵文字から候補を収集します。
+        /// </summary>
         public void UpdateSuggestions(string pendingText)
         {
             suggestionList.Data.Clear();
@@ -87,12 +106,18 @@ namespace MapMemo.UI.Edit
             suggestionList.TableView.ReloadData();
         }
 
+        /// <summary>
+        /// 空の候補（ゼロ幅スペース）を追加します（セルプール対策）。
+        /// </summary>
         private void AddEmptySuggestion()
         {
             // セルプール対策(ゼロ幅スペースは選択時には空文字扱いにする。空文字だと別のセルが退避されてしまう)
             AddSuggestion("\u200B");
         }
 
+        /// <summary>
+        /// 絵文字候補を追加します。キーに一致する絵文字をすべて追加します。
+        /// </summary>
         private void AddEmojiSuggestions(string search, HashSet<KeyValuePair<string, string>> already)
         {
             if (string.IsNullOrEmpty(search)) return;
@@ -118,6 +143,9 @@ namespace MapMemo.UI.Edit
             }
         }
 
+        /// <summary>
+        /// 履歴から候補を追加します。
+        /// </summary>
         private void AddHistorySuggestions(string search, HashSet<KeyValuePair<string, string>> already)
         {
             var history = InputHistoryManager.Instance.historyList;
@@ -142,6 +170,9 @@ namespace MapMemo.UI.Edit
             }
         }
 
+        /// <summary>
+        /// 指定した文字列が指定したプレフィックスで始まるかを、テキスト要素単位で判定します。
+        /// </summary>
         public static bool StartsWithTextElement(string text, string prefix)
         {
             if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(prefix)) return false;
@@ -167,11 +198,15 @@ namespace MapMemo.UI.Edit
         }
 
 
-        private void AddDictionarySuggestions(string search, HashSet<KeyValuePair<string, string>> already)
+        /// <summary>
+        /// 辞書から候補を追加します。
+        /// </summary>
+        private void AddDictionarySuggestions(
+            string search, HashSet<KeyValuePair<string, string>> already)
         {
             if (string.IsNullOrEmpty(search) || search == ",") return;
 
-            var matches = DictionaryManager.GetMatches(search)
+            var matches = DictionaryManager.Instance.Search(search)
                 .Distinct()
                 .ToList();
             foreach (var pair in matches)
@@ -184,6 +219,9 @@ namespace MapMemo.UI.Edit
             }
         }
 
+        /// <summary>
+        /// 現在の選択を更新します（最初の要素を選択するか選択解除）。
+        /// </summary>
         private void UpdateSelection()
         {
             if (suggestionList.Data.Count > 0)

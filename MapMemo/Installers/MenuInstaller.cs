@@ -1,5 +1,6 @@
 using MapMemo.Core;
 using MapMemo.UI;
+using MapMemo.UI.Common;
 using MapMemo.UI.Edit;
 using MapMemo.UI.Settings;
 using UnityEngine;
@@ -7,8 +8,14 @@ using Zenject;
 
 namespace MapMemo.Installers
 {
+    /// <summary>
+    /// Zenject 用のインストーラ。Menu コンテキストに必要な MonoBehaviour を配置します。
+    /// </summary>
     public class MenuInstaller : Installer
     {
+        /// <summary>
+        /// Zenject コンテナへのバインディングを登録します。
+        /// </summary>
         public override void InstallBindings()
         {
             Plugin.Log?.Info("MenuInstaller InstallBindings");
@@ -20,6 +27,7 @@ namespace MapMemo.Installers
             go.AddComponent<InputHistoryManager>();
             go.AddComponent<DictionaryManager>();
             go.AddComponent<InputKeyManager>();
+            go.AddComponent<UIHelper>();
             var controller = go.AddComponent<MapMemoSettingsController>();
 
             Container.BindInterfacesAndSelfTo<MapMemoSettingsController>()

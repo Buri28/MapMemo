@@ -7,6 +7,9 @@ using UnityEngine;
 
 namespace MapMemo.Core
 {
+    /// <summary>
+    /// 入力履歴を管理し、ファイルへの保存と読み込みを提供する MonoBehaviour シングルトン。
+    /// </summary>
     public class InputHistoryManager : MonoBehaviour
     {
         private string historyFilePath;
@@ -14,6 +17,9 @@ namespace MapMemo.Core
 
         public static InputHistoryManager Instance { get; private set; }
         public List<KeyValuePair<string, string>> historyList { get; set; } = new List<KeyValuePair<string, string>>();
+        /// <summary>
+        /// MonoBehaviour の初期化時に呼ばれ、シングルトンの登録を行います。
+        /// </summary>
         private void Awake()
         {
             Plugin.Log?.Info("InputHistoryManager Awake");
@@ -27,6 +33,9 @@ namespace MapMemo.Core
             DontDestroyOnLoad(this.gameObject);
         }
 
+        /// <summary>
+        /// 履歴ファイルを読み込み、最大履歴件数を設定します。
+        /// </summary>
         public InputHistoryManager LoadHistory(string userDataDir, int maxCount = 500)
         {
             Directory.CreateDirectory(userDataDir);
@@ -38,14 +47,22 @@ namespace MapMemo.Core
             return this;
         }
 
-        // 静的メソッド: UserData/MapMemo/_input_history.txt を削除
-        public static void ClearHistoryStatic()
+        /// <summary>
+        /// 静的メソッド: UserData/MapMemo/_input_history.txt を削除します。
+        /// </summary>
+        public static void DeleteHistory()
         {
             var path = Path.Combine("UserData", "MapMemo", "_input_history.txt");
             if (File.Exists(path))
                 File.Delete(path);
+
+            InputHistoryManager.Instance?.ClearHistory();
+            Plugin.Log?.Info("Input history deleted.");
         }
 
+        /// <summary>
+        /// 履歴にエントリを追加します。通常の1文字は無視し、絵文字は追加します。
+        /// </summary>
         public void AddHistory(string text, string subText = null)
         {
             if (string.IsNullOrEmpty(text)) return;
@@ -69,6 +86,9 @@ namespace MapMemo.Core
             }
         }
 
+        /// <summary>
+        /// 履歴ファイルを読み込み、内部の履歴リストを初期化します。
+        /// </summary>
         private void LoadHistory()
         {
             if (!File.Exists(historyFilePath))
@@ -96,6 +116,9 @@ namespace MapMemo.Core
                 .ToList();
         }
 
+        /// <summary>
+        /// 履歴ファイルを削除し、メモリ上の履歴をクリアします。
+        /// </summary>
         public void ClearHistory()
         {
             if (File.Exists(historyFilePath))
@@ -103,6 +126,9 @@ namespace MapMemo.Core
             historyList = new List<KeyValuePair<string, string>>();
         }
 
+        /// <summary>
+        /// 保存する履歴の最大件数を設定します。
+        /// </summary>
         public void SetMaxHistoryCount(int count)
         {
             maxHistoryCount = count;
@@ -112,6 +138,9 @@ namespace MapMemo.Core
                 historyList.RemoveAt(0);
             }
         }
+        /// <summary>
+        /// 現在の履歴をファイルに保存します。
+        /// </summary>
         public void SaveHistory()
         {
             // ファイルに保存処理
@@ -128,6 +157,9 @@ namespace MapMemo.Core
             }
         }
 
+        /// <summary>
+        /// MonoBehaviour の破棄時に呼ばれ、履歴を保存します。
+        /// </summary>
         private void OnDestroy()
         {
             Plugin.Log?.Info("OnDestroy: Saving input history.");
@@ -141,6 +173,9 @@ namespace MapMemo.Core
             }
         }
 
+        /// <summary>
+        /// アプリケーション終了時に履歴を保存します。
+        /// </summary>
         private void OnApplicationQuit()
         {
             Plugin.Log?.Info("OnApplicationQuit: Saving input history.");
