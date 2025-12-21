@@ -7,7 +7,7 @@ using UnityEngine.EventSystems;
 namespace MapMemo.UI.Edit
 {
 
-    public class KeyClickListener : MonoBehaviour, IPointerClickHandler
+    public class InputKeyClickListener : MonoBehaviour, IPointerClickHandler
     {
         public MemoEditModalController controller;
         // Populated by ApplyKeyBindings when available
