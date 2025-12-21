@@ -26,7 +26,8 @@ namespace MapMemo.Core
         public Boolean IsValid()
         {
             string key = GetLevelId();
-            return !(key.Equals("unknown", StringComparison.OrdinalIgnoreCase) || key.Equals("unknown|unknown", StringComparison.OrdinalIgnoreCase));
+            return !(key.Equals("unknown", StringComparison.OrdinalIgnoreCase)
+                  || key.Equals("unknown|unknown", StringComparison.OrdinalIgnoreCase));
         }
 
         private static string NormalizeUnknown(string s)

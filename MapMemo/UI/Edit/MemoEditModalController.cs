@@ -45,7 +45,7 @@ namespace MapMemo.UI.Edit
 
         [UIComponent("suggestion-list")] private CustomListTableData suggestionList;
         private SuggestionListController suggestionController;
-        private KeyController keyController;
+        private InputKeyController keyController;
 
         private LevelContext levelContext;
 
@@ -79,10 +79,10 @@ namespace MapMemo.UI.Edit
                         "MapMemo.Resources.MemoEdit.bsml"),
                         parent.HostGameObject);
                 // 初回のみ辞書ファイルと入力履歴ファイルを読み込み
-                DictionaryManager.Load();
+                DictionaryManager.Instance.Load(Path.Combine("UserData", "MapMemo"));
                 InputHistoryManager.Instance.LoadHistory(Path.Combine("UserData", "MapMemo"), settings.HistoryMaxCount);
                 // キーバインド設定を読み込む (UserData に resource をコピーしてからロード)
-                KeyManager.Instance.Load(Path.Combine("UserData", "MapMemo"));
+                InputKeyManager.Instance.Load(Path.Combine("UserData", "MapMemo"));
             }
             // 必要なパラメータを設定 (LevelContext を使用)
             Instance.memo = existingMemoInfo?.memo ?? "";
@@ -160,7 +160,7 @@ namespace MapMemo.UI.Edit
         {
             Plugin.Log?.Info("MemoEditModal: OnPostParse called — setting up pick list");
 
-            keyController = new KeyController(
+            keyController = new InputKeyController(
                 modal.gameObject.GetComponentsInChildren<ClickableText>(true),
                 modal.gameObject.GetComponentsInChildren<TextMeshProUGUI>(true)
             );

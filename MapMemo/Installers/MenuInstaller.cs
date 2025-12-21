@@ -18,7 +18,8 @@ namespace MapMemo.Installers
             Object.DontDestroyOnLoad(go); // シーン遷移で消えないようにする
 
             go.AddComponent<InputHistoryManager>();
-            go.AddComponent<KeyManager>();
+            go.AddComponent<DictionaryManager>();
+            go.AddComponent<InputKeyManager>();
             var controller = go.AddComponent<MapMemoSettingsController>();
 
             Container.BindInterfacesAndSelfTo<MapMemoSettingsController>()

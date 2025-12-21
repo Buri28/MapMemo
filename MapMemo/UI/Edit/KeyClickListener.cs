@@ -11,8 +11,8 @@ namespace MapMemo.UI.Edit
     {
         public MemoEditModalController controller;
         // Populated by ApplyKeyBindings when available
-        public MapMemo.Core.KeyEntry keyEntry;
-        public void SetKeyEntry(MapMemo.Core.KeyEntry entry) { this.keyEntry = entry; }
+        public MapMemo.Core.InputKeyEntry keyEntry;
+        public void SetKeyEntry(MapMemo.Core.InputKeyEntry entry) { this.keyEntry = entry; }
 
         public void OnPointerClick(PointerEventData eventData)
         {
@@ -57,11 +57,11 @@ namespace MapMemo.UI.Edit
                 if (MemoEditModalController.Instance.isKanaMode)
                 {
                     // かなモードの場合、ひらがな・カタカナ変換を行う
-                    txt = KeyController.HiraganaToKatakana(txt);
+                    txt = InputKeyController.HiraganaToKatakana(txt);
                 }
                 else
                 {
-                    txt = KeyController.KatakanaToHiragana(txt);
+                    txt = InputKeyController.KatakanaToHiragana(txt);
                 }
                 if (MemoEditModalController.Instance.isShift)
                 {

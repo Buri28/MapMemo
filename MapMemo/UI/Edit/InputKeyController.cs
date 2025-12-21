@@ -11,12 +11,12 @@ namespace MapMemo.UI.Edit
     /// <summary>
     /// Key controller for key click listener.
     /// </summary>
-    public class KeyController
+    public class InputKeyController
     {
         private ClickableText[] keys;
         private TextMeshProUGUI[] buttons;
 
-        public KeyController(ClickableText[] keys, TextMeshProUGUI[] buttons)
+        public InputKeyController(ClickableText[] keys, TextMeshProUGUI[] buttons)
         {
             this.keys = keys;
             this.buttons = buttons;
@@ -104,7 +104,7 @@ namespace MapMemo.UI.Edit
             try
             {
                 if (ct == null) return;
-                var entry = MapMemo.Core.KeyManager.Instance?.FindForClickableTextEntry(ct);
+                var entry = MapMemo.Core.InputKeyManager.Instance?.FindForClickableTextEntry(ct);
                 if (entry == null)
                 {
                     // Plugin.Log?.Info($"ApplyKeyBindings: no KeyEntry found for ClickableText '{ct.gameObject.name}' with text '{ct.text}'");

@@ -98,7 +98,7 @@ namespace MapMemo.UI.Edit
             if (string.IsNullOrEmpty(search)) return;
 
             Plugin.Log?.Info($"SuggestionListController: Adding emoji suggestions for '{search}'");
-            var supportedEmojis = KeyManager.Instance.supportedEmojiMap;
+            var supportedEmojis = InputKeyManager.Instance.supportedEmojiMap;
             // 絵文字マップのキーに該当する場合は、そのキーに対する絵文字をすべて追加
             foreach (var kvp in supportedEmojis)
             {
