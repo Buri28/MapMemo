@@ -24,7 +24,7 @@ namespace MapMemo.UI.Edit
         {
             try
             {
-                Plugin.Log?.Info("EmojiClickListener: OnPointerClick called");
+                if (Plugin.VerboseLogs) Plugin.Log?.Info("EmojiClickListener: OnPointerClick called");
 
                 string txt = null;
 
@@ -71,7 +71,7 @@ namespace MapMemo.UI.Edit
                     txt.ToUpperInvariant();
 
                 if (string.IsNullOrEmpty(txt)) return;
-                Plugin.Log?.Info($"KeyClickListener: Key '{txt}' clicked, appending to memo");
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"KeyClickListener: Key '{txt}' clicked, appending to memo");
 
                 MemoEditModalController.Instance.Append(txt);
             }

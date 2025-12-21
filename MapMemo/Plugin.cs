@@ -13,7 +13,7 @@ namespace MapMemo
     {
         internal static Logger Log;
         // ログ出力の詳細化フラグ（デバッグ時のみ true にする）
-        public static bool VerboseLogs = true;
+        public static bool VerboseLogs = false;
         // 診断情報を有効にするフラグ
         public static bool Diagnostics = false;
         // LevelDetail にアタッチする際の優先挙動（AttachTo を優先するかどうか）
@@ -26,7 +26,7 @@ namespace MapMemo
         public void Init(Logger logger, Zenjector zenjector)
         {
             Log = logger;
-            Log.Info("MapMemo Init");
+            if (VerboseLogs) Log.Info("MapMemo Init");
             zenjector.Install<Installers.MenuInstaller>(Location.Menu);
             Log?.Info("Menu installer registered");
         }
@@ -37,7 +37,7 @@ namespace MapMemo
         /// </summary>
         public void OnEnable()
         {
-            Log.Info("MapMemo OnEnable");
+            // Log.Info("MapMemo OnEnable");
         }
 
         [OnDisable]
@@ -46,7 +46,7 @@ namespace MapMemo
         /// </summary>
         public void OnDisable()
         {
-            Log.Info("MapMemo OnDisable");
+            if (VerboseLogs) Log.Info("MapMemo OnDisable");
         }
 
         [OnStart]
@@ -55,13 +55,13 @@ namespace MapMemo
         /// </summary>
         public void OnStart()
         {
-            Log.Info("MapMemo OnStart");
+            if (VerboseLogs) Log.Info("MapMemo OnStart");
             // メニューコンテキストにUIバインディングをインストール（SiraUtil/Zenject前提）
             try
             {
                 var harmony = new HarmonyLib.Harmony("com.buri28.mapmemo");
                 UI.Patches.MapMemoPatcher.ApplyPatches(harmony);
-                Log.Info("Harmony patches applied");
+                if (VerboseLogs) Log.Info("Harmony patches applied");
             }
             catch (Exception e)
             {
@@ -75,7 +75,7 @@ namespace MapMemo
         /// </summary>
         public void OnExit()
         {
-            Log.Info("MapMemo OnExit");
+            if (VerboseLogs) Log.Info("MapMemo OnExit");
         }
     }
 }

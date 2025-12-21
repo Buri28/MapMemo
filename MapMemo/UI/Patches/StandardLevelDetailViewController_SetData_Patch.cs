@@ -22,11 +22,10 @@ namespace MapMemo.UI.Patches
         /// <param name="beatmapLevel">SetData に渡された BeatmapLevel オブジェクト</param>
         public static void Postfix(object __instance, object beatmapLevel)
         {
-            //var viewController = __instance as StandardLevelDetailViewController;
             var mapLevel = beatmapLevel as BeatmapLevel;
 
             LevelContext levelContext = new LevelContext(mapLevel);
-            Plugin.Log?.Info($"SetData called with level: {mapLevel.songName} by {mapLevel.songAuthorName}, ID: {mapLevel.levelID}");
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"SetData called with level: {mapLevel.songName} by {mapLevel.songAuthorName}, ID: {mapLevel.levelID}");
 
             // 詳細画面のViewを取得
             var field = typeof(StandardLevelDetailViewController)

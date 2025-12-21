@@ -18,7 +18,6 @@ namespace MapMemo.UI.Settings
     /// </summary>
     public class MapMemoSettingsController : MonoBehaviour, INotifyPropertyChanged
     {
-        private MemoSettingsManager settings = null;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -37,7 +36,7 @@ namespace MapMemo.UI.Settings
         /// </summary>
         private IEnumerator Start()
         {
-            Plugin.Log?.Info("MapMemoSettingsViewController Start");
+            if (Plugin.VerboseLogs) Plugin.Log?.Info("MapMemoSettingsViewController Start");
             if (_tabAdded) yield break;
             // ModsタブにMapMemo設定画面を追加
             yield return new WaitUntil(() => GameplaySetup.Instance != null);
@@ -47,7 +46,6 @@ namespace MapMemo.UI.Settings
                 "MapMemo.Resources.MapMemoSettings.bsml",
                 this,
                 MenuType.Solo | MenuType.Online);
-            settings = MemoSettingsManager.Load();
             _tabAdded = true;
         }
 
@@ -63,13 +61,12 @@ namespace MapMemo.UI.Settings
         [UIValue("historyMaxCount")]
         public int HistoryMaxCount
         {
-            get => settings.HistoryMaxCount;
+            get => MemoSettingsManager.Instance.HistoryMaxCount;
             set
             {
                 Plugin.Log?.Info($"historyMaxCount: {value}");
-                if (settings.HistoryMaxCount == value) return;
-                settings.HistoryMaxCount = value;
-                settings.Save();
+                if (MemoSettingsManager.Instance.HistoryMaxCount == value) return;
+                MemoSettingsManager.Instance.HistoryMaxCount = value;
                 NotifyPropertyChanged();
             }
         }
@@ -80,13 +77,12 @@ namespace MapMemo.UI.Settings
         [UIValue("historyShowCount")]
         public int HistoryShowCount
         {
-            get => settings.HistoryShowCount;
+            get => MemoSettingsManager.Instance.HistoryShowCount;
             set
             {
                 Plugin.Log?.Info($"historyShowCount: {value}");
-                if (settings.HistoryShowCount == value) return;
-                settings.HistoryShowCount = value;
-                settings.Save();
+                if (MemoSettingsManager.Instance.HistoryShowCount == value) return;
+                MemoSettingsManager.Instance.HistoryShowCount = value;
                 NotifyPropertyChanged();
             }
         }
@@ -108,7 +104,7 @@ namespace MapMemo.UI.Settings
         [UIAction("on-history-max-count-changed")]
         private void OnHistoryMaxCountChange(float value)
         {
-            Plugin.Log?.Info($"OnHistoryMaxCountChange: {value}");
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"OnHistoryMaxCountChange: {value}");
             HistoryMaxCount = (int)value;
         }
 
@@ -118,7 +114,7 @@ namespace MapMemo.UI.Settings
         [UIAction("on-history-show-count-changed")]
         private void OnHistoryShowCountChange(float value)
         {
-            Plugin.Log?.Info($"OnHistoryShowCountChange: {value}");
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"OnHistoryShowCountChange: {value}");
             HistoryShowCount = (int)value;
         }
     }

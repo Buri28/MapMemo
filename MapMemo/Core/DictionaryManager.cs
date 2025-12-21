@@ -27,7 +27,7 @@ namespace MapMemo.Core
         /// </summary>
         private void Awake()
         {
-            Plugin.Log?.Info("DictionaryManager Awake");
+            if (Plugin.VerboseLogs) Plugin.Log?.Info("DictionaryManager Awake");
             if (Instance != null)
             {
                 Destroy(this);
@@ -184,7 +184,7 @@ namespace MapMemo.Core
             {
                 return Enumerable.Empty<KeyValuePair<string, string>>();
             }
-            Plugin.Log?.Info($"DictionaryManager: Searching for prefix '{prefix}'" +
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"DictionaryManager: Searching for prefix '{prefix}'" +
                 $" among {dictionaryWords.Count} dictionary words.");
             return dictionaryWords.Where(
                 pair =>
@@ -193,14 +193,6 @@ namespace MapMemo.Core
                     (!string.IsNullOrEmpty(pair.Value)
                      && SuggestionListController.StartsWithTextElement(pair.Value, prefix))
             );
-        }
-
-        /// <summary>
-        /// MonoBehaviour の破棄時に呼ばれるコールバック（ログ出力）。
-        /// </summary>
-        private void OnDestroy()
-        {
-            Plugin.Log?.Info("DictionaryManager OnDestroy");
         }
     }
 }

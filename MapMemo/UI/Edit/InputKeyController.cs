@@ -37,7 +37,7 @@ namespace MapMemo.UI.Edit
                 var listener = btn.gameObject.GetComponent<InputKeyClickListener>() ??
                     btn.gameObject.AddComponent<InputKeyClickListener>();
             }
-            Plugin.Log?.Info("KeyController.SetupKeyClickListeners: completed key listener setup");
+            if (Plugin.VerboseLogs) Plugin.Log?.Info("KeyController.SetupKeyClickListeners: completed key listener setup");
         }
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace MapMemo.UI.Edit
                 {
                     // リテラル文字の場合のラベル設定
                     var label = entry.label ?? entry.@char ?? "";
-                    Plugin.Log?.Info($"ApplyKeyBindings: setting Literal label '{label}' for ClickableText '{ct.gameObject.name}'");
+                    if (Plugin.VerboseLogs) Plugin.Log?.Info($"ApplyKeyBindings: setting Literal label '{label}' for ClickableText '{ct.gameObject.name}'");
                     ct.text = EditLabel(label);
                 }
                 // すでに登録されているリスナーに KeyEntry をセット

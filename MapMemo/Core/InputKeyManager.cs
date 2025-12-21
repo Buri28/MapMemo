@@ -58,7 +58,7 @@ namespace MapMemo.Core
         /// </summary>
         private void Awake()
         {
-            Plugin.Log?.Info("KeyManager Awake");
+            if (Plugin.VerboseLogs) Plugin.Log?.Info("KeyManager Awake");
             if (Instance != null)
             {
                 Destroy(this);
@@ -406,24 +406,5 @@ namespace MapMemo.Core
             catch { /* ignore and fallback */ }
             return true;
         }
-
-        /// <summary>
-        /// MonoBehaviour の破棄時の処理（自動保存は無効）。
-        /// </summary>
-        private void OnDestroy()
-        {
-            Plugin.Log?.Info("KeyManager OnDestroy: auto-save disabled (file is copied only if missing). ");
-            // ユーザーのファイルを上書きしてフォーマットを変更しないよう、意図的に Save() は呼び出していません。
-        }
-
-        /// <summary>
-        /// アプリケーション終了時の処理（自動保存は無効）。必要なら保存処理をここで呼び出す。
-        /// </summary>
-        private void OnApplicationQuit()
-        {
-            // 自動保存は無効です: 終了時に保存してファイルの書式を変更しないようにしています。
-        }
     }
-
-
 }

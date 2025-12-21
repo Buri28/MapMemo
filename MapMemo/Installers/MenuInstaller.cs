@@ -19,7 +19,7 @@ namespace MapMemo.Installers
         public override void InstallBindings()
         {
             Plugin.Log?.Info("MenuInstaller InstallBindings");
-            // Container.BindInterfacesAndSelfTo<MemoPanelController>().AsSingle();
+
             var go = new GameObject("MapMemoSettingsViewInstaller");
             go.SetActive(true);
             Object.DontDestroyOnLoad(go); // シーン遷移で消えないようにする
@@ -27,6 +27,7 @@ namespace MapMemo.Installers
             go.AddComponent<InputHistoryManager>();
             go.AddComponent<DictionaryManager>();
             go.AddComponent<InputKeyManager>();
+            go.AddComponent<MemoSettingsManager>();
             go.AddComponent<UIHelper>();
             var controller = go.AddComponent<MapMemoSettingsController>();
 

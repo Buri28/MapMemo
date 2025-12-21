@@ -13,16 +13,16 @@ namespace MapMemo.Core
     public class InputHistoryManager : MonoBehaviour
     {
         private string historyFilePath;
-        private int maxHistoryCount = 500;
 
         public static InputHistoryManager Instance { get; private set; }
-        public List<KeyValuePair<string, string>> historyList { get; set; } = new List<KeyValuePair<string, string>>();
+        public List<KeyValuePair<string, string>> historyList { get; set; }
+            = new List<KeyValuePair<string, string>>();
         /// <summary>
         /// MonoBehaviour の初期化時に呼ばれ、シングルトンの登録を行います。
         /// </summary>
         private void Awake()
         {
-            Plugin.Log?.Info("InputHistoryManager Awake");
+            if (Plugin.VerboseLogs) Plugin.Log?.Info("InputHistoryManager Awake");
             if (Instance != null)
             {
                 Destroy(this);
@@ -34,13 +34,12 @@ namespace MapMemo.Core
         }
 
         /// <summary>
-        /// 履歴ファイルを読み込み、最大履歴件数を設定します。
+        /// 履歴ファイルを読み込みます。
         /// </summary>
-        public InputHistoryManager LoadHistory(string userDataDir, int maxCount = 500)
+        public InputHistoryManager LoadHistory(string userDataDir)
         {
             Directory.CreateDirectory(userDataDir);
             historyFilePath = Path.Combine(userDataDir, "_input_history.txt");
-            maxHistoryCount = maxCount;
 
             LoadHistory();
 
@@ -80,7 +79,7 @@ namespace MapMemo.Core
 
             historyList.RemoveAll(x => x.Key == subText && x.Value == text);
             historyList.Add(new KeyValuePair<string, string>(subText, text));
-            while (historyList.Count > maxHistoryCount)
+            while (historyList.Count > MemoSettingsManager.Instance.HistoryMaxCount)
             {
                 historyList.RemoveAt(0);
             }
@@ -114,6 +113,7 @@ namespace MapMemo.Core
                     }
                 })
                 .ToList();
+            Plugin.Log?.Info($"Input history loaded. {historyList.Count} entries.");
         }
 
         /// <summary>
@@ -129,15 +129,15 @@ namespace MapMemo.Core
         /// <summary>
         /// 保存する履歴の最大件数を設定します。
         /// </summary>
-        public void SetMaxHistoryCount(int count)
+        public void UpdateHistoryList(int count)
         {
-            maxHistoryCount = count;
             if (historyList == null) historyList = new List<KeyValuePair<string, string>>();
-            while (historyList.Count > maxHistoryCount)
+            while (historyList.Count > MemoSettingsManager.Instance.HistoryMaxCount)
             {
                 historyList.RemoveAt(0);
             }
         }
+
         /// <summary>
         /// 現在の履歴をファイルに保存します。
         /// </summary>
@@ -149,7 +149,7 @@ namespace MapMemo.Core
                 if (string.IsNullOrEmpty(historyFilePath) || historyList == null) return;
                 File.WriteAllLines(historyFilePath, historyList.Select(
                     kv => kv.Key != null ? $"{kv.Key},{kv.Value}" : kv.Value));
-                Plugin.Log?.Info("Input history saved.");
+                Plugin.Log?.Info($"Input history saved. {historyList.Count} entries.");
             }
             catch (Exception ex)
             {
@@ -157,21 +157,21 @@ namespace MapMemo.Core
             }
         }
 
-        /// <summary>
-        /// MonoBehaviour の破棄時に呼ばれ、履歴を保存します。
-        /// </summary>
-        private void OnDestroy()
-        {
-            Plugin.Log?.Info("OnDestroy: Saving input history.");
-            try
-            {
-                SaveHistory();
-            }
-            catch (Exception ex)
-            {
-                Plugin.Log?.Error($"Failed to save input history on destroy: {ex}");
-            }
-        }
+        // /// <summary>
+        // /// MonoBehaviour の破棄時に呼ばれ、履歴を保存します。
+        // /// </summary>
+        // private void OnDestroy()
+        // {
+        //     Plugin.Log?.Info("OnDestroy: Saving input history.");
+        //     try
+        //     {
+        //         SaveHistory();
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         Plugin.Log?.Error($"Failed to save input history on destroy: {ex}");
+        //     }
+        // }
 
         /// <summary>
         /// アプリケーション終了時に履歴を保存します。
