@@ -125,7 +125,6 @@
             <clickable-text text="literal-104" pref-width="6" pref-height="5" />
             <clickable-text text="literal-105" pref-width="6" pref-height="5" />
           </vertical>
-          <!-- 濁点・半濁音列 -->
           <vertical spacing="0.5">
             <clickable-text text="literal-106" pref-width="6" pref-height="5" />
             <clickable-text text="literal-107" pref-width="6" pref-height="5" />
@@ -224,7 +223,6 @@
             <clickable-text text="literal-174" pref-width="6" pref-height="5" />
             <clickable-text text="literal-175" pref-width="6" pref-height="5" />
           </vertical>
-          <!-- 右端: あ行（無子音） -->
           <vertical spacing="0.5">
             <clickable-text text="literal-176" pref-width="6" pref-height="5" />
             <clickable-text text="literal-177" pref-width="6" pref-height="5" />
