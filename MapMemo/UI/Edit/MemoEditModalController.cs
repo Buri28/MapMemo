@@ -6,7 +6,6 @@ using System;
 using System.Linq;
 using UnityEngine;
 using TMPro;
-// Note: Avoid UnityEngine.UI dependency; use UnityEngine.Canvas explicitly
 using HMUI;
 using System.Globalization;
 using System.IO;

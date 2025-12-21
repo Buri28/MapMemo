@@ -1,11 +1,6 @@
-using HarmonyLib;
 using MapMemo.Core;
 using MapMemo.Patches;
-using System;
-using System.Linq;
 using System.Reflection;
-using UnityEngine;
-using UnityEngine.UI;
 
 namespace MapMemo.UI.Patches
 {

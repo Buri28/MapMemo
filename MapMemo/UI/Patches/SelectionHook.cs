@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using MapMemo.Core;
 using MapMemo.UI.Menu;
-using ModestTree;
 using UnityEngine;
 
 namespace MapMemo.Patches
