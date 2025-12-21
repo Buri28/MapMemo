@@ -10,13 +10,16 @@ using UnityEngine.UI;
 namespace MapMemo.UI.Patches
 {
 
+    /// <summary>
+    /// StandardLevelDetailViewController.SetData のポストフィックスパッチを提供します。
+    /// </summary>
     public class StandardLevelDetailViewController_SetData_Patch
     {
         /// <summary>
-        /// SetData メソッドのポストフィックス
+        /// SetData 呼び出し後に実行されるポストフィックス。選択されたレベルから LevelContext を作成して処理を委譲します。
         /// </summary>
-        /// <param name="__instance"></param>
-        /// <param name="beatmapLevel"></param>
+        /// <param name="__instance">パッチ対象のインスタンス（StandardLevelDetailViewController）</param>
+        /// <param name="beatmapLevel">SetData に渡された BeatmapLevel オブジェクト</param>
         public static void Postfix(object __instance, object beatmapLevel)
         {
             //var viewController = __instance as StandardLevelDetailViewController;

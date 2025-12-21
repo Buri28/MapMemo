@@ -1,27 +1,25 @@
 <bg>
     <vertical spacing="2" align="TopCenter" pad="2">
-        <horizontal spacing="2" align="TopLeft">
-            <increment-setting id="history-max-count" 
-                               text="Max History Count" 
-                               value='historyMaxCount' 
-                               min='0' 
-                               max='1000' 
-                               increment='10' 
-                               apply-on-change='true'
-                               on-change="on-history-max-count-changed"
-                               formatter="FormatInt"  />
-        </horizontal>
-        <horizontal spacing="2" align="TopLeft">
-            <increment-setting id="history-show-count" 
-                                text="History Show Count" 
-                                value='historyShowCount' 
-                                min='0' max='10' increment='1' 
-                                apply-on-change='true'
-                                on-change="on-history-show-count-changed"
-                                formatter="FormatInt"  />
-        </horizontal>
-        <horizontal spacing="2" align="TopLeft">
+        <increment-setting id="history-max-count" 
+                            text="Max History Count" 
+                            value='historyMaxCount' 
+                            min='0' 
+                            max='1000' 
+                            increment='10' 
+                            apply-on-change='true'
+                            on-change="on-history-max-count-changed"
+                            formatter="FormatInt"  />
+
+        <increment-setting id="history-show-count" 
+                            text="History Show Count" 
+                            value='historyShowCount' 
+                            min='0' max='10' increment='1' 
+                            apply-on-change='true'
+                            on-change="on-history-show-count-changed"
+                            formatter="FormatInt"  />
+        <vertical spacing="0" align="TopCenter">
             <button text="Clear History" on-click="on-clear-history" pref-width="40" />
-        </horizontal>
+            <text id="history-clear-message" text="" active="false"/>
+        </vertical>
     </vertical>
 </bg>

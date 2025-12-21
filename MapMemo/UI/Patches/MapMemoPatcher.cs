@@ -61,6 +61,13 @@ namespace MapMemo.UI.Patches
             MapMemo.Plugin.Log?.Info("ApplyPatches: end");
         }
 
+        /// <summary>
+        /// 指定した型名を、可能であれば指定アセンブリ内から検索して返します。
+        /// AppDomain のすべてのアセンブリを走査し、最初に見つかった型を返します。
+        /// </summary>
+        /// <param name="typeName">検索する型名</param>
+        /// <param name="preferredAssembly">優先して検索するアセンブリ名（省略可）</param>
+        /// <returns>見つかった Type、見つからなければ null</returns>
         private static Type FindType(string typeName, string preferredAssembly = null)
         {
             foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())

@@ -9,7 +9,7 @@ using UnityEngine.UI;
 namespace MapMemo.UI.Edit
 {
     /// <summary>
-    /// Key controller for key click listener.
+    /// キークリック用のコントローラー。ClickableText のリスナー設定やボタン外観の初期化を行います。
     /// </summary>
     public class InputKeyController
     {
@@ -21,6 +21,9 @@ namespace MapMemo.UI.Edit
             this.keys = keys;
             this.buttons = buttons;
         }
+        /// <summary>
+        /// すべての ClickableText に対してクリックリスナーを設定します。
+        /// </summary>
         public void SetupKeyClickListeners()
         {
             foreach (var btn in keys)
@@ -33,7 +36,6 @@ namespace MapMemo.UI.Edit
                 // Ensure a click listener component is present
                 var listener = btn.gameObject.GetComponent<InputKeyClickListener>() ??
                     btn.gameObject.AddComponent<InputKeyClickListener>();
-                listener.controller = MemoEditModalController.Instance;
             }
             Plugin.Log?.Info("KeyController.SetupKeyClickListeners: completed key listener setup");
         }
@@ -96,9 +98,9 @@ namespace MapMemo.UI.Edit
         }
 
         /// <summary>
-        /// Apply key bindings from KeyManager to clickable-text elements under the modal.
-        /// This will overwrite the visible label (text) according to the loaded key bindings.
+        /// KeyManager の設定に基づき、ClickableText 要素のラベルを置換・初期化します（表示を上書きします）。
         /// </summary>
+        /// <param name="ct">対象の ClickableText</param>
         private static void ApplyKeyBindings(ClickableText ct)
         {
             try
@@ -116,24 +118,22 @@ namespace MapMemo.UI.Edit
                 if (string.Equals(entry.type, "EmojiRange", StringComparison.OrdinalIgnoreCase))
                 {
                     // 絵文字の場合のラベル設定
-                    // Plugin.Log?.Info($"ApplyKeyBindings: setting EmojiRange label '{entry.label}' for ClickableText '{ct.gameObject.name}'");
                     ct.text = entry.label;
                 }
                 else if (string.Equals(entry.type, "Literal", StringComparison.OrdinalIgnoreCase))
                 {
                     // リテラル文字の場合のラベル設定
                     var label = entry.label ?? entry.@char ?? "";
-                    Plugin.Log?.Info($": setting Literal label '{label}' for ClickableText '{ct.gameObject.name}'");
+                    Plugin.Log?.Info($"ApplyKeyBindings: setting Literal label '{label}' for ClickableText '{ct.gameObject.name}'");
                     ct.text = EditLabel(label);
                 }
                 // すでに登録されているリスナーに KeyEntry をセット
                 var listener = ct.gameObject.GetComponent<InputKeyClickListener>();
-                listener.controller = MemoEditModalController.Instance;
                 listener.SetKeyEntry(entry);
             }
             catch (Exception ex)
             {
-                Plugin.Log?.Warn($" failed: {ex.Message}");
+                Plugin.Log?.Warn($"ApplyKeyBindings failed: {ex.Message}");
             }
         }
 
@@ -142,14 +142,13 @@ namespace MapMemo.UI.Edit
         /// <summary>
         /// A〜Z ボタンの大文字と小文字を切り替える
         /// </summary>
-        /// <param name="modal"></param>
-        /// <param name="isShift"></param>
+        /// <param name="isShift">true=小文字モード</param>
         public void UpdateAlphaButtonLabels(bool isShift)
         {
             try
             {
                 var comps = keys;
-                Plugin.Log?.Info("MemoEditModal.UpdateAlphaButtonLabels: " + comps.Count() + " ClickableText components found under modal");
+                Plugin.Log?.Info("InputKeyController.UpdateAlphaButtonLabels: " + comps.Count() + " ClickableText components found under modal");
                 foreach (var btn in comps)
                 {
                     try
@@ -163,15 +162,14 @@ namespace MapMemo.UI.Edit
             }
             catch (Exception ex)
             {
-                Plugin.Log?.Warn($"MemoEditModalHelper.UpdateAlphaButtonLabels: {ex.Message}");
+                Plugin.Log?.Warn($"InputKeyController.UpdateAlphaButtonLabels: {ex.Message}");
             }
         }
 
         /// <summary>
         /// カナモードボタンのラベルを切り替える
         /// </summary>
-        /// <param name="modal"></param>
-        /// <param name="isKanaMode"></param>
+        /// <param name="isKanaMode">true=カナ（かな）モード</param>
         public void UpdateKanaModeButtonLabel(bool isKanaMode)
         {
 
@@ -184,7 +182,7 @@ namespace MapMemo.UI.Edit
                     var labelConverted = isKanaMode ?
                         HiraganaToKatakana(stored) :
                         KatakanaToHiragana(stored);
-                    // Plugin.Log?.Info($"MemoEditModalHelper.UpdateKanaModeButtonLabel: changing button label from '{stored}' to '{labelConverted}'");
+                    // Plugin.Log?.Info($"InputKeyController.UpdateKanaModeButtonLabel: changing button label from '{stored}' to '{labelConverted}'");
                     btn.text = EditLabel(labelConverted);
                 }
 
@@ -199,7 +197,7 @@ namespace MapMemo.UI.Edit
             }
             catch (Exception ex)
             {
-                Plugin.Log?.Warn($"MemoEditModalHelper.UpdateKanaModeButtonLabel: {ex.Message}");
+                Plugin.Log?.Warn($"InputKeyController.UpdateKanaModeButtonLabel: {ex.Message}");
             }
         }
 
@@ -226,20 +224,10 @@ namespace MapMemo.UI.Edit
                 (c >= 'ァ' && c <= 'ヶ') ? (char)(c - 0x60) : c
             ).ToArray());
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-        public static string EditLabel(string label)
+        /// <summary>
+        /// ボタンラベルを編集用に整形します。 
+        /// </summary>
+        private static string EditLabel(string label)
         {
             return "  " + label + "  ";
         }

@@ -10,13 +10,18 @@ using System.Globalization;
 
 namespace MapMemo.Core
 {
-    // Models for deserialization
+    /// <summary>
+    /// デシリアライズ用の設定モデル（キー割当と除外コードポイント）。
+    /// </summary>
     public class InputKeyBindingsConfig
     {
         public List<InputKeyEntry> keys { get; set; }
         public List<string> excluded { get; set; }
     }
 
+    /// <summary>
+    /// キー割当のエントリを表すモデル。
+    /// </summary>
     public class InputKeyEntry
     {
         public int keyNo { get; set; }
@@ -36,6 +41,9 @@ namespace MapMemo.Core
         public string end { get; set; }
     }
 
+    /// <summary>
+    /// キー入力（絵文字、リテラルなど）の定義を読み込み、絵文字判定等の機能を提供する Manager。
+    /// </summary>
     public class InputKeyManager : MonoBehaviour
     {
         private string bindingsFilePath;
@@ -45,6 +53,9 @@ namespace MapMemo.Core
 
         public Dictionary<string, List<string>> supportedEmojiMap = null;
 
+        /// <summary>
+        /// MonoBehaviour の初期化時に呼ばれ、シングルトン登録と DontDestroyOnLoad を実行します。
+        /// </summary>
         private void Awake()
         {
             Plugin.Log?.Info("KeyManager Awake");
@@ -59,7 +70,7 @@ namespace MapMemo.Core
         }
 
         /// <summary>
-        /// Load key bindings from the user's data directory (copies embedded resource if missing).
+        /// ユーザーデータディレクトリからキー割当ファイルを読み込みます（ファイルが無ければ埋め込みリソースをコピーします）。
         /// </summary>
         public InputKeyManager Load(string userDataDir)
         {
@@ -77,7 +88,9 @@ namespace MapMemo.Core
             return this;
         }
 
-        // デバッグ用に全絵文字を出力
+        /// <summary>
+        /// デバッグ用に全絵文字をログに出力し、ファイルに保存します。
+        /// </summary>
         private static void WriteDebugLog(string message,
             Dictionary<string, List<string>> emojiMap)
         {
@@ -101,6 +114,9 @@ namespace MapMemo.Core
         }
 
 
+        /// <summary>
+        /// 埋め込みリソースからキー割当ファイルを UserData にコピーします（必要なら上書き）。
+        /// </summary>
         private void CopyEmbeddedIfMissing(bool forceOverwrite = false)
         {
             try
@@ -134,6 +150,9 @@ namespace MapMemo.Core
         private List<string> excludedRaw = new List<string>();
         public HashSet<int> ExcludedCodePoints { get; private set; } = new HashSet<int>();
 
+        /// <summary>
+        /// キー割当ファイルを読み込み、`Keys` と `ExcludedCodePoints` を初期化します。破損時はバックアップおよびリカバリを試行します。
+        /// </summary>
         private void LoadFromFile()
         {
             try
@@ -149,7 +168,7 @@ namespace MapMemo.Core
                 var cfg = JsonConvert.DeserializeObject<InputKeyBindingsConfig>(json);
                 Keys = cfg?.keys ?? new List<InputKeyEntry>();
 
-                // parse excluded codepoints (strings like "0x1FA7B" or decimal)
+                // 除外するコードポイントを解析します（例: "0x1FA7B" や 10進表記）
                 excludedRaw = cfg?.excluded ?? new List<string>();
                 ExcludedCodePoints = new HashSet<int>(excludedRaw
                     .Select(s => ParseHexOrDecimal(s))
@@ -160,7 +179,7 @@ namespace MapMemo.Core
             catch (Exception ex)
             {
                 Plugin.Log?.Error($"KeyManager: Failed to load key bindings: {ex}");
-                // Attempt recovery: the existing file may be corrupted. Back it up and copy embedded resource to replace it, then retry once.
+                // リカバリ試行: 既存ファイルが破損している可能性があるため、バックアップを作成し埋め込みリソースで置き換えて再試行します。
                 try
                 {
                     if (File.Exists(bindingsFilePath))
@@ -200,6 +219,9 @@ namespace MapMemo.Core
                 && string.Equals(k.type, type, StringComparison.OrdinalIgnoreCase));
         }
 
+        /// <summary>
+        /// EmojiRange を解析して、ラベルごとの絵文字リストマップを構築して返します。
+        /// </summary>
         private Dictionary<string, List<string>> GetSupportedEmojiMap()
         {
             var dict = new Dictionary<string, List<string>>();
@@ -233,15 +255,15 @@ namespace MapMemo.Core
         }
 
         /// <summary>
-        /// Parse a string as either hex (0x...) or decimal integer.
+        /// 文字列を 16 進（"0x..."）または 10 進の整数として解析します。
         /// </summary>
-        /// <param name="s"></param>
-        /// <returns></returns>
+        /// <param name="s">解析する文字列</param>
+        /// <returns>解析結果の整数（失敗時は 0）</returns>
         private static int ParseHexOrDecimal(string s)
         {
             if (string.IsNullOrWhiteSpace(s)) return 0;
             s = s.Trim();
-            // support forms like "0x1F600" or decimal strings
+            // "0x1F600" のような 16 進表記や 10 進表記に対応します
             if (s.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
             {
                 var hex = s.Substring(2);
@@ -265,14 +287,14 @@ namespace MapMemo.Core
             var txt = (ct.text ?? "").Trim().Replace("　", ""); // 全角スペースを除去
             if (string.IsNullOrEmpty(txt)) return null;
 
-            // Emoji tab uses literal text "emoji-N"; try to parse keyNo
+            // Emoji タブでは 'emoji-N' のリテラルが使われるため、N をパースして keyNo を取得します
             if (txt.StartsWith("emoji-", StringComparison.OrdinalIgnoreCase))
             {
                 if (int.TryParse(txt.Substring("emoji-".Length), out int kn))
                     return GetByKeyNo(kn, "EmojiRange");
             }
 
-            // Support literal keys encoded in the BSML as "literal-<keyNo>"
+            // BSML 内で 'literal-<keyNo>' として埋め込まれたリテラルキーに対応します
             if (txt.StartsWith("literal-", StringComparison.OrdinalIgnoreCase))
             {
                 if (int.TryParse(txt.Substring("literal-".Length), out int lkn))
@@ -292,7 +314,7 @@ namespace MapMemo.Core
         //     {
         //         if (string.IsNullOrEmpty(bindingsFilePath)) return;
         //         var cfg = new KeyBindingsConfig { keys = Keys, excluded = excludedRaw };
-        //         // If excludedRaw is null or empty but we have ExcludedCodePoints, serialize those as hex strings
+        //         // excludedRaw が null または空で ExcludedCodePoints を持つ場合は、16 進表記でシリアライズします
         //         if ((cfg.excluded == null || cfg.excluded.Count == 0) && ExcludedCodePoints != null && ExcludedCodePoints.Count > 0)
         //         {
         //             cfg.excluded = ExcludedCodePoints.Select(v => "0x" + v.ToString("X")).ToList();
@@ -366,10 +388,13 @@ namespace MapMemo.Core
         //     return false;
         // }
 
+        /// <summary>
+        /// 指定したコードポイントがサポート対象かどうかを判定します（除外リストを考慮）。
+        /// </summary>
         private bool IsEmojiSupported(int codePoint)
         {
 
-            // Prefer excluded list from KeyManager (JSON) when present; otherwise use built-in list.
+            // 可能であれば KeyManager の除外リスト（JSON）を優先し、無ければ組み込みのリストを利用します。
             try
             {
                 var km = MapMemo.Core.InputKeyManager.Instance;
@@ -382,15 +407,21 @@ namespace MapMemo.Core
             return true;
         }
 
+        /// <summary>
+        /// MonoBehaviour の破棄時の処理（自動保存は無効）。
+        /// </summary>
         private void OnDestroy()
         {
-            Plugin.Log?.Info("KeyManager OnDestroy: auto-save disabled (file is copied only if missing).");
-            // Intentionally not calling Save() to avoid overwriting user's file and changing formatting.
+            Plugin.Log?.Info("KeyManager OnDestroy: auto-save disabled (file is copied only if missing). ");
+            // ユーザーのファイルを上書きしてフォーマットを変更しないよう、意図的に Save() は呼び出していません。
         }
 
+        /// <summary>
+        /// アプリケーション終了時の処理（自動保存は無効）。必要なら保存処理をここで呼び出す。
+        /// </summary>
         private void OnApplicationQuit()
         {
-            // Auto-save disabled: do not save on application quit to avoid reformatting user's file.
+            // 自動保存は無効です: 終了時に保存してファイルの書式を変更しないようにしています。
         }
     }
 

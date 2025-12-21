@@ -8,15 +8,23 @@ using UnityEngine;
 
 namespace MapMemo.Core
 {
+    /// <summary>
+    /// 辞書（単語/候補リスト）の読み込みおよび検索を管理するシングルトンの MonoBehaviour。
+    /// Unity のライフサイクル（Awake/OnDestroy）を利用します。
+    /// </summary>
     public class DictionaryManager : MonoBehaviour
     {
         private readonly object _lock = new object();
-        private List<KeyValuePair<string, string>> dictionaryWords = new List<KeyValuePair<string, string>>();
+        private List<KeyValuePair<string, string>> dictionaryWords =
+            new List<KeyValuePair<string, string>>();
         private bool loaded = false;
         private string userDictionaryPath;
 
         public static DictionaryManager Instance { get; private set; }
 
+        /// <summary>
+        /// MonoBehaviour の初期化時に呼ばれ、シングルトンの登録と DontDestroyOnLoad を設定します。
+        /// </summary>
         private void Awake()
         {
             Plugin.Log?.Info("DictionaryManager Awake");
@@ -29,42 +37,59 @@ namespace MapMemo.Core
             DontDestroyOnLoad(this.gameObject);
         }
 
-        // Create instance on demand (for static callers before Unity set up)
-        private static DictionaryManager EnsureInstance()
-        {
-            if (Instance != null) return Instance;
-            var go = new GameObject("DictionaryManager");
-            return go.AddComponent<DictionaryManager>();
-        }
+        /// <summary>
+        /// Unity の初期化前でも静的呼び出しに対応するため、必要なら GameObject とインスタンスを作成します。
+        /// </summary>
+        // private static DictionaryManager EnsureInstance()
+        // {
+        //     if (Instance != null) return Instance;
+        //     var go = new GameObject("DictionaryManager");
+        //     return go.AddComponent<DictionaryManager>();
+        // }
 
-        public IReadOnlyList<KeyValuePair<string, string>> DictionaryWords
-        {
-            get { lock (_lock) { return dictionaryWords; } }
-        }
+        /// <summary>
+        /// 読み込み済みの辞書エントリの読み取り専用リストを返します。
+        /// </summary>
+        // public IReadOnlyList<KeyValuePair<string, string>> DictionaryWords
+        // {
+        //     get { lock (_lock) { return dictionaryWords; } }
+        // }
 
-        // Instance API
+        /// <summary>
+        /// インスタンス用 API（辞書の読み込みなどを提供します）。
+        /// </summary>
         public DictionaryManager Load(string baseDir = null)
         {
             var basePath = baseDir ?? Environment.CurrentDirectory;
-            userDictionaryPath = Path.Combine(basePath, "UserData", "MapMemo", "#dictionary.txt");
+            userDictionaryPath = Path.Combine(
+                basePath, "#dictionary.txt");
             LoadInternal();
             return this;
         }
 
-        public void EnsureLoadedInstance()
-        {
-            if (!loaded) LoadInternal();
-        }
+        // /// <summary>
+        // /// 必要なら辞書を読み込みます（既に読み込まれていれば何もしません）。
+        // /// </summary>
+        // public void EnsureLoadedInstance()
+        // {
+        //     if (!loaded) LoadInternal();
+        // }
 
-        public void ReloadInstance()
-        {
-            lock (_lock)
-            {
-                loaded = false;
-            }
-            LoadInternal();
-        }
+        /// <summary>
+        /// 辞書を再読み込みします（内部キャッシュをクリアして再ロード）。
+        /// </summary>
+        // public void ReloadInstance()
+        // {
+        //     lock (_lock)
+        //     {
+        //         loaded = false;
+        //     }
+        //     LoadInternal();
+        // }
 
+        /// <summary>
+        /// 辞書を読み込む内部処理です。埋め込みリソースのコピーとファイルの解析を行います。
+        /// </summary>
         private void LoadInternal()
         {
             lock (_lock)
@@ -72,56 +97,17 @@ namespace MapMemo.Core
                 if (loaded) return;
                 try
                 {
-                    // Copy embedded resource if missing
-                    if (!File.Exists(userDictionaryPath))
+                    bool isCopied = CopyResources(userDictionaryPath);
+                    if (!isCopied)
                     {
-                        var asm = typeof(DictionaryManager).Assembly;
-                        var resourceName = "MapMemo.Resources.#dictionary.txt";
-                        using (var stream = asm.GetManifestResourceStream(resourceName))
-                        {
-                            if (stream != null)
-                            {
-                                Directory.CreateDirectory(Path.GetDirectoryName(userDictionaryPath));
-                                using (var fs = new FileStream(userDictionaryPath, FileMode.Create, FileAccess.Write))
-                                {
-                                    stream.CopyTo(fs);
-                                }
-                                Plugin.Log?.Info($"DictionaryManager: Copied dictionary from embedded resource to UserData: {userDictionaryPath}");
-                            }
-                            else
-                            {
-                                Plugin.Log?.Warn($"DictionaryManager: Embedded dictionary resource not found: {resourceName}");
-                                dictionaryWords = new List<KeyValuePair<string, string>>();
-                                loaded = true;
-                                return;
-                            }
-                        }
-                    }
-
-                    try
-                    {
-                        var list = new List<KeyValuePair<string, string>>();
-                        foreach (var line in File.ReadLines(userDictionaryPath))
-                        {
-                            if (string.IsNullOrWhiteSpace(line)) continue;
-                            var parts = line.Split(new[] { ',' }, 2);
-                            if (parts.Length == 2)
-                            {
-                                list.Add(new KeyValuePair<string, string>(parts[0].Trim(), parts[1].Trim()));
-                            }
-                            else
-                            {
-                                list.Add(new KeyValuePair<string, string>(null, line.Trim()));
-                            }
-                        }
-                        dictionaryWords = list;
-                        Plugin.Log?.Info($"DictionaryManager: Loaded {dictionaryWords.Count} dictionary words.");
-                    }
-                    catch (Exception ex)
-                    {
-                        Plugin.Log?.Error($"DictionaryManager: Failed to load dictionary: {ex.Message}");
                         dictionaryWords = new List<KeyValuePair<string, string>>();
+                        loaded = true;
+                        return;
                     }
+                    // 辞書ファイルを読み込み、キーと値のペアに分割してリストに格納。
+                    List<KeyValuePair<string, string>> list = LoadDictionary(userDictionaryPath);
+                    dictionaryWords = list;
+                    Plugin.Log?.Info($"DictionaryManager: Loaded {dictionaryWords.Count} dictionary words.");
                 }
                 catch (Exception ex)
                 {
@@ -132,9 +118,68 @@ namespace MapMemo.Core
             }
         }
 
-        public IEnumerable<KeyValuePair<string, string>> GetMatchesInstance(string prefix)
+        /// <summary>
+        /// 埋め込みリソースから辞書ファイルを UserData にコピーします。
+        /// </summary>
+        private static bool CopyResources(string userDictionaryPath)
         {
-            EnsureLoadedInstance();
+            // 埋め込みリソース（デフォルト辞書）を UserData にコピー（ファイルが存在しない場合）。
+            if (!File.Exists(userDictionaryPath))
+            {
+                var asm = typeof(DictionaryManager).Assembly;
+                var resourceName = "MapMemo.Resources.#dictionary.txt";
+                using (var stream = asm.GetManifestResourceStream(resourceName))
+                {
+                    if (stream != null)
+                    {
+                        Directory.CreateDirectory(Path.GetDirectoryName(userDictionaryPath));
+                        using (var fs = new FileStream(
+                                userDictionaryPath, FileMode.Create, FileAccess.Write))
+                        {
+                            stream.CopyTo(fs);
+                        }
+                        Plugin.Log?.Info($"DictionaryManager: Copied dictionary from embedded resource to UserData: {userDictionaryPath}");
+                    }
+                    else
+                    {
+                        Plugin.Log?.Error($"DictionaryManager: Embedded resource not found: {resourceName}");
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// 辞書ファイルを読み込み、キーと値のペアのリストを返します。
+        /// </summary>
+        private static List<KeyValuePair<string, string>> LoadDictionary(
+            string userDictionaryPath)
+        {
+            var list = new List<KeyValuePair<string, string>>();
+            foreach (var line in File.ReadLines(userDictionaryPath))
+            {
+                if (string.IsNullOrWhiteSpace(line)) continue;
+                var parts = line.Split(new[] { ',' }, 2);
+                if (parts.Length == 2)
+                {
+                    list.Add(new KeyValuePair<string, string>(parts[0].Trim(), parts[1].Trim()));
+                }
+                else
+                {
+                    list.Add(new KeyValuePair<string, string>(null, line.Trim()));
+                }
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// 指定したプレフィックスに一致する辞書エントリを返します。
+        /// </summary>
+        public IEnumerable<KeyValuePair<string, string>> Search(string prefix)
+        {
+            // EnsureLoadedInstance();
             if (string.IsNullOrEmpty(prefix) || prefix == ",")
             {
                 return Enumerable.Empty<KeyValuePair<string, string>>();
@@ -143,17 +188,16 @@ namespace MapMemo.Core
                 $" among {dictionaryWords.Count} dictionary words.");
             return dictionaryWords.Where(
                 pair =>
-                    (!string.IsNullOrEmpty(pair.Key) && SuggestionListController.StartsWithTextElement(pair.Key, prefix)) ||
-                    (!string.IsNullOrEmpty(pair.Value) && SuggestionListController.StartsWithTextElement(pair.Value, prefix))
+                    (!string.IsNullOrEmpty(pair.Key)
+                     && SuggestionListController.StartsWithTextElement(pair.Key, prefix)) ||
+                    (!string.IsNullOrEmpty(pair.Value)
+                     && SuggestionListController.StartsWithTextElement(pair.Value, prefix))
             );
         }
 
-        // Static compatibility wrappers
-        public static void EnsureLoaded() => EnsureInstance().EnsureLoadedInstance();
-        public static void Reload() => EnsureInstance().ReloadInstance();
-        public static DictionaryManager LoadStatic(string baseDir = null) => EnsureInstance().Load(baseDir);
-        public static IEnumerable<KeyValuePair<string, string>> GetMatches(string prefix) => EnsureInstance().GetMatchesInstance(prefix);
-
+        /// <summary>
+        /// MonoBehaviour の破棄時に呼ばれるコールバック（ログ出力）。
+        /// </summary>
         private void OnDestroy()
         {
             Plugin.Log?.Info("DictionaryManager OnDestroy");

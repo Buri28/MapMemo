@@ -6,24 +6,37 @@ using Newtonsoft.Json;
 
 namespace MapMemo.Core
 {
+    /// <summary>
+    /// メモのデータモデル
+    /// </summary>
     public class MemoEntry
     {
         public string key { get; set; }
         public string songName { get; set; }
         public string songAuthor { get; set; }
         public string memo { get; set; }
-        public DateTime updatedAt { get; set; } // UTC
+        public DateTime updatedAt { get; set; } // UTC（協定世界時）
     }
 
+    /// <summary>
+    /// メモの永続化（ファイルベース）を提供する静的ユーティリティクラス。
+    /// 将来的にはインターフェイス化して差し替え可能にできます。
+    /// </summary>
     public static class MemoRepository
     {
         private static readonly string UserDataDir = Path.Combine(Environment.CurrentDirectory, "UserData", "MapMemo");
 
+        /// <summary>
+        /// メモ保存用ディレクトリを作成します。
+        /// </summary>
         public static void EnsureDir()
         {
             if (!Directory.Exists(UserDataDir)) Directory.CreateDirectory(UserDataDir);
         }
 
+        /// <summary>
+        /// 未定義または空の文字列を 'unknown' に正規化します。
+        /// </summary>
         private static string NormalizeUnknown(string s)
         {
             if (string.IsNullOrWhiteSpace(s)) return "unknown";
@@ -34,6 +47,9 @@ namespace MapMemo.Core
             return trimmed;
         }
 
+        /// <summary>
+        /// key、songName、songAuthor からファイル名を構築します。
+        /// </summary>
         public static string BuildFileName(string key, string songName, string songAuthor)
         {
             // 空やnullを許容し、フォールバック名を用いる
@@ -49,6 +65,9 @@ namespace MapMemo.Core
             return Path.Combine(UserDataDir, $"{effectiveKey}({sanitizedName} - {sanitizedAuthor}).json");
         }
 
+        /// <summary>
+        /// ファイル名として不正な文字を安全な文字に置き換えます。
+        /// </summary>
         public static string SanitizeFileSegment(string s)
         {
             var invalid = new char[] { '\\', '/', ':', '*', '?', '"', '<', '>', '|' };
@@ -59,7 +78,9 @@ namespace MapMemo.Core
             return s;
         }
 
-        // 同期版ロード。UI スレッドでの利用を想定し、Show の同期表示に使います。
+        /// <summary>
+        /// 同期的にメモを読み込みます。UI スレッドでの同期表示に使用します。
+        /// </summary>
         public static MemoEntry Load(string key, string songName, string songAuthor)
         {
             EnsureDir();
@@ -81,6 +102,9 @@ namespace MapMemo.Core
             }
         }
 
+        /// <summary>
+        /// メモを非同期で保存します。メモが空文字の場合はファイルを削除します。
+        /// </summary>
         public static async Task SaveAsync(MemoEntry entry)
         {
             EnsureDir();

@@ -12,9 +12,13 @@ using System.Globalization;
 using System.IO;
 using MapMemo.UI.Menu;
 using MapMemo.Core;
+using MapMemo.UI.Common;
 
 namespace MapMemo.UI.Edit
 {
+    /// <summary>
+    /// メモ編集用のモーダルコントローラー。BSML のバインドとユーザー入力処理、サジェスト表示を担当します。
+    /// </summary>
     public class MemoEditModalController : BSMLAutomaticViewController
     {
         // 設定値
@@ -26,10 +30,10 @@ namespace MapMemo.UI.Edit
         public static MemoEditModalController Instance;
 
         // Shift 状態（true = 小文字モード）
-        public bool isShift = false;
+        public bool isShift { get; private set; } = false;
 
         // かなモード状態（true = カタカナ、false = ひらがな）
-        public bool isKanaMode = false;
+        public bool isKanaMode { get; private set; } = false;
 
         [UIValue("memo")] private string memo = "";
         [UIComponent("modal")] private ModalView modal;
@@ -43,6 +47,9 @@ namespace MapMemo.UI.Edit
         private InputKeyController keyController;
 
         private LevelContext levelContext;
+
+        [UIComponent("message")]
+        private TextMeshProUGUI message;
 
         // 辞書語リストは DictionaryManager が管理する
 
@@ -106,7 +113,7 @@ namespace MapMemo.UI.Edit
 
         // ApplyAlphaButtonCosmetics moved to MemoEditModalHelper.ApplyAlphaButtonCosmetics
         /// <summary>
-        /// モーダル表示
+        /// モーダルを表示します。指定の LevelContext に基づき該当メモをロードして表示します。
         /// </summary>
         /// <param name="parent">親パネルコントローラー</param>
         /// <param name="levelContext">メモのキー</param>
@@ -174,6 +181,9 @@ namespace MapMemo.UI.Edit
             keyController.SetupKeyClickListeners();
         }
 
+        /// <summary>
+        /// モーダルが有効化されたときに呼ばれます。ボタンラベルの更新等を行います。
+        /// </summary>
         private void OnEnable()
         {
             // モーダルが有効化されたときに呼ばれる
@@ -235,6 +245,9 @@ namespace MapMemo.UI.Edit
                 // 確定状態にする
                 InputHistoryManager.Instance.AddHistory(pendingText);
                 CommitMemo();
+
+                UIHelper.Instance.ShowTemporaryMessage(message,
+                    "<color=#00FFFF>Memo Saved.</color>");
                 await parentPanelLocal.Refresh();
                 MapMemo.Plugin.Log?.Info("MemoEditModal.OnSave: refreshing MemoPanelController");
 
@@ -251,6 +264,9 @@ namespace MapMemo.UI.Edit
         }
 
         [UIAction("on-cancel")]
+        /// <summary>
+        /// キャンセル時の処理（モーダルを非表示にする）。
+        /// </summary>
         public void OnCancel()
         {
             if (modal != null)
@@ -263,6 +279,9 @@ namespace MapMemo.UI.Edit
             }
         }
 
+        /// <summary>
+        /// モーダルを閉じる内部ユーティリティ。
+        /// </summary>
         private void DismissModal()
         {
             // 呼び出し側で明示的に閉じたい場合のみ使用。既定では閉じない。
@@ -276,7 +295,9 @@ namespace MapMemo.UI.Edit
             }
         }
 
-        // かなキーボードの入力処理
+        /// <summary>
+        /// かなキーボードやサジェスト選択から受け取った文字列を未確定入力として追加します。
+        /// </summary>
         private void AppendSelectedString(string s, string subText = null)
         {
             pendingText = "";
@@ -295,6 +316,9 @@ namespace MapMemo.UI.Edit
             CommitMemo();
         }
 
+        /// <summary>
+        /// 指定した文字列を現在の未確定テキストに追加します。入力制限（行数/文字数）を超えないように制御します。
+        /// </summary>
         public bool Append(string s, bool isSuggestUpdate = true)
         {
             if (string.IsNullOrEmpty(s)) return false;
@@ -344,6 +368,9 @@ namespace MapMemo.UI.Edit
             return true;
         }
 
+        /// <summary>
+        /// サジェストリストをクリアします。
+        /// </summary>
         private void ClearSuggestions()
         {
             if (suggestionController != null)
@@ -356,6 +383,9 @@ namespace MapMemo.UI.Edit
             suggestionList.TableView.ReloadData();
         }
 
+        /// <summary>
+        /// サジェスト候補を更新します。
+        /// </summary>
         private void UpdateSuggestions()
         {
             if (suggestionController != null)
@@ -370,6 +400,9 @@ namespace MapMemo.UI.Edit
         }
 
 
+        /// <summary>
+        /// 指定したテキストの最終行の長さをテキスト要素単位で計算して返します（ASCII 分割ルール適用）。
+        /// </summary>
         private double GetLastLineLength(string text)
         {
             if (string.IsNullOrEmpty(text)) return 0;
@@ -389,6 +422,9 @@ namespace MapMemo.UI.Edit
             return length;
         }
 
+        /// <summary>
+        /// 文字要素が ASCII アルファベットか判定します。
+        /// </summary>
         private static bool IsAsciiAlphabet(string textElement)
         {
             if (string.IsNullOrEmpty(textElement)) return false;
@@ -401,6 +437,9 @@ namespace MapMemo.UI.Edit
             return false;
         }
 
+        /// <summary>
+        /// テキストが最大行数を超えるかどうかを判定します。
+        /// </summary>
         private bool isOverMaxLine(string text, int maxLines)
         {
             var lines = text.Split(new[] { '\n' }, StringSplitOptions.None);
@@ -412,12 +451,19 @@ namespace MapMemo.UI.Edit
             return lines.Length + 1 > maxLines;
         }
 
+        /// <summary>
+        /// 現在の未確定テキストを装飾して返します。
+        /// </summary>
         private string GetPendingText()
         {
             return "<color=#FFFF00><u>" + pendingText + "</u></color>";
         }
 
         // FormatLocal and EditLabel moved to MemoEditModalHelper
+        /// <summary>
+        /// 履歴の最大件数を UI から変更されたときに呼ばれます。
+        /// 設定を保存し、InputHistoryManager に反映します。
+        /// </summary>
         [UIAction("on-history-max-count-change")]
         private void OnHistoryMaxCountChange(int value)
         {
@@ -428,6 +474,9 @@ namespace MapMemo.UI.Edit
             UpdateSuggestions();
         }
 
+        /// <summary>
+        /// 表示する履歴件数（候補数）を UI から変更されたときに呼ばれます。
+        /// </summary>
         [UIAction("on-history-show-count-change")]
         private void OnHistoryShowCountChange(int value)
         {
@@ -437,6 +486,9 @@ namespace MapMemo.UI.Edit
             UpdateSuggestions();
         }
 
+        /// <summary>
+        /// 履歴をクリアする UI 操作のハンドラ。
+        /// </summary>
         [UIAction("on-clear-history")]
         private void OnClearHistory()
         {
@@ -444,7 +496,14 @@ namespace MapMemo.UI.Edit
             UpdateSuggestions();
         }
 
+        /// <summary>
+        /// スペース入力ハンドラ（BSML action）。スペースを追加します。
+        /// </summary>
         [UIAction("on-char-space")] private void OnCharSpace() => Append(" ");
+
+        /// <summary>
+        /// バックスペース操作の処理。未確定文字を優先的に削除し、必要なら確定文字を削除します。
+        /// </summary>
         [UIAction("on-char-backspace")]
         private void OnCharBackspace()
         {
@@ -470,6 +529,9 @@ namespace MapMemo.UI.Edit
             UpdateSuggestions();
         }
 
+        /// <summary>
+        /// 文字列の最後のテキスト要素（結合文字を考慮）を削除して返します。
+        /// </summary>
         private static string RemoveLastTextElement(string text)
         {
             if (string.IsNullOrEmpty(text)) return text;
@@ -482,6 +544,9 @@ namespace MapMemo.UI.Edit
             return si.SubstringByTextElements(0, count - 1);
         }
 
+        /// <summary>
+        /// Shift ボタンのトグル処理（A〜Z ラベルの切替を行う）。
+        /// </summary>
         [UIAction("on-char-shift")]
         private void OnCharShift()
         {
@@ -489,6 +554,10 @@ namespace MapMemo.UI.Edit
             isShift = !isShift;
             keyController.UpdateAlphaButtonLabels(isShift);
         }
+
+        /// <summary>
+        /// かなモード切替処理（ひらがな/カタカナの切替）。
+        /// </summary>
         [UIAction("on-char-toggle-kana")]
         private void OnCharToggleKana()
         {
