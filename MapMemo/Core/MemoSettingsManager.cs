@@ -18,7 +18,7 @@ namespace MapMemo.Core
     {
         public static MemoSettingsManager Instance { get; private set; }
         private static readonly string SettingsPath = Path.Combine(
-            UnityGame.UserDataPath, "MapMemo", "_settings.json");
+            UnityGame.UserDataPath, "MapMemo", "#settings.json");
         private MemoSettingEntity settingsEntity { get; set; }
 
         public int HistoryMaxCount

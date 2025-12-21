@@ -30,7 +30,7 @@ namespace MapMemo.UI.Menu
         // 現在のレベルコンテキスト
         private LevelContext levelContext;
         // ペンアイコンテキスト
-        [UIComponent("pen-text")] private ClickableText penText;
+        [UIComponent("pen-text")] private ClickableText penText = null;
         // BSMLリソース名
         public string ResourceName => "MapMemo.Resources.MemoPanel.bsml";
 

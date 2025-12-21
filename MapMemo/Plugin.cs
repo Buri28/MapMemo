@@ -14,8 +14,7 @@ namespace MapMemo
         internal static Logger Log;
         // ログ出力の詳細化フラグ（デバッグ時のみ true にする）
         public static bool VerboseLogs = false;
-        // 診断情報を有効にするフラグ
-        public static bool Diagnostics = false;
+
         // LevelDetail にアタッチする際の優先挙動（AttachTo を優先するかどうか）
         // AttachTo が失敗した場合は SelectionHook が代替動作を行います。
 

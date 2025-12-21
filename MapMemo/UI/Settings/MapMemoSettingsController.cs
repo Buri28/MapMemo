@@ -22,7 +22,7 @@ namespace MapMemo.UI.Settings
         private static bool _tabAdded = false;
 
         [UIComponent("history-clear-message")]
-        private TextMeshProUGUI historyClearMessage;
+        private TextMeshProUGUI historyClearMessage = null;
 
         /// <summary>
         /// プロパティ変更を通知します。

@@ -106,10 +106,19 @@ namespace MapMemo.UI.Edit
             try
             {
                 if (ct == null) return;
-                var entry = MapMemo.Core.InputKeyManager.Instance?.FindForClickableTextEntry(ct);
+                var listener = ct.gameObject.GetComponent<InputKeyClickListener>();
+                var entry = listener.keyEntry;
+                if (entry != null)
+                {
+                    // すでに KeyEntry が設定されている場合は何もしない
+                    return;
+                }
+
+                entry = Core.InputKeyManager.Instance?.FindForClickableTextEntry(ct);
                 if (entry == null)
                 {
-                    // Plugin.Log?.Info($"ApplyKeyBindings: no KeyEntry found for ClickableText '{ct.gameObject.name}' with text '{ct.text}'");
+                    Plugin.Log?.Info($"ApplyKeyBindings: no KeyEntry found for ClickableText '{ct.gameObject.name}' with text '{ct.text}'");
+                    ct.text = "";
                     return;
                 }
 
@@ -128,7 +137,6 @@ namespace MapMemo.UI.Edit
                     ct.text = EditLabel(label);
                 }
                 // すでに登録されているリスナーに KeyEntry をセット
-                var listener = ct.gameObject.GetComponent<InputKeyClickListener>();
                 listener.SetKeyEntry(entry);
             }
             catch (Exception ex)
@@ -136,8 +144,6 @@ namespace MapMemo.UI.Edit
                 Plugin.Log?.Warn($"ApplyKeyBindings failed: {ex.Message}");
             }
         }
-
-
 
         /// <summary>
         /// A〜Z ボタンの大文字と小文字を切り替える
@@ -148,7 +154,7 @@ namespace MapMemo.UI.Edit
             try
             {
                 var comps = keys;
-                Plugin.Log?.Info("InputKeyController.UpdateAlphaButtonLabels: " + comps.Count() + " ClickableText components found under modal");
+                if (Plugin.VerboseLogs) Plugin.Log?.Info("InputKeyController.UpdateAlphaButtonLabels: " + comps.Count() + " ClickableText components found under modal");
                 foreach (var btn in comps)
                 {
                     try

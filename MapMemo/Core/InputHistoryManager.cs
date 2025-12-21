@@ -39,7 +39,7 @@ namespace MapMemo.Core
         public InputHistoryManager LoadHistory(string userDataDir)
         {
             Directory.CreateDirectory(userDataDir);
-            historyFilePath = Path.Combine(userDataDir, "_input_history.txt");
+            historyFilePath = Path.Combine(userDataDir, "#input_history.txt");
 
             LoadHistory();
 
@@ -47,11 +47,11 @@ namespace MapMemo.Core
         }
 
         /// <summary>
-        /// 静的メソッド: UserData/MapMemo/_input_history.txt を削除します。
+        /// 静的メソッド: UserData/MapMemo/#input_history.txt を削除します。
         /// </summary>
         public static void DeleteHistory()
         {
-            var path = Path.Combine("UserData", "MapMemo", "_input_history.txt");
+            var path = Path.Combine("UserData", "MapMemo", "#input_history.txt");
             if (File.Exists(path))
                 File.Delete(path);
 
