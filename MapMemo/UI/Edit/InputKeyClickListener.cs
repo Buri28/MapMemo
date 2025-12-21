@@ -13,9 +13,9 @@ namespace MapMemo.UI.Edit
     public class InputKeyClickListener : MonoBehaviour, IPointerClickHandler
     {
         /// <summary>ApplyKeyBindings により設定されるキーエントリ</summary>
-        public MapMemo.Core.InputKeyEntry keyEntry;
+        public Core.InputKeyEntry keyEntry;
         /// <summary>キーエントリを設定します。</summary>
-        public void SetKeyEntry(MapMemo.Core.InputKeyEntry entry) { this.keyEntry = entry; }
+        public void SetKeyEntry(Core.InputKeyEntry entry) { this.keyEntry = entry; }
 
         /// <summary>
         /// クリックイベントハンドラ。設定された KeyEntry または ClickableText のテキストを取得してモーダルに挿入します。
@@ -54,12 +54,11 @@ namespace MapMemo.UI.Edit
                     }
                 }
 
-                // // フォールバック: ClickableText.text
-                // if (string.IsNullOrEmpty(txt))
-                // {
-                //     var ct = GetComponent<ClickableText>();
-                //     if (ct != null) txt = ct.text.Trim().Replace("　", "");
-                // }
+                // KeyEntry が設定されていないか、テキストが空の場合は空文字を設定する
+                if (string.IsNullOrEmpty(txt))
+                {
+                    txt = "";
+                }
 
                 // ひらがな・カタカナ変換を行う
                 txt = MemoEditModalController.Instance.isKanaMode ?

@@ -23,7 +23,7 @@
         <!-- 英字キーボード -->
         <horizontal spacing="0.5"> <!-- 16-->
           <clickable-text text="literal-1" pref-width="6" pref-height="5"/>
-          <clickable-text text="literal-2" pref-width="6" pref-height="6"/>
+          <clickable-text text="literal-2" pref-width="6" pref-height="5"/>
           <clickable-text text="literal-3" pref-width="6" pref-height="5"/>
           <clickable-text text="literal-4" pref-width="6" pref-height="5"/>
           <clickable-text text="literal-5" pref-width="6" pref-height="5"/>
@@ -32,12 +32,12 @@
           <clickable-text text="literal-8" pref-width="6" pref-height="5"/>
           <clickable-text text="literal-9" pref-width="6" pref-height="5"/>
           <clickable-text text="literal-10" pref-width="6" pref-height="5"/>
-          <clickable-text text="literal-11" pref-width="6" pref-height="6"/>
-          <clickable-text text="literal-12" pref-width="6" pref-height="6"/>
-          <clickable-text text="literal-13" pref-width="6" pref-height="6"/>
-          <clickable-text text="literal-14" pref-width="6" pref-height="6"/>
-          <clickable-text text="literal-15" pref-width="6" pref-height="6"/>
-          <clickable-text text="literal-16" pref-width="6" pref-height="6"/>
+          <clickable-text text="literal-11" pref-width="6" pref-height="5"/>
+          <clickable-text text="literal-12" pref-width="6" pref-height="5"/>
+          <clickable-text text="literal-13" pref-width="6" pref-height="5"/>
+          <clickable-text text="literal-14" pref-width="6" pref-height="5"/>
+          <clickable-text text="literal-15" pref-width="6" pref-height="5"/>
+          <clickable-text text="literal-16" pref-width="6" pref-height="5"/>
           <button text="Back" on-click="on-char-backspace" pref-width="15" />
         </horizontal>
         <horizontal spacing="0.5"> <!-- 15-->
@@ -51,11 +51,10 @@
           <clickable-text text="literal-24" pref-width="6" pref-height="5"/>
           <clickable-text text="literal-25" pref-width="6" pref-height="5"/>
           <clickable-text text="literal-26" pref-width="6" pref-height="5"/>
-          <clickable-text text="literal-27" pref-width="6" pref-height="6"/>
-          <text text=" " pref-width="6" pref-height="6" /> 
-          <clickable-text text="literal-28" pref-width="6" pref-height="6"/>
-          <clickable-text text="literal-29" pref-width="6" pref-height="6"/>
-          <clickable-text text="literal-30" pref-width="6" pref-height="6"/>
+          <clickable-text text="literal-27" pref-width="6" pref-height="5"/>
+          <clickable-text text="literal-28" pref-width="6" pref-height="5"/>
+          <clickable-text text="literal-29" pref-width="6" pref-height="5"/>
+          <clickable-text text="literal-30" pref-width="6" pref-height="5"/>
           <button text="⏎Enter" on-click="on-char-enter" pref-height="10" pref-width="15" />
         </horizontal>
         <horizontal spacing="0.5"> <!-- 14-->
@@ -69,15 +68,15 @@
           <clickable-text text="literal-37" pref-width="6" pref-height="5"/>
           <clickable-text text="literal-38" pref-width="6" pref-height="5"/>
           <clickable-text text="literal-39" pref-width="6" pref-height="5"/>
-          <clickable-text text="literal-40" pref-width="6" pref-height="6"/>
-          <clickable-text text="literal-41" pref-width="6" pref-height="6"/>
-          <clickable-text text="literal-42" pref-width="6" pref-height="6"/>
-          <clickable-text text="literal-43" pref-width="6" pref-height="6"/>
-          <clickable-text text="literal-44" pref-width="6" pref-height="6"/>
+          <clickable-text text="literal-40" pref-width="6" pref-height="5"/>
+          <clickable-text text="literal-41" pref-width="6" pref-height="5"/>
+          <clickable-text text="literal-42" pref-width="6" pref-height="5"/>
+          <clickable-text text="literal-43" pref-width="6" pref-height="5"/>
+          <clickable-text text="literal-44" pref-width="6" pref-height="5"/>
           <button text="" pref-width="15" interactable="false" background-color="0,0,0,0"/>
         </horizontal>
         
-        <horizontal spacing="0.5"> <!-- 14-->
+        <horizontal spacing="0.5"> <!-- 13-->
           <text text="" pref-width="3" pref-height="5"/> 
           <clickable-text text="literal-45" pref-width="6" pref-height="5"/>
           <clickable-text text="literal-46" pref-width="6" pref-height="5"/>
@@ -90,16 +89,15 @@
           <clickable-text text="literal-53" pref-width="6" pref-height="5"/>
           <clickable-text text="literal-54" pref-width="6" pref-height="5"/>
           <clickable-text text="literal-55" pref-width="6" pref-height="5"/>
-          <clickable-text text="literal-56" pref-width="6" pref-height="5" />
-          <clickable-text text="literal-57" pref-width="6" pref-height="5"/>
+          <clickable-text text="literal-56" pref-width="6" pref-height="5"/>
+          <clickable-text text="literal-57" pref-width="6" pref-height="5" />
           <clickable-text text="literal-58" pref-width="6" pref-height="5"/>
           <button text="Shift" on-click="on-char-shift" pref-width="15" />
         </horizontal>
         <horizontal spacing="0.5"> <!-- 8 -->
           <!-- チルダはレイアウトが崩れるため対象外とする -->
-          <button text="Shift" on-click="on-char-shift" pref-width="15" />
+          <text text="" pref-width="2" pref-height="5"/> 
           <clickable-text text="literal-59" pref-width="6" pref-height="5"/>
-          <button text="" pref-width="12" interactable="false" background-color="0,0,0,0"/>
           <clickable-text text="literal-60" pref-width="6" pref-height="5"/>
           <clickable-text text="literal-61" pref-width="6" pref-height="5"/>
           <clickable-text text="literal-62" pref-width="6" pref-height="5"/>
@@ -107,9 +105,12 @@
           <clickable-text text="literal-64" pref-width="6" pref-height="5"/>
           <clickable-text text="literal-65" pref-width="6" pref-height="5"/>
           <clickable-text text="literal-66" pref-width="6" pref-height="5"/>
-          <clickable-text text="literal-67" pref-width="12" pref-height="5"/>
+          <clickable-text text="literal-67" pref-width="6" pref-height="5"/>
           <clickable-text text="literal-68" pref-width="6" pref-height="5"/>
           <clickable-text text="literal-69" pref-width="6" pref-height="5"/>
+          <clickable-text text="literal-70" pref-width="6" pref-height="5"/>
+          <clickable-text text="literal-71" pref-width="6" pref-height="5"/>
+          <clickable-text text="literal-72" pref-width="6" pref-height="5"/>
           <button text="Space" on-click="on-char-space" pref-width="15" />
         </horizontal>
       </vertical>
@@ -117,130 +118,127 @@
     <tab tags="keyboard-tabs" tab-name="あ/ア" child-align='TopCenter'>
       <vertical anchor-pos-y="0" anchor-pos-x="5">
         <horizontal spacing="0.5">
-        <!-- 左端: 小文字・長音列 → 濁点列（ぱ/ば/だ/ざ/が） → 基本行（わ→ら→や→ま→は→な→た→さ→か→あ） -->
-        <!-- 小文字・長音列 -->
-      <vertical spacing="0.5">
-        <clickable-text text="literal-70" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-71" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-72" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-73" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-74" pref-width="6" pref-height="5" />
-      </vertical>
-      <!-- 濁点・半濁音列 -->
-      <vertical spacing="0.5">
-        <clickable-text text="literal-75" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-76" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-77" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-78" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-79" pref-width="6" pref-height="5" />
-      </vertical>
-      <vertical spacing="0.5">
-        <clickable-text text="literal-80" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-81" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-82" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-83" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-84" pref-width="6" pref-height="5" />
-      </vertical>
-      <vertical spacing="0.5">
-        <clickable-text text="literal-85" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-86" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-87" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-88" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-89" pref-width="6" pref-height="5" />
-      </vertical>
-      <vertical spacing="0.5">
-        <clickable-text text="literal-90" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-91" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-92" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-93" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-94" pref-width="6" pref-height="5" />
-      </vertical>
-      <vertical spacing="0.5">
-        <clickable-text text="literal-95" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-96" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-97" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-98" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-99" pref-width="6" pref-height="5" />
-      </vertical>
-      <!-- 基本行: わ→ら→や→ま→は→な→た→さ→か→あ（右端） -->
-      <vertical spacing="0.5">
-        <clickable-text text="literal-100" pref-width="6" pref-height="5" />
-        <clickable-text text="　" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-102" pref-width="6" pref-height="5" />
-        <clickable-text text="　" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-104" pref-width="6" pref-height="5" />
-      </vertical>
-      <vertical spacing="0.5">
-        <clickable-text text="literal-105" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-106" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-107" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-108" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-109" pref-width="6" pref-height="5" />
-      </vertical>
-      <vertical spacing="0.5">
-        <clickable-text text="literal-110" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-111" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-112" pref-width="6" pref-height="5" />
-        <clickable-text text="　" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-114" pref-width="6" pref-height="5" />
-      </vertical>
-      <vertical spacing="0.5">
-        <clickable-text text="literal-115" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-116" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-117" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-118" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-119" pref-width="6" pref-height="5" />
-      </vertical>
-      <vertical spacing="0.5">
-        <clickable-text text="literal-120" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-121" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-122" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-123" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-124" pref-width="6" pref-height="5" />
-      </vertical>
-      <vertical spacing="0.5">
-        <clickable-text text="literal-125" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-126" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-127" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-128" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-129" pref-width="6" pref-height="5" />
-      </vertical>
-      <vertical spacing="0.5">
-        <clickable-text text="literal-130" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-131" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-132" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-133" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-134" pref-width="6" pref-height="5" />
-      </vertical>
-      <vertical spacing="0.5">
-        <clickable-text text="literal-135" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-136" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-137" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-138" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-139" pref-width="6" pref-height="5" />
-      </vertical>
-      <vertical spacing="0.5">
-        <clickable-text text="literal-140" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-141" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-142" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-143" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-144" pref-width="6" pref-height="5" />
-      </vertical>
-      <!-- 右端: あ行（無子音） -->
-      <vertical spacing="0.5">
-        <clickable-text text="literal-145" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-146" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-147" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-148" pref-width="6" pref-height="5" />
-        <clickable-text text="literal-149" pref-width="6" pref-height="5" />
-      </vertical>
-      <vertical spacing="0">
-        <button text="Back" on-click="on-char-backspace" pref-width="15" />
-        <button text="⏎Enter" on-click="on-char-enter" pref-height="10" pref-width="15" />
-        <button text="カナ"  on-click="on-char-toggle-kana" pref-width="15" />
-        <button text="Space" on-click="on-char-space" pref-width="15" />
-      </vertical>
-    </horizontal>
+          <vertical spacing="0.5">
+            <clickable-text text="literal-101" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-102" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-103" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-104" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-105" pref-width="6" pref-height="5" />
+          </vertical>
+          <!-- 濁点・半濁音列 -->
+          <vertical spacing="0.5">
+            <clickable-text text="literal-106" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-107" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-108" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-109" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-110" pref-width="6" pref-height="5" />
+          </vertical>
+          <vertical spacing="0.5">
+            <clickable-text text="literal-111" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-112" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-113" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-114" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-115" pref-width="6" pref-height="5" />
+          </vertical>
+          <vertical spacing="0.5">
+            <clickable-text text="literal-116" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-117" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-118" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-119" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-120" pref-width="6" pref-height="5" />
+          </vertical>
+          <vertical spacing="0.5">
+            <clickable-text text="literal-121" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-122" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-123" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-124" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-125" pref-width="6" pref-height="5" />
+          </vertical>
+          <vertical spacing="0.5">
+            <clickable-text text="literal-126" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-127" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-128" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-129" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-130" pref-width="6" pref-height="5" />
+          </vertical>
+          <vertical spacing="0.5">
+            <clickable-text text="literal-131" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-132" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-133" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-134" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-135" pref-width="6" pref-height="5" />
+          </vertical>
+          <vertical spacing="0.5">
+            <clickable-text text="literal-136" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-137" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-138" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-139" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-140" pref-width="6" pref-height="5" />
+          </vertical>
+          <vertical spacing="0.5">
+            <clickable-text text="literal-141" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-142" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-143" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-144" pref-width="6" pref-height="6"/>
+            <clickable-text text="literal-145" pref-width="6" pref-height="5" />
+          </vertical>
+          <vertical spacing="0.5">
+            <clickable-text text="literal-146" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-147" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-148" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-149" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-150" pref-width="6" pref-height="5" />
+          </vertical>
+          <vertical spacing="0.5">
+            <clickable-text text="literal-151" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-152" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-153" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-154" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-155" pref-width="6" pref-height="5" />
+          </vertical>
+          <vertical spacing="0.5">
+            <clickable-text text="literal-156" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-157" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-158" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-159" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-160" pref-width="6" pref-height="5" />
+          </vertical>
+          <vertical spacing="0.5">
+            <clickable-text text="literal-161" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-162" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-163" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-164" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-165" pref-width="6" pref-height="5" />
+          </vertical>
+          <vertical spacing="0.5">
+            <clickable-text text="literal-166" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-167" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-168" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-169" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-170" pref-width="6" pref-height="5" />
+          </vertical>
+          <vertical spacing="0.5">
+            <clickable-text text="literal-171" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-172" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-173" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-174" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-175" pref-width="6" pref-height="5" />
+          </vertical>
+          <!-- 右端: あ行（無子音） -->
+          <vertical spacing="0.5">
+            <clickable-text text="literal-176" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-177" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-178" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-179" pref-width="6" pref-height="5" />
+            <clickable-text text="literal-180" pref-width="6" pref-height="5" />
+          </vertical>
+          <vertical spacing="0">
+            <button text="Back" on-click="on-char-backspace" pref-width="15" />
+            <button text="⏎Enter" on-click="on-char-enter" pref-height="10" pref-width="15" />
+            <button text="カナ"  on-click="on-char-toggle-kana" pref-width="15" />
+            <button text="Space" on-click="on-char-space" pref-width="15" />
+          </vertical>
+        </horizontal>
       </vertical>
     </tab>
     <tab tags="keyboard-tabs" tab-name="🙂" child-align='TopCenter'>

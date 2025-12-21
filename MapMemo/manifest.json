@@ -2,7 +2,7 @@
     "id": "MapMemo",
     "name": "Map Memo",
     "author": "Buri",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "description": "Map selection notes per song with tooltip and edit UI",
     "gameVersion": "1.39.1",
     "dependsOn": {

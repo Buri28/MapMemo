@@ -32,7 +32,7 @@ namespace MapMemo.UI.Edit
         // バインド対象のプロパティ
         [UIValue("memo")] private string memo = "";
         // UI コンポーネント
-        [UIComponent("modal")] private ModalView modal;
+        [UIComponent("modal")] private ModalView modal = null;
         // メモ編集用テキストコンポーネント
         [UIComponent("memoText")] public TextMeshProUGUI memoText;
         // 確定済みテキスト
@@ -40,9 +40,9 @@ namespace MapMemo.UI.Edit
         // 未確定テキスト
         private string pendingText = "";
         // 最終更新日時表示コンポーネント
-        [UIComponent("last-updated")] private TextMeshProUGUI lastUpdated;
+        [UIComponent("last-updated")] private TextMeshProUGUI lastUpdated = null;
         // サジェストリストコンポーネント
-        [UIComponent("suggestion-list")] private CustomListTableData suggestionList;
+        [UIComponent("suggestion-list")] private CustomListTableData suggestionList = null;
         // サジェストリストコントローラー
         private SuggestionListController suggestionController;
         // 入力キーコントローラー
@@ -51,7 +51,7 @@ namespace MapMemo.UI.Edit
         private LevelContext levelContext;
         // メッセージ表示コンポーネント
         [UIComponent("message")]
-        private TextMeshProUGUI message;
+        private TextMeshProUGUI message = null;
 
         //// ◆画面初期表示関連メソッド Start ◆////
 
@@ -119,6 +119,8 @@ namespace MapMemo.UI.Edit
                 InputHistoryManager.Instance.LoadHistory(Path.Combine("UserData", "MapMemo"));
                 // キーバインド設定を読み込む (UserData に resource をコピーしてからロード)
                 InputKeyManager.Instance.Load(Path.Combine("UserData", "MapMemo"));
+                // ボタンの見た目を整えるヘルパーを呼び出す
+                Instance.keyController.InitializeAppearance(Instance.isShift);
             }
             // 必要なパラメータを設定 
             Instance.memo = existingMemoInfo?.memo ?? "";
@@ -133,10 +135,7 @@ namespace MapMemo.UI.Edit
                 Instance.confirmedText = Instance.memo;
                 Instance.pendingText = "";
             }
-
-            // ボタンの見た目を整えるヘルパーを呼び出す
-            Instance.keyController.InitializeAppearance(Instance.isShift);
-            // サジェストリストを初期化する
+            // サジェストリストを初期化
             Instance.suggestionController.Clear();
 
             return Instance;
@@ -190,8 +189,8 @@ namespace MapMemo.UI.Edit
             // モーダルが有効化されたときに呼ばれる
             if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoEditModal: OnEnable called");
 
-            // ボタンのラベルを更新する
-            keyController.UpdateAlphaButtonLabels(isShift);
+            // ボタンのラベルを更新する このタイミングではNullReferenceがでる
+            // keyController.UpdateAlphaButtonLabels(isShift);
         }
 
         //// ◆画面初期表示関連メソッド End ◆////
