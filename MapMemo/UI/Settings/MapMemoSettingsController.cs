@@ -18,18 +18,19 @@ namespace MapMemo.UI.Settings
     /// </summary>
     public class MapMemoSettingsController : MonoBehaviour, INotifyPropertyChanged
     {
-
         public event PropertyChangedEventHandler PropertyChanged;
-
-        protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
         private static bool _tabAdded = false;
 
         [UIComponent("history-clear-message")]
         private TextMeshProUGUI historyClearMessage;
+
+        /// <summary>
+        /// プロパティ変更を通知します。
+        /// </summary>
+        protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         /// <summary>
         /// 起動時に一度だけ呼ばれ、Mods タブに設定画面を追加します。
