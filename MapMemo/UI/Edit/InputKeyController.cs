@@ -31,8 +31,8 @@ namespace MapMemo.UI.Edit
                 if (string.IsNullOrEmpty(stored)) continue;
 
                 // Ensure a click listener component is present
-                var listener = btn.gameObject.GetComponent<KeyClickListener>() ??
-                    btn.gameObject.AddComponent<KeyClickListener>();
+                var listener = btn.gameObject.GetComponent<InputKeyClickListener>() ??
+                    btn.gameObject.AddComponent<InputKeyClickListener>();
                 listener.controller = MemoEditModalController.Instance;
             }
             Plugin.Log?.Info("KeyController.SetupKeyClickListeners: completed key listener setup");
@@ -127,7 +127,7 @@ namespace MapMemo.UI.Edit
                     ct.text = EditLabel(label);
                 }
                 // すでに登録されているリスナーに KeyEntry をセット
-                var listener = ct.gameObject.GetComponent<KeyClickListener>();
+                var listener = ct.gameObject.GetComponent<InputKeyClickListener>();
                 listener.controller = MemoEditModalController.Instance;
                 listener.SetKeyEntry(entry);
             }

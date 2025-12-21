@@ -5,7 +5,6 @@ using BeatSaberMarkupLanguage.ViewControllers;
 using System;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using TMPro;
 // Note: Avoid UnityEngine.UI dependency; use UnityEngine.Canvas explicitly
 using HMUI;
@@ -13,7 +12,6 @@ using System.Globalization;
 using System.IO;
 using MapMemo.UI.Menu;
 using MapMemo.Core;
-using BeatSaberMarkupLanguage.Parser;
 
 namespace MapMemo.UI.Edit
 {
@@ -27,9 +25,6 @@ namespace MapMemo.UI.Edit
         // モーダルのシングルトンインスタンス
         public static MemoEditModalController Instance;
 
-        // private string key;
-        // private string songName;
-        // private string songAuthor;
         // Shift 状態（true = 小文字モード）
         public bool isShift = false;
 

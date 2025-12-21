@@ -11,7 +11,7 @@ using System.Globalization;
 namespace MapMemo.Core
 {
     // Models for deserialization
-    public class KeyBindingsConfig
+    public class InputKeyBindingsConfig
     {
         public List<InputKeyEntry> keys { get; set; }
         public List<string> excluded { get; set; }
@@ -146,7 +146,7 @@ namespace MapMemo.Core
                 }
 
                 var json = File.ReadAllText(bindingsFilePath);
-                var cfg = JsonConvert.DeserializeObject<KeyBindingsConfig>(json);
+                var cfg = JsonConvert.DeserializeObject<InputKeyBindingsConfig>(json);
                 Keys = cfg?.keys ?? new List<InputKeyEntry>();
 
                 // parse excluded codepoints (strings like "0x1FA7B" or decimal)
@@ -172,7 +172,7 @@ namespace MapMemo.Core
                         CopyEmbeddedIfMissing(forceOverwrite: true);
                         // Retry load
                         var json2 = File.ReadAllText(bindingsFilePath);
-                        var cfg2 = JsonConvert.DeserializeObject<KeyBindingsConfig>(json2);
+                        var cfg2 = JsonConvert.DeserializeObject<InputKeyBindingsConfig>(json2);
                         Keys = cfg2?.keys ?? new List<InputKeyEntry>();
                         excludedRaw = cfg2?.excluded ?? new List<string>();
                         ExcludedCodePoints = new HashSet<int>(excludedRaw
