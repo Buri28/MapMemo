@@ -2,11 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using Newtonsoft.Json;
 using UnityEngine;
 using BeatSaberMarkupLanguage.Components;
-using System.Globalization;
 
 namespace MapMemo.Core
 {

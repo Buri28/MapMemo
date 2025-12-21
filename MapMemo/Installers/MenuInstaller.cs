@@ -1,7 +1,5 @@
 using MapMemo.Core;
-using MapMemo.UI;
 using MapMemo.UI.Common;
-using MapMemo.UI.Edit;
 using MapMemo.UI.Settings;
 using UnityEngine;
 using Zenject;
