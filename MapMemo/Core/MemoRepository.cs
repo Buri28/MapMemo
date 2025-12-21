@@ -118,7 +118,7 @@ namespace MapMemo.Core
                     if (File.Exists(path))
                     {
                         File.Delete(path);
-                        MapMemo.Plugin.Log?.Info($"MemoRepository.SaveAsync: Deleted file for empty memo path='{path}' key='{entry.key}'");
+                        if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoRepository.SaveAsync: Deleted file for empty memo path='{path}' key='{entry.key}'");
                     }
                 }
                 catch (Exception e)
@@ -129,7 +129,7 @@ namespace MapMemo.Core
             }
             entry.updatedAt = DateTime.UtcNow;
             var json = JsonConvert.SerializeObject(entry, Formatting.Indented);
-            MapMemo.Plugin.Log?.Info($"MemoRepository.SaveAsync: path='{path}' key='{entry.key}' song='{entry.songName}' author='{entry.songAuthor}'");
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoRepository.SaveAsync: path='{path}' key='{entry.key}' song='{entry.songName}' author='{entry.songAuthor}'");
             using (var sw = new StreamWriter(path, false, Encoding.UTF8))
             {
                 await sw.WriteAsync(json);

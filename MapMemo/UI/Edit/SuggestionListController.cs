@@ -16,17 +16,15 @@ namespace MapMemo.UI.Edit
     public class SuggestionListController
     {
         private readonly CustomListTableData suggestionList;
-        private int historyShowCount;
 
         /// <summary>
         /// サジェストが選択されたときに発火するイベント（value, subText）。
         /// </summary>
         public event Action<string, string> SuggestionSelected;
 
-        public SuggestionListController(CustomListTableData suggestionList, int historyShowCount)
+        public SuggestionListController(CustomListTableData suggestionList)
         {
             this.suggestionList = suggestionList ?? throw new ArgumentNullException(nameof(suggestionList));
-            this.historyShowCount = historyShowCount;
 
             this.suggestionList.CellSizeValue = 6f;
             this.suggestionList.ExpandCell = true;
@@ -121,8 +119,9 @@ namespace MapMemo.UI.Edit
         private void AddEmojiSuggestions(string search, HashSet<KeyValuePair<string, string>> already)
         {
             if (string.IsNullOrEmpty(search)) return;
+            if (!InputKeyManager.Instance.IsOnlyEmoji(search)) return;
 
-            Plugin.Log?.Info($"SuggestionListController: Adding emoji suggestions for '{search}'");
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"SuggestionListController: Adding emoji suggestions for '{search}'");
             var supportedEmojis = InputKeyManager.Instance.supportedEmojiMap;
             // 絵文字マップのキーに該当する場合は、そのキーに対する絵文字をすべて追加
             foreach (var kvp in supportedEmojis)
@@ -135,7 +134,7 @@ namespace MapMemo.UI.Edit
                     {
                         if (already.Add(new KeyValuePair<string, string>(key, emoji)))
                         {
-                            Plugin.Log?.Info($"Adding emoji suggestion: '{emoji}' for key '{key}'");
+                            if (Plugin.VerboseLogs) Plugin.Log?.Info($"Adding emoji suggestion: '{emoji}' for key '{key}'");
                             AddSuggestion(emoji, key);
                         }
                     }
@@ -149,6 +148,8 @@ namespace MapMemo.UI.Edit
         private void AddHistorySuggestions(string search, HashSet<KeyValuePair<string, string>> already)
         {
             var history = InputHistoryManager.Instance.historyList;
+            var historyShowCount = MemoSettingsManager.Instance.HistoryShowCount;
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"SuggestionListController: Adding history suggestions for '{search}' historyShowCount={historyShowCount}");
 
             var historyMatches = history
                 .AsEnumerable()
@@ -164,7 +165,7 @@ namespace MapMemo.UI.Edit
             {
                 if (already.Add(h))
                 {
-                    Plugin.Log?.Info($"Adding history suggestion: Key='{h.Key}', Value='{h.Value}'");
+                    if (Plugin.VerboseLogs) Plugin.Log?.Info($"Adding history suggestion: Key='{h.Key}', Value='{h.Value}'");
                     AddSuggestion(h.Value, h.Key);
                 }
             }
@@ -213,7 +214,7 @@ namespace MapMemo.UI.Edit
             {
                 if (already.Add(pair))
                 {
-                    Plugin.Log?.Info($"Adding dictionary suggestion: Key='{pair.Key}', Value='{pair.Value}'");
+                    if (Plugin.VerboseLogs) Plugin.Log?.Info($"Adding dictionary suggestion: Key='{pair.Key}', Value='{pair.Value}'");
                     AddSuggestion(pair.Value, pair.Key);
                 }
             }

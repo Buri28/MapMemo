@@ -49,7 +49,7 @@ namespace MapMemo.UI.Menu
             {
                 instance = BeatSaberUI.CreateViewController<MemoPanelController>();
 
-                Plugin.Log?.Info($"instance.gameObject = {instance?.gameObject}");
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"instance.gameObject = {instance?.gameObject}");
 
                 // 親に追加（ここでは view は既存の ViewController）
                 instance.transform.SetParent(view.transform, false);
@@ -76,8 +76,9 @@ namespace MapMemo.UI.Menu
                 child.anchoredPosition = new Vector2(14f, 13f); // 中央寄り
 
                 var parentRt = view.transform as RectTransform;
-                Plugin.Log?.Info($"Parent anchorMin: {parentRt.anchorMin}, anchorMax: {parentRt.anchorMax}, pivot: {parentRt.pivot}, sizeDelta: {parentRt.sizeDelta}");
-                Plugin.Log?.Info("MemoPanelController.GetInstance: Created new instance:" + isInstance());
+
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"Parent anchorMin: {parentRt.anchorMin}, anchorMax: {parentRt.anchorMax}, pivot: {parentRt.pivot}, sizeDelta: {parentRt.sizeDelta}");
+                if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanelController.GetInstance: Created new instance:" + isInstance());
             }
 
             instance.levelContext = levelContext;
@@ -92,7 +93,7 @@ namespace MapMemo.UI.Menu
         /// </summary>
         public void ParseBSML(string bsml, GameObject host)
         {
-            Plugin.Log?.Info("MemoPanelController: BSML parsed and attached to host '" + host.name + "'");
+            if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanelController: BSML parsed and attached to host '" + host.name + "'");
             BSMLParser.Instance.Parse(bsml, host, this);
         }
 
@@ -102,7 +103,7 @@ namespace MapMemo.UI.Menu
         [UIAction("on-edit-click")]
         public void OnEditClick()
         {
-            MapMemo.Plugin.Log?.Info($"MemoPanel: Edit click key='{levelContext.GetLevelId()}' song='{levelContext.GetSongName()}' author='{levelContext.GetSongAuthor()}'");
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoPanel: Edit click key='{levelContext.GetLevelId()}' song='{levelContext.GetSongName()}' author='{levelContext.GetSongAuthor()}'");
             MemoEditModalController.Show(instance, levelContext);
         }
 
@@ -127,7 +128,7 @@ namespace MapMemo.UI.Menu
         /// </summary>
         public Task Refresh()
         {
-            Plugin.Log?.Info($"MemoPanel: Refresh called for key='{levelContext.GetLevelId()}' song='{levelContext.GetSongName()}' author='{levelContext.GetSongAuthor()}'");
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoPanel: Refresh called for key='{levelContext.GetLevelId()}' song='{levelContext.GetSongName()}' author='{levelContext.GetSongAuthor()}'");
             // 同期ロードを使って確実に現在の Key に紐づくデータを取得する
             var entry = MemoRepository.Load(levelContext.GetLevelId(), levelContext.GetSongName(), levelContext.GetSongAuthor());
 
@@ -146,7 +147,7 @@ namespace MapMemo.UI.Menu
             layout.flexibleWidth = 0f;    // 自動伸縮を無効に
             if (entry == null)
             {
-                MapMemo.Plugin.Log?.Info("MemoPanel: No memo entry found for key='" + levelContext.GetLevelId() + "'");
+                if (Plugin.VerboseLogs) MapMemo.Plugin.Log?.Info("MemoPanel: No memo entry found for key='" + levelContext.GetLevelId() + "'");
                 penText.color = Color.cyan;
                 penText.faceColor = Color.cyan;
                 penText.HighlightColor = Color.green;
@@ -156,7 +157,7 @@ namespace MapMemo.UI.Menu
             }
             else
             {
-                MapMemo.Plugin.Log?.Info("MemoPanel: Memo entry found for key='" + levelContext.GetLevelId() + "'");
+                if (Plugin.VerboseLogs) MapMemo.Plugin.Log?.Info("MemoPanel: Memo entry found for key='" + levelContext.GetLevelId() + "'");
 
                 penText.text = "　📝";
                 penText.color = Color.yellow;

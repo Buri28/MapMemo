@@ -25,15 +25,15 @@ namespace MapMemo.UI.Patches
             var beatmapCharacteristicType = FindType("BeatmapCharacteristicSO", "DataModels");
             if (beatmapCharacteristicType == null)
             {
-                MapMemo.Plugin.Log?.Warn("ApplyPatches: BeatmapCharacteristicSO not found");
+                Plugin.Log?.Warn("ApplyPatches: BeatmapCharacteristicSO not found");
                 return;
             }
             var characteristicArrayType = beatmapCharacteristicType.MakeArrayType();
-            MapMemo.Plugin.Log?.Info($"ApplyPatches: Created BeatmapCharacteristicSO[] type: {characteristicArrayType.FullName}");
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"ApplyPatches: Created BeatmapCharacteristicSO[] type: {characteristicArrayType.FullName}");
 
             if (viewControllerType == null || beatmapLevelType == null || difficultyMaskType == null || characteristicArrayType == null)
             {
-                MapMemo.Plugin.Log?.Warn("ApplyPatches: type not found");
+                Plugin.Log?.Warn("ApplyPatches: type not found");
                 return;
             }
 
@@ -49,7 +49,7 @@ namespace MapMemo.UI.Patches
                         parameters[0].ParameterType.Name == "BeatmapLevelPack" &&
                         parameters[1].ParameterType.Name == "BeatmapLevel")
                     {
-                        MapMemo.Plugin.Log?.Info($"Patching SetData overload: {method}");
+                        if (Plugin.VerboseLogs) MapMemo.Plugin.Log?.Info($"Patching SetData overload: {method}");
 
                         var postfix = new HarmonyMethod(typeof(StandardLevelDetailViewController_SetData_Patch)
                             .GetMethod("Postfix", BindingFlags.Static | BindingFlags.Public));
@@ -58,7 +58,7 @@ namespace MapMemo.UI.Patches
                     }
                 }
             }
-            MapMemo.Plugin.Log?.Info("ApplyPatches: end");
+            if (Plugin.VerboseLogs) Plugin.Log?.Info("ApplyPatches: end");
         }
 
         /// <summary>
@@ -78,11 +78,11 @@ namespace MapMemo.UI.Patches
                 var type = asm.GetTypes().FirstOrDefault(t => t.Name == typeName);
                 if (type != null)
                 {
-                    MapMemo.Plugin.Log?.Info($"Found type '{typeName}' in assembly: {asm.FullName}");
+                    if (Plugin.VerboseLogs) Plugin.Log?.Info($"Found type '{typeName}' in assembly: {asm.FullName}");
                     return type;
                 }
             }
-            MapMemo.Plugin.Log?.Warn($"Type '{typeName}' not found");
+            Plugin.Log?.Warn($"Type '{typeName}' not found");
             return null;
         }
     }

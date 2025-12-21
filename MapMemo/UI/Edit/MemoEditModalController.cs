@@ -21,11 +21,6 @@ namespace MapMemo.UI.Edit
     /// </summary>
     public class MemoEditModalController : BSMLAutomaticViewController
     {
-        // 設定値
-        private static MapMemo.Core.MemoSettingsManager settings = MapMemo.Core.MemoSettingsManager.Load();
-        [UIValue("historyMaxCount")] private int historyMaxCount = settings.HistoryMaxCount;
-        [UIValue("historyShowCount")] private int historyShowCount = settings.HistoryShowCount;
-
         // モーダルのシングルトンインスタンス
         public static MemoEditModalController Instance;
 
@@ -34,26 +29,64 @@ namespace MapMemo.UI.Edit
 
         // かなモード状態（true = カタカナ、false = ひらがな）
         public bool isKanaMode { get; private set; } = false;
-
+        // バインド対象のプロパティ
         [UIValue("memo")] private string memo = "";
+        // UI コンポーネント
         [UIComponent("modal")] private ModalView modal;
+        // メモ編集用テキストコンポーネント
         [UIComponent("memoText")] public TextMeshProUGUI memoText;
+        // 確定済みテキスト
         private string confirmedText = "";
+        // 未確定テキスト
         private string pendingText = "";
+        // 最終更新日時表示コンポーネント
         [UIComponent("last-updated")] private TextMeshProUGUI lastUpdated;
-
+        // サジェストリストコンポーネント
         [UIComponent("suggestion-list")] private CustomListTableData suggestionList;
+        // サジェストリストコントローラー
         private SuggestionListController suggestionController;
+        // 入力キーコントローラー
         private InputKeyController keyController;
-
+        // レベルコンテキスト(マップ情報)
         private LevelContext levelContext;
-
+        // メッセージ表示コンポーネント
         [UIComponent("message")]
         private TextMeshProUGUI message;
 
-        // 辞書語リストは DictionaryManager が管理する
-
         //// ◆画面初期表示関連メソッド Start ◆////
+
+        /// <summary>
+        /// モーダルを表示します。指定の LevelContext に基づき該当メモをロードして表示します。
+        /// </summary>
+        /// <param name="parent">親パネルコントローラー</param>
+        /// <param name="levelContext">メモのキー</param>
+        public static void Show(
+            MemoPanelController parent, LevelContext levelContext)
+        {
+            if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoEditModal.Show: called");
+            // 既存のメモを読み込む (LevelContext を使用してキー/曲情報を解決)
+            var key = levelContext.GetLevelId();
+            var songName = levelContext.GetSongName();
+            var songAuthor = levelContext.GetSongAuthor();
+            var existingMemoInfo = MemoRepository.Load(key, songName, songAuthor);
+
+            // モーダルのインスタンスを取得する
+            var modalCtrl = GetInstance(existingMemoInfo, parent, levelContext);
+
+            // 表示は既にバインド済みの modal を利用して行う
+            try
+            {
+                var modalStatus = ReferenceEquals(modalCtrl.modal, null) ? "modal=null" : "modal!=null";
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.Show: showing modal {modalStatus}");
+                modalCtrl.modal?.Show(true, true);
+                // 画面の左側半分あたりに表示するように位置調整
+                MemoEditModalHelper.RepositionModalToLeftHalf(modalCtrl.modal);
+            }
+            catch (System.Exception ex)
+            {
+                Plugin.Log?.Warn($"MemoEditModal.Show: ModalView.Show failed: {ex.Message}; modal may not be visible");
+            }
+        }
 
         /// <summary>
         /// モーダルのインスタンスを取得または生成する
@@ -64,29 +97,30 @@ namespace MapMemo.UI.Edit
         /// <param name="songName"></param>
         /// <param name="songAuthor"></param>
         /// <returns></returns>
-        public static MemoEditModalController GetInstance(
+        private static MemoEditModalController GetInstance(
             MemoEntry existingMemoInfo,
             MemoPanelController parent,
             LevelContext levelContext)
         {
             if (ReferenceEquals(Instance, null))
             {
-                Plugin.Log?.Info("MemoEditModal.GetInstance: creating new modal instance");
+                if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoEditModal.GetInstance: creating new modal instance");
                 // インスタンスを生成
                 Instance = BeatSaberUI.CreateViewController<MemoEditModalController>();
-
+                // BSML をパースしてモーダルにアタッチする
                 Instance.ParseBSML(
                     Utilities.GetResourceContent(
                         typeof(MemoEditModalController).Assembly,
                         "MapMemo.Resources.MemoEdit.bsml"),
                         parent.HostGameObject);
-                // 初回のみ辞書ファイルと入力履歴ファイルを読み込み
+                // 辞書ファイルを読み込む
                 DictionaryManager.Instance.Load(Path.Combine("UserData", "MapMemo"));
-                InputHistoryManager.Instance.LoadHistory(Path.Combine("UserData", "MapMemo"), settings.HistoryMaxCount);
+                // 入力履歴ファイルを読み込む
+                InputHistoryManager.Instance.LoadHistory(Path.Combine("UserData", "MapMemo"));
                 // キーバインド設定を読み込む (UserData に resource をコピーしてからロード)
                 InputKeyManager.Instance.Load(Path.Combine("UserData", "MapMemo"));
             }
-            // 必要なパラメータを設定 (LevelContext を使用)
+            // 必要なパラメータを設定 
             Instance.memo = existingMemoInfo?.memo ?? "";
             Instance.lastUpdated.text = existingMemoInfo != null ? "Updated:" + MemoEditModalHelper.FormatLocal(existingMemoInfo.updatedAt) : "";
             Instance.levelContext = levelContext;
@@ -105,72 +139,39 @@ namespace MapMemo.UI.Edit
             // サジェストリストを初期化する
             Instance.suggestionController.Clear();
 
-            // 使える絵文字をログ出力
-            // MemoEditModalHelper.WriteDebugLog("MemoEditModal.GetInstance: Available emojis:");
-
             return Instance;
         }
 
-        // ApplyAlphaButtonCosmetics moved to MemoEditModalHelper.ApplyAlphaButtonCosmetics
         /// <summary>
-        /// モーダルを表示します。指定の LevelContext に基づき該当メモをロードして表示します。
+        /// BSML をパースしてモーダルにアタッチします。
         /// </summary>
-        /// <param name="parent">親パネルコントローラー</param>
-        /// <param name="levelContext">メモのキー</param>
-        public static void Show(
-            MemoPanelController parent, LevelContext levelContext)
-        {
-            // 既存のメモを読み込む (LevelContext を使用してキー/曲情報を解決)
-            var key = levelContext?.GetLevelId() ?? "unknown";
-            var songName = levelContext?.GetSongName() ?? "unknown";
-            var songAuthor = levelContext?.GetSongAuthor() ?? "unknown";
-
-            var existingMemoInfo = MemoRepository.Load(key, songName, songAuthor);
-            var modalCtrl = MemoEditModalController.GetInstance(
-                existingMemoInfo, parent, levelContext);
-
-            Plugin.Log?.Info("MemoEditModal.Show: reusing existing parsed modal instance");
-            // 表示は既にバインド済みの modal を利用して行う
-            try
-            {
-                var modalStatus = ReferenceEquals(modalCtrl.modal, null) ? "modal=null" : "modal!=null";
-                var msg = $"MemoEditModal.Show: showing modal {modalStatus}";
-                Plugin.Log?.Info(msg);
-                modalCtrl.modal?.Show(true, true);
-                // 画面の左側半分あたりに表示するように位置調整
-                MemoEditModalHelper.RepositionModalToLeftHalf(modalCtrl.modal);
-            }
-            catch (System.Exception ex)
-            {
-                Plugin.Log?.Warn($"MemoEditModal.Show: ModalView.Show failed: {ex.Message}; modal may not be visible");
-            }
-        }
-
-        // 辞書の読み込みと検索は DictionaryManager に委譲
-
-        /// BSMLをパースする
-        public void ParseBSML(string bsml, GameObject host)
+        /// <param name="bsml"></param>
+        /// <param name="host"></param>
+        private void ParseBSML(string bsml, GameObject host)
         {
             BSMLParser.Instance.Parse(bsml, host, this);
             var hostName = host?.name ?? "(null)";
             var modalStatus = ReferenceEquals(modal, null) ? "modal=null" : "modal!=null";
-            Plugin.Log?.Info($"MemoEditModal: BSML parsed and attached to host '{hostName}' {modalStatus}");
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal: BSML parsed and attached to host '{hostName}' {modalStatus}");
         }
 
+        /// <summary>
+        /// BSML パース後の初期化処理。キーコントローラーとサジェストリストコントローラーをセットアップします。
+        /// </summary>
         [UIAction("#post-parse")]
         private void OnPostParse()
         {
-            Plugin.Log?.Info("MemoEditModal: OnPostParse called — setting up pick list");
+            if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoEditModal: OnPostParse called — setting up pick list");
 
             keyController = new InputKeyController(
                 modal.gameObject.GetComponentsInChildren<ClickableText>(true),
                 modal.gameObject.GetComponentsInChildren<TextMeshProUGUI>(true)
             );
 
-            suggestionController = new SuggestionListController(suggestionList, historyShowCount);
+            suggestionController = new SuggestionListController(suggestionList);
             suggestionController.SuggestionSelected += (value, subtext) =>
             {
-                Plugin.Log?.Info($"選択されたのは: {value}");
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"SuggestList selected: {value}");
 
                 if (string.IsNullOrEmpty(value)) return;
                 AppendSelectedString(value, subtext);
@@ -187,18 +188,17 @@ namespace MapMemo.UI.Edit
         private void OnEnable()
         {
             // モーダルが有効化されたときに呼ばれる
-            Plugin.Log?.Info("MemoEditModal: OnEnable called");
+            if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoEditModal: OnEnable called");
 
             // ボタンのラベルを更新する
             keyController.UpdateAlphaButtonLabels(isShift);
         }
-        // RepositionModalToLeftHalf moved to MemoEditModalHelper.RepositionModalToLeftHalf
 
-        // Shift 切替時はラベルの差し替えだけ行う（スタイルは既に適用済みの前提）
-        // UpdateAlphaButtonLabels moved to MemoEditModalHelper.UpdateAlphaButtonLabels
         //// ◆画面初期表示関連メソッド End ◆////
 
-        /// 確定処理
+        /// <summary>
+        /// 未確定テキストを確定します。
+        /// </summary>
         private void CommitMemo()
         {
             // 確定処理
@@ -213,19 +213,24 @@ namespace MapMemo.UI.Edit
             }
         }
 
+        /// <summary>
+        /// メモ表示テキストを更新します。
+        /// </summary>
         private void UpdateMemoText(string memoValue)
         {
             memoText.text = memoValue.Replace("\n", "↲\n");
             memoText.ForceMeshUpdate();
         }
-
+        /// <summary>
+        /// 保存ボタン押下時の処理。メモを保存して親パネルを更新します。
+        /// </summary>
         [UIAction("on-save")]
         public async void OnSave()
         {
             try
             {
                 var text = confirmedText + pendingText ?? "";
-                //if (text.Length > 256) text = text.Substring(0, 256);
+
                 var entry = new MemoEntry
                 {
                     key = levelContext.GetLevelId(),
@@ -233,24 +238,24 @@ namespace MapMemo.UI.Edit
                     songAuthor = levelContext.GetSongAuthor(),
                     memo = text
                 };
-                Plugin.Log?.Info($"MemoEditModal.OnSave: key='{entry.key}' song='{entry.songName}' author='{entry.songAuthor}' len={text.Length}");
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnSave: key='{entry.key}' song='{entry.songName}' author='{entry.songAuthor}' len={text.Length}");
                 lastUpdated.text = MemoEditModalHelper.FormatLocal(DateTime.UtcNow);
 
+                // 非同期で保存
                 await MemoRepository.SaveAsync(entry);
-                // 表示更新（transform未参照で安全にフォールバック）
-                // var parentPanelLocal = this.parentPanel ?? MemoPanelController.instance;
 
                 // 親パネルの反映
                 var parentPanelLocal = MemoPanelController.instance;
+
                 // 確定状態にする
                 InputHistoryManager.Instance.AddHistory(pendingText);
                 CommitMemo();
 
-                UIHelper.Instance.ShowTemporaryMessage(message,
-                    "<color=#00FFFF>Memo Saved.</color>");
+                // 保存完了メッセージを表示
+                UIHelper.Instance.ShowTemporaryMessage(
+                    message, "<color=#00FF00>Memo Saved.</color>");
+                // 親パネルを更新
                 await parentPanelLocal.Refresh();
-                MapMemo.Plugin.Log?.Info("MemoEditModal.OnSave: refreshing MemoPanelController");
-
             }
             catch (System.Exception ex)
             {
@@ -259,7 +264,7 @@ namespace MapMemo.UI.Edit
             finally
             {
                 // モーダルは閉じずに編集を継続できるようにする
-                MapMemo.Plugin.Log?.Info("MemoEditModal.OnSave: keeping modal open after save");
+                if (Plugin.VerboseLogs) MapMemo.Plugin.Log?.Info("MemoEditModal.OnSave: keeping modal open after save");
             }
         }
 
@@ -317,7 +322,8 @@ namespace MapMemo.UI.Edit
         }
 
         /// <summary>
-        /// 指定した文字列を現在の未確定テキストに追加します。入力制限（行数/文字数）を超えないように制御します。
+        /// 指定した文字列を現在の未確定テキストに追加します。
+        /// 入力制限（行数/文字数）を超えないように制御します。
         /// </summary>
         public bool Append(string s, bool isSuggestUpdate = true)
         {
@@ -326,7 +332,7 @@ namespace MapMemo.UI.Edit
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.Append: add='{s}' len-before={memo.Length}");
 
             // 未確定文字を削除して確定文字に設定
-            confirmedText = memo.Replace(GetPendingText(), "");
+            this.confirmedText = memo.Replace(GetPendingText(), "");
 
             int maxLines = 3;
             int maxCharsPerLine = 20;
@@ -341,7 +347,7 @@ namespace MapMemo.UI.Edit
 
             if (GetLastLineLength(confirmedText + pendingText + s) > maxCharsPerLine)
             {
-                // 3文字超過する場合、改行も追加もしない
+                // 3行超過する場合、改行も追加もしない
                 if (isOverMaxLine(confirmedText + pendingText + s, maxLines))
                 {
                     return false;
@@ -350,21 +356,24 @@ namespace MapMemo.UI.Edit
                 s = "\n" + s;
             }
             // 未確定文字列に追加
-            pendingText += s;
+            this.pendingText += s;
+            // 表示用テキストを更新
+            this.memo = confirmedText + GetPendingText();
 
-            memo = confirmedText + GetPendingText();
-
+            // サジェストリストを更新
             if (isSuggestUpdate)
             {
                 UpdateSuggestions();
             }
-
-            if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.Append: len-after={memo.Length}");
+            // プロパティ変更通知
             NotifyPropertyChanged("memo");
+
+            // テキストコンポーネントを更新
             if (memoText != null)
             {
                 UpdateMemoText(memo);
             }
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.Append: len-after={memo.Length}");
             return true;
         }
 
@@ -416,25 +425,10 @@ namespace MapMemo.UI.Edit
             {
                 var elem = enumerator.GetTextElement();
                 // ASCII のアルファベットのみを半分扱いにする
-                length += IsAsciiAlphabet(elem) ? 0.5 : 1.0;
+                length += StringHelper.IsAsciiAlphabet(elem) ? 0.5 : 1.0;
             }
 
             return length;
-        }
-
-        /// <summary>
-        /// 文字要素が ASCII アルファベットか判定します。
-        /// </summary>
-        private static bool IsAsciiAlphabet(string textElement)
-        {
-            if (string.IsNullOrEmpty(textElement)) return false;
-            if (textElement.Length == 1)
-            {
-                var c = textElement[0];
-                return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
-            }
-            // 複数文字（結合文字など）はアルファベット扱いしない
-            return false;
         }
 
         /// <summary>
@@ -457,43 +451,6 @@ namespace MapMemo.UI.Edit
         private string GetPendingText()
         {
             return "<color=#FFFF00><u>" + pendingText + "</u></color>";
-        }
-
-        // FormatLocal and EditLabel moved to MemoEditModalHelper
-        /// <summary>
-        /// 履歴の最大件数を UI から変更されたときに呼ばれます。
-        /// 設定を保存し、InputHistoryManager に反映します。
-        /// </summary>
-        [UIAction("on-history-max-count-change")]
-        private void OnHistoryMaxCountChange(int value)
-        {
-            historyMaxCount = value;
-            settings.HistoryMaxCount = value;
-            settings.Save();
-            InputHistoryManager.Instance.SetMaxHistoryCount(value);
-            UpdateSuggestions();
-        }
-
-        /// <summary>
-        /// 表示する履歴件数（候補数）を UI から変更されたときに呼ばれます。
-        /// </summary>
-        [UIAction("on-history-show-count-change")]
-        private void OnHistoryShowCountChange(int value)
-        {
-            historyShowCount = value;
-            settings.HistoryShowCount = value;
-            settings.Save();
-            UpdateSuggestions();
-        }
-
-        /// <summary>
-        /// 履歴をクリアする UI 操作のハンドラ。
-        /// </summary>
-        [UIAction("on-clear-history")]
-        private void OnClearHistory()
-        {
-            InputHistoryManager.Instance.ClearHistory();
-            UpdateSuggestions();
         }
 
         /// <summary>

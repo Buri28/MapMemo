@@ -43,7 +43,7 @@ namespace MapMemo.UI.Edit
                     }
                     var current = rt.anchoredPosition;
                     rt.anchoredPosition = new Vector2(current.x + offsetX, current.y);
-                    MapMemo.Plugin.Log?.Info($"MemoEditModal.RepositionModalToLeftHalf: shifted modal anchoredPosition by {offsetX} (newX={rt.anchoredPosition.x})");
+                    if (MapMemo.Plugin.VerboseLogs) MapMemo.Plugin.Log?.Info($"MemoEditModal.RepositionModalToLeftHalf: shifted modal anchoredPosition by {offsetX} (newX={rt.anchoredPosition.x})");
                 }
             }
             catch (Exception ex)
