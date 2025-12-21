@@ -1,13 +1,6 @@
 using System;
-using System.Linq;
 using UnityEngine;
-using TMPro;
 using HMUI;
-using UnityEngine.UI;
-using BeatSaberMarkupLanguage.Components;
-using System.Globalization;
-using System.Collections.Generic;
-using System.IO;
 
 namespace MapMemo.UI.Edit
 {

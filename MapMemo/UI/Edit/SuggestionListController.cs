@@ -1,12 +1,10 @@
 using System;
-using System.Text;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using BeatSaberMarkupLanguage.Components;
 using HMUI;
 using MapMemo.Core;
-using TMPro;
 
 namespace MapMemo.UI.Edit
 {
