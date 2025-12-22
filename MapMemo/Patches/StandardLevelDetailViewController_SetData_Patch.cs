@@ -1,8 +1,8 @@
-using MapMemo.Core;
+using MapMemo.UI;
 using MapMemo.Patches;
 using System.Reflection;
 
-namespace MapMemo.UI.Patches
+namespace MapMemo.Patches
 {
 
     /// <summary>

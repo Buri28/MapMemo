@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.GameplaySetup;
-using MapMemo.Core;
+using MapMemo.Services;
 using MapMemo.UI.Common;
 using TMPro;
 using UnityEngine;

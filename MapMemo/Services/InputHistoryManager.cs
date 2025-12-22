@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 
-namespace MapMemo.Core
+namespace MapMemo.Services
 {
     /// <summary>
     /// 入力履歴を管理し、ファイルへの保存と読み込みを提供する MonoBehaviour シングルトン。

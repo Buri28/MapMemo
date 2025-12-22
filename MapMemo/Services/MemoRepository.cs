@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace MapMemo.Core
+namespace MapMemo.Services
 {
     /// <summary>
     /// メモのデータモデル

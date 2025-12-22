@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 using UnityEngine;
 using BeatSaberMarkupLanguage.Components;
 
-namespace MapMemo.Core
+namespace MapMemo.Services
 {
     /// <summary>
     /// デシリアライズ用の設定モデル（キー割当と除外コードポイント）。
@@ -394,7 +394,7 @@ namespace MapMemo.Core
             // 可能であれば KeyManager の除外リスト（JSON）を優先し、無ければ組み込みのリストを利用します。
             try
             {
-                var km = MapMemo.Core.InputKeyManager.Instance;
+                var km = InputKeyManager.Instance;
                 if (km != null && km.ExcludedCodePoints != null && km.ExcludedCodePoints.Count > 0)
                 {
                     return !km.ExcludedCodePoints.Contains(codePoint);

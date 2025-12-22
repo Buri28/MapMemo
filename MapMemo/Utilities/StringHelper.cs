@@ -1,6 +1,6 @@
 
 
-namespace MapMemo.UI.Common
+namespace MapMemo.Utilities
 {
     public static class StringHelper
     {

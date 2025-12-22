@@ -10,8 +10,11 @@ using HMUI;
 using System.Globalization;
 using System.IO;
 using MapMemo.UI.Menu;
-using MapMemo.Core;
+using MapMemo.Utilities;
+using MapMemo.Patches;
+using MapMemo.Services;
 using MapMemo.UI.Common;
+using Zenject;
 
 namespace MapMemo.UI.Edit
 {
@@ -43,14 +46,18 @@ namespace MapMemo.UI.Edit
         // サジェストリストコンポーネント
         [UIComponent("suggestion-list")] private CustomListTableData suggestionList = null;
         // サジェストリストコントローラー
-        private SuggestionListController suggestionController;
+        private SuggestionListHandler suggestionController;
         // 入力キーコントローラー
-        private InputKeyController keyController;
+        private InputKeyHandler keyController;
         // レベルコンテキスト(マップ情報)
         private LevelContext levelContext;
         // メッセージ表示コンポーネント
         [UIComponent("message")]
         private TextMeshProUGUI message = null;
+
+        [Inject]
+        private MemoEditModalService memoEditModalService = null;
+
 
         //// ◆画面初期表示関連メソッド Start ◆////
 
@@ -79,7 +86,7 @@ namespace MapMemo.UI.Edit
                 if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.Show: showing modal {modalStatus}");
                 modalCtrl.modal?.Show(true, true);
                 // 画面の左側半分あたりに表示するように位置調整
-                MemoEditModalHelper.RepositionModalToLeftHalf(modalCtrl.modal);
+                modalCtrl.memoEditModalService.RepositionModalToLeftHalf(modalCtrl.modal);
             }
             catch (System.Exception ex)
             {
@@ -108,7 +115,7 @@ namespace MapMemo.UI.Edit
                 Instance = BeatSaberUI.CreateViewController<MemoEditModalController>();
                 // BSML をパースしてモーダルにアタッチする
                 Instance.ParseBSML(
-                    Utilities.GetResourceContent(
+                    BeatSaberMarkupLanguage.Utilities.GetResourceContent(
                         typeof(MemoEditModalController).Assembly,
                         "MapMemo.Resources.MemoEdit.bsml"),
                         parent.HostGameObject);
@@ -123,7 +130,8 @@ namespace MapMemo.UI.Edit
             }
             // 必要なパラメータを設定 
             Instance.memo = existingMemoInfo?.memo ?? "";
-            Instance.lastUpdated.text = existingMemoInfo != null ? "Updated:" + MemoEditModalHelper.FormatLocal(existingMemoInfo.updatedAt) : "";
+            Instance.lastUpdated.text = existingMemoInfo != null ?
+                "Updated:" + Instance.memoEditModalService.FormatLocal(existingMemoInfo.updatedAt) : "";
             Instance.levelContext = levelContext;
 
             // メモ内容を初期化
@@ -161,12 +169,12 @@ namespace MapMemo.UI.Edit
         {
             if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoEditModal: OnPostParse called — setting up pick list");
 
-            keyController = new InputKeyController(
+            keyController = new InputKeyHandler(
                 modal.gameObject.GetComponentsInChildren<ClickableText>(true),
                 modal.gameObject.GetComponentsInChildren<TextMeshProUGUI>(true)
             );
 
-            suggestionController = new SuggestionListController(suggestionList);
+            suggestionController = new SuggestionListHandler(suggestionList);
             suggestionController.SuggestionSelected += (value, subtext) =>
             {
                 if (Plugin.VerboseLogs) Plugin.Log?.Info($"SuggestList selected: {value}");
@@ -237,7 +245,7 @@ namespace MapMemo.UI.Edit
                     memo = text
                 };
                 if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnSave: key='{entry.key}' song='{entry.songName}' author='{entry.songAuthor}' len={text.Length}");
-                lastUpdated.text = MemoEditModalHelper.FormatLocal(DateTime.UtcNow);
+                lastUpdated.text = memoEditModalService.FormatLocal(DateTime.UtcNow);
 
                 // 非同期で保存
                 await MemoRepository.SaveAsync(entry);

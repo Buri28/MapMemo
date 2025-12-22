@@ -4,14 +4,14 @@ using System.Globalization;
 using System.Linq;
 using BeatSaberMarkupLanguage.Components;
 using HMUI;
-using MapMemo.Core;
+using MapMemo.UI;
 
-namespace MapMemo.UI.Edit
+namespace MapMemo.Services
 {
     /// <summary>
     /// サジェストリストの UI と関連ロジックを管理するヘルパー。
     /// </summary>
-    public class SuggestionListController
+    public class SuggestionListHandler
     {
         private readonly CustomListTableData suggestionList;
 
@@ -20,7 +20,7 @@ namespace MapMemo.UI.Edit
         /// </summary>
         public event Action<string, string> SuggestionSelected;
 
-        public SuggestionListController(CustomListTableData suggestionList)
+        public SuggestionListHandler(CustomListTableData suggestionList)
         {
             this.suggestionList = suggestionList ?? throw new ArgumentNullException(nameof(suggestionList));
 

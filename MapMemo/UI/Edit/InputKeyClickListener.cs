@@ -1,7 +1,7 @@
 using System;
+using MapMemo.Services;
 using UnityEngine;
 using UnityEngine.EventSystems;
-// Note: Avoid UnityEngine.UI dependency; use UnityEngine.Canvas explicitly
 
 namespace MapMemo.UI.Edit
 {
@@ -12,9 +12,9 @@ namespace MapMemo.UI.Edit
     public class InputKeyClickListener : MonoBehaviour, IPointerClickHandler
     {
         /// <summary>ApplyKeyBindings により設定されるキーエントリ</summary>
-        public Core.InputKeyEntry keyEntry;
+        public InputKeyEntry keyEntry;
         /// <summary>キーエントリを設定します。</summary>
-        public void SetKeyEntry(Core.InputKeyEntry entry) { this.keyEntry = entry; }
+        public void SetKeyEntry(InputKeyEntry entry) { this.keyEntry = entry; }
 
         /// <summary>
         /// クリックイベントハンドラ。設定された KeyEntry または ClickableText のテキストを取得してモーダルに挿入します。
@@ -61,8 +61,8 @@ namespace MapMemo.UI.Edit
 
                 // ひらがな・カタカナ変換を行う
                 txt = MemoEditModalController.Instance.isKanaMode ?
-                    InputKeyController.HiraganaToKatakana(txt) :
-                    InputKeyController.KatakanaToHiragana(txt);
+                    InputKeyHandler.HiraganaToKatakana(txt) :
+                    InputKeyHandler.KatakanaToHiragana(txt);
                 // Shift 状態に応じて大文字・小文字を切り替える
                 txt = MemoEditModalController.Instance.isShift ?
                     txt.ToLowerInvariant() :
