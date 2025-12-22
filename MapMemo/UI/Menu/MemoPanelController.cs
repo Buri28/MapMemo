@@ -8,11 +8,13 @@ using UnityEngine;
 using BeatSaberMarkupLanguage.Components;
 using UnityEngine.UI;
 using MapMemo.UI.Edit;
+using MapMemo.Models;
 using MapMemo.Services;
-using MapMemo.Patches;
 
 namespace MapMemo.UI.Menu
 {
+
+
     [HotReload]
     /// <summary>
     /// メモパネルのコントローラー。メニューのペンアイコン表示と更新を行います。
@@ -31,6 +33,7 @@ namespace MapMemo.UI.Menu
         [UIComponent("pen-text")] private ClickableText penText = null;
         // BSMLリソース名
         public string ResourceName => "MapMemo.Resources.MemoPanel.bsml";
+        private MemoService memoService = MemoService.Instance;
 
         /// <summary>
         /// インスタンスが存在するかどうかを判定します。
@@ -38,13 +41,26 @@ namespace MapMemo.UI.Menu
         public static bool isInstance() => !ReferenceEquals(instance, null);
 
         /// <summary>
+        /// BSML 解析後の初期化処理。
+        /// </summary>
+        [UIAction("#post-parse")]
+        private void OnPostParse()
+        {
+            if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanelController: OnPostParse called");
+        }
+
+        /// <summary>
         /// 既存の LastInstance を使って表示を更新するユーティリティ
         /// </summary>
+        /// <param name="view">ホストとなる ViewController の MonoBehaviour</param>
+        /// <param name="levelContext">現在の LevelContext</param>
+        /// <returns>MemoPanelController のインスタンス</returns>
         public static MemoPanelController GetInstance(
             MonoBehaviour view, LevelContext levelContext)
         {
             if (!isInstance())
             {
+                if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanelController.GetInstance: instance is null, creating new one");
                 instance = BeatSaberUI.CreateViewController<MemoPanelController>();
 
                 if (Plugin.VerboseLogs) Plugin.Log?.Info($"instance.gameObject = {instance?.gameObject}");
@@ -78,7 +94,6 @@ namespace MapMemo.UI.Menu
                 if (Plugin.VerboseLogs) Plugin.Log?.Info($"Parent anchorMin: {parentRt.anchorMin}, anchorMax: {parentRt.anchorMax}, pivot: {parentRt.pivot}, sizeDelta: {parentRt.sizeDelta}");
                 if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanelController.GetInstance: Created new instance:" + isInstance());
             }
-
             instance.levelContext = levelContext;
             instance.HostGameObject = view.gameObject;
 
@@ -128,7 +143,7 @@ namespace MapMemo.UI.Menu
         {
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoPanel: Refresh called for key='{levelContext.GetLevelId()}' song='{levelContext.GetSongName()}' author='{levelContext.GetSongAuthor()}'");
             // 同期ロードを使って確実に現在の Key に紐づくデータを取得する
-            var entry = MemoRepository.Load(levelContext.GetLevelId(), levelContext.GetSongName(), levelContext.GetSongAuthor());
+            var entry = memoService.LoadMemo(levelContext);
 
             var parentLayout = penText.transform.parent.GetComponent<HorizontalLayoutGroup>();
             if (parentLayout != null)

@@ -1,4 +1,5 @@
 using System;
+using Mapmemo.Models;
 using MapMemo.Services;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -30,35 +31,20 @@ namespace MapMemo.UI.Edit
                 // keyEntry が設定されている場合、その内容に基づいて挿入するテキストを決定します。
                 if (keyEntry != null)
                 {
-                    if (string.Equals(keyEntry.type, "Literal", StringComparison.OrdinalIgnoreCase))
+                    if (keyEntry.IsLiteralType())
                     {
                         txt = keyEntry.@char ?? keyEntry.label;
                     }
-                    else if (string.Equals(keyEntry.type, "EmojiRange", StringComparison.OrdinalIgnoreCase))
+                    else if (keyEntry.IsEmojiType())
                     {
                         txt = keyEntry.label;
-                        // if (!string.IsNullOrEmpty(keyEntry.label)) txt = keyEntry.label;
-                        // else if (keyEntry.ranges != null && keyEntry.ranges.Count > 0)
-                        // {
-                        //     var r = keyEntry.ranges[0];
-                        //     if (!string.IsNullOrEmpty(r.start))
-                        //     {
-                        //         if (int.TryParse(r.start.StartsWith("0x", StringComparison.OrdinalIgnoreCase) ? r.start.Substring(2) : r.start,
-                        //             System.Globalization.NumberStyles.HexNumber, null, out int cp))
-                        //         {
-                        //             txt = char.ConvertFromUtf32(cp);
-                        //         }
-                        //     }
-                        // }
                     }
                 }
-
                 // KeyEntry が設定されていないか、テキストが空の場合は空文字を設定する
                 if (string.IsNullOrEmpty(txt))
                 {
                     txt = "";
                 }
-
                 // ひらがな・カタカナ変換を行う
                 txt = MemoEditModalController.Instance.isKanaMode ?
                     InputKeyHandler.HiraganaToKatakana(txt) :

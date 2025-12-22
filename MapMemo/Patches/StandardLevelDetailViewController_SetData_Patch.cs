@@ -1,6 +1,5 @@
-using MapMemo.UI;
-using MapMemo.Patches;
 using System.Reflection;
+using MapMemo.Models;
 
 namespace MapMemo.Patches
 {

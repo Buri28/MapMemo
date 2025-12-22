@@ -8,13 +8,11 @@ using UnityEngine;
 using TMPro;
 using HMUI;
 using System.Globalization;
-using System.IO;
 using MapMemo.UI.Menu;
 using MapMemo.Utilities;
-using MapMemo.Patches;
 using MapMemo.Services;
 using MapMemo.UI.Common;
-using Zenject;
+using MapMemo.Models;
 
 namespace MapMemo.UI.Edit
 {
@@ -46,18 +44,16 @@ namespace MapMemo.UI.Edit
         // サジェストリストコンポーネント
         [UIComponent("suggestion-list")] private CustomListTableData suggestionList = null;
         // サジェストリストコントローラー
-        private SuggestionListHandler suggestionController;
+        private SuggestionListHandler suggestionHandler = null;
         // 入力キーコントローラー
-        private InputKeyHandler keyController;
+        private InputKeyHandler keyHandler = null;
         // レベルコンテキスト(マップ情報)
         private LevelContext levelContext;
         // メッセージ表示コンポーネント
         [UIComponent("message")]
         private TextMeshProUGUI message = null;
 
-        [Inject]
-        private MemoEditModalService memoEditModalService = null;
-
+        private MemoService memoService = MemoService.Instance;
 
         //// ◆画面初期表示関連メソッド Start ◆////
 
@@ -70,27 +66,63 @@ namespace MapMemo.UI.Edit
             MemoPanelController parent, LevelContext levelContext)
         {
             if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoEditModal.Show: called");
-            // 既存のメモを読み込む (LevelContext を使用してキー/曲情報を解決)
-            var key = levelContext.GetLevelId();
-            var songName = levelContext.GetSongName();
-            var songAuthor = levelContext.GetSongAuthor();
-            var existingMemoInfo = MemoRepository.Load(key, songName, songAuthor);
-
             // モーダルのインスタンスを取得する
-            var modalCtrl = GetInstance(existingMemoInfo, parent, levelContext);
+            var modalCtrl = GetInstance(parent, levelContext);
+            modalCtrl.Show();
+        }
 
-            // 表示は既にバインド済みの modal を利用して行う
+        /// <summary>
+        /// モーダルを表示します。
+        /// </summary>
+        public void Show()
+        {
+            if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoEditModal.Show: called");
             try
             {
-                var modalStatus = ReferenceEquals(modalCtrl.modal, null) ? "modal=null" : "modal!=null";
+                var modalStatus = ReferenceEquals(modal, null) ? "modal=null" : "modal!=null";
                 if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.Show: showing modal {modalStatus}");
-                modalCtrl.modal?.Show(true, true);
+                modal?.Show(true, true);
                 // 画面の左側半分あたりに表示するように位置調整
-                modalCtrl.memoEditModalService.RepositionModalToLeftHalf(modalCtrl.modal);
+                RepositionModalToLeftHalf(modal);
             }
             catch (System.Exception ex)
             {
                 Plugin.Log?.Warn($"MemoEditModal.Show: ModalView.Show failed: {ex.Message}; modal may not be visible");
+            }
+        }
+        /// <summary>
+        /// モーダルを画面左半分に移動して表示位置を調整します。
+        /// </summary>
+        private void RepositionModalToLeftHalf(ModalView modal)
+        {
+            if (modal == null) return;
+            try
+            {
+                var rt = modal.gameObject.GetComponent<RectTransform>();
+                if (rt != null)
+                {
+                    float offsetX = 0f;
+                    var parentCanvas = modal.gameObject.GetComponentInParent<Canvas>();
+                    if (parentCanvas != null)
+                    {
+                        var canvasRt = parentCanvas.GetComponent<RectTransform>();
+                        if (canvasRt != null)
+                        {
+                            offsetX = -1f * (canvasRt.rect.width * 0.5f);
+                        }
+                    }
+                    if (offsetX == 0f)
+                    {
+                        offsetX = -1f * (UnityEngine.Screen.width * 0.5f);
+                    }
+                    var current = rt.anchoredPosition;
+                    rt.anchoredPosition = new Vector2(current.x + offsetX, current.y);
+                    if (MapMemo.Plugin.VerboseLogs) MapMemo.Plugin.Log?.Info($"MemoEditModal.RepositionModalToLeftHalf: shifted modal anchoredPosition by {offsetX} (newX={rt.anchoredPosition.x})");
+                }
+            }
+            catch (Exception ex)
+            {
+                MapMemo.Plugin.Log?.Warn($"MemoEditModal.RepositionModalToLeftHalf: exception {ex}");
             }
         }
 
@@ -104,7 +136,6 @@ namespace MapMemo.UI.Edit
         /// <param name="songAuthor"></param>
         /// <returns></returns>
         private static MemoEditModalController GetInstance(
-            MemoEntry existingMemoInfo,
             MemoPanelController parent,
             LevelContext levelContext)
         {
@@ -113,39 +144,56 @@ namespace MapMemo.UI.Edit
                 if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoEditModal.GetInstance: creating new modal instance");
                 // インスタンスを生成
                 Instance = BeatSaberUI.CreateViewController<MemoEditModalController>();
-                // BSML をパースしてモーダルにアタッチする
-                Instance.ParseBSML(
-                    BeatSaberMarkupLanguage.Utilities.GetResourceContent(
-                        typeof(MemoEditModalController).Assembly,
-                        "MapMemo.Resources.MemoEdit.bsml"),
-                        parent.HostGameObject);
-                // 辞書ファイルを読み込む
-                DictionaryManager.Instance.Load(Path.Combine("UserData", "MapMemo"));
-                // 入力履歴ファイルを読み込む
-                InputHistoryManager.Instance.LoadHistory(Path.Combine("UserData", "MapMemo"));
-                // キーバインド設定を読み込む (UserData に resource をコピーしてからロード)
-                InputKeyManager.Instance.Load(Path.Combine("UserData", "MapMemo"));
-                // ボタンの見た目を整えるヘルパーを呼び出す
-                Instance.keyController.InitializeAppearance(Instance.isShift);
+                // 親パネルにアタッチ
+                Instance.InitializeModal(parent);
             }
-            // 必要なパラメータを設定 
-            Instance.memo = existingMemoInfo?.memo ?? "";
-            Instance.lastUpdated.text = existingMemoInfo != null ?
-                "Updated:" + Instance.memoEditModalService.FormatLocal(existingMemoInfo.updatedAt) : "";
-            Instance.levelContext = levelContext;
+            // 必要なパラメータを設定
+            Instance.InitializeParameters(levelContext);
+            return Instance;
+        }
+        /// <summary>
+        /// モーダルの初期化処理。BSMLパース、辞書/履歴/キーバインドの読み込み、キー表示の初期化を行います。
+        /// </summary>
+        /// <param name="parent">親パネルコントローラー</param>
+        public void InitializeModal(MemoPanelController parent)
+        {
+            // BSML をパースしてモーダルにアタッチする
+            this.ParseBSML(
+                BeatSaberMarkupLanguage.Utilities.GetResourceContent(
+                    typeof(MemoEditModalController).Assembly,
+                    "MapMemo.Resources.MemoEdit.bsml"),
+                    parent.HostGameObject);
+            // リソースのロード
+            memoService.LoadResources();
+
+            // ボタンの見た目を整えるヘルパーを呼び出す
+            keyHandler.InitializeAppearance(isShift);
+        }
+
+        /// <summary>
+        /// モーダルのパラメータを初期化します。レベルコンテキストと既存メモ情報を設定します。
+        /// </summary>
+        /// <param name="levelContext">レベルコンテキスト</param>
+        public void InitializeParameters(LevelContext levelContext)
+        {
+            // 既存のメモを読み込む (LevelContext を使用してキー/曲情報を解決)
+            var existingMemoInfo = memoService.LoadMemo(levelContext);
+
+            this.memo = existingMemoInfo?.memo ?? "";
+            this.lastUpdated.text = existingMemoInfo != null ?
+                "Updated:" + this.memoService.FormatLocal(existingMemoInfo.updatedAt) : "";
+            this.levelContext = levelContext;
 
             // メモ内容を初期化
-            if (Instance.memoText != null)
+            if (this.memoText != null)
             {
-                Instance.memoText.richText = true;
-                Instance.UpdateMemoText(Instance.memo);
-                Instance.confirmedText = Instance.memo;
-                Instance.pendingText = "";
+                this.memoText.richText = true;
+                this.UpdateMemoText(this.memo);
+                this.confirmedText = this.memo;
+                this.pendingText = "";
             }
             // サジェストリストを初期化
-            Instance.suggestionController.Clear();
-
-            return Instance;
+            this.suggestionHandler.Clear();
         }
 
         /// <summary>
@@ -169,23 +217,23 @@ namespace MapMemo.UI.Edit
         {
             if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoEditModal: OnPostParse called — setting up pick list");
 
-            keyController = new InputKeyHandler(
+            keyHandler = new InputKeyHandler(
                 modal.gameObject.GetComponentsInChildren<ClickableText>(true),
                 modal.gameObject.GetComponentsInChildren<TextMeshProUGUI>(true)
             );
 
-            suggestionController = new SuggestionListHandler(suggestionList);
-            suggestionController.SuggestionSelected += (value, subtext) =>
+            suggestionHandler = new SuggestionListHandler(suggestionList);
+            suggestionHandler.SuggestionSelected += (value, subtext) =>
             {
                 if (Plugin.VerboseLogs) Plugin.Log?.Info($"SuggestList selected: {value}");
 
                 if (string.IsNullOrEmpty(value)) return;
                 AppendSelectedString(value, subtext);
-                suggestionController.Clear();
+                suggestionHandler.Clear();
             };
 
             // ボタンのクリックリスナーを設定
-            keyController.SetupKeyClickListeners();
+            keyHandler.SetupKeyClickListeners();
         }
 
         /// <summary>
@@ -236,25 +284,15 @@ namespace MapMemo.UI.Edit
             try
             {
                 var text = confirmedText + pendingText ?? "";
-
-                var entry = new MemoEntry
-                {
-                    key = levelContext.GetLevelId(),
-                    songName = levelContext.GetSongName(),
-                    songAuthor = levelContext.GetSongAuthor(),
-                    memo = text
-                };
-                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnSave: key='{entry.key}' song='{entry.songName}' author='{entry.songAuthor}' len={text.Length}");
-                lastUpdated.text = memoEditModalService.FormatLocal(DateTime.UtcNow);
-
-                // 非同期で保存
-                await MemoRepository.SaveAsync(entry);
-
+                // メモを保存
+                await memoService.SaveMemoAsync(levelContext, text);
+                // 最終更新日時の表示を更新
+                lastUpdated.text = memoService.FormatLocal(DateTime.UtcNow);
                 // 親パネルの反映
                 var parentPanelLocal = MemoPanelController.instance;
-
+                //  入力履歴に追加
+                MemoService.Instance.AddHistory(pendingText);
                 // 確定状態にする
-                InputHistoryManager.Instance.AddHistory(pendingText);
                 CommitMemo();
 
                 // 保存完了メッセージを表示
@@ -321,8 +359,8 @@ namespace MapMemo.UI.Edit
             {
                 Append(iter.GetTextElement(), false);
             }
-
-            InputHistoryManager.Instance.AddHistory(s, subText);
+            // 履歴に追加
+            memoService.AddHistory(s, subText);
             // 確定処理
             CommitMemo();
         }
@@ -388,9 +426,9 @@ namespace MapMemo.UI.Edit
         /// </summary>
         private void ClearSuggestions()
         {
-            if (suggestionController != null)
+            if (suggestionHandler != null)
             {
-                suggestionController.Clear();
+                suggestionHandler.Clear();
                 return;
             }
             suggestionList.Data.Clear();
@@ -403,9 +441,9 @@ namespace MapMemo.UI.Edit
         /// </summary>
         private void UpdateSuggestions()
         {
-            if (suggestionController != null)
+            if (suggestionHandler != null)
             {
-                suggestionController.UpdateSuggestions(pendingText);
+                suggestionHandler.UpdateSuggestions(pendingText);
                 return;
             }
 
@@ -515,7 +553,7 @@ namespace MapMemo.UI.Edit
         {
             // Shift をトグルして A〜Z ボタン表示を切替
             isShift = !isShift;
-            keyController.UpdateAlphaButtonLabels(isShift);
+            keyHandler.UpdateAlphaButtonLabels(isShift);
         }
 
         /// <summary>
@@ -525,7 +563,7 @@ namespace MapMemo.UI.Edit
         private void OnCharToggleKana()
         {
             isKanaMode = !isKanaMode;
-            keyController.UpdateKanaModeButtonLabel(isKanaMode);
+            keyHandler.UpdateKanaModeButtonLabel(isKanaMode);
         }
 
         /// <summary>
@@ -536,7 +574,9 @@ namespace MapMemo.UI.Edit
         {
             if (pendingText.Length > 0)
             {
-                InputHistoryManager.Instance.AddHistory(pendingText);
+                // 入力履歴に追加
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnCharEnter: adding to history: '{pendingText}'");
+                memoService.AddHistory(pendingText);
                 // 未確定文字を確定文字にする
                 CommitMemo();
                 UpdateSuggestions();

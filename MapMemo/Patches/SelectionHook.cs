@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using MapMemo.UI;
+using MapMemo.Models;
 using MapMemo.UI.Menu;
 using UnityEngine;
 

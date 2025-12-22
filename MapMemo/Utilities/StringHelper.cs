@@ -2,6 +2,9 @@
 
 namespace MapMemo.Utilities
 {
+    /// <summary>
+    /// 文字列操作に関するユーティリティメソッドを提供します
+    /// </summary>
     public static class StringHelper
     {
         /// <summary>
@@ -18,5 +21,11 @@ namespace MapMemo.Utilities
             // 複数文字（結合文字など）はアルファベット扱いしない
             return false;
         }
+
+        public static string RemoveLineBreaks(string s)
+        {
+            return s?.Replace("\r", "").Replace("\n", "");
+        }
+
     }
 }

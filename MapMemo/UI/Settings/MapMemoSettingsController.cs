@@ -21,6 +21,7 @@ namespace MapMemo.UI.Settings
 
         [UIComponent("history-clear-message")]
         private TextMeshProUGUI historyClearMessage = null;
+        private MemoService memoService = MemoService.Instance;
 
         /// <summary>
         /// プロパティ変更を通知します。
@@ -60,12 +61,13 @@ namespace MapMemo.UI.Settings
         [UIValue("historyMaxCount")]
         public int HistoryMaxCount
         {
-            get => MemoSettingsManager.Instance.HistoryMaxCount;
+            get => memoService.GetHistoryMaxCount();
             set
             {
                 Plugin.Log?.Info($"historyMaxCount: {value}");
-                if (MemoSettingsManager.Instance.HistoryMaxCount == value) return;
-                MemoSettingsManager.Instance.HistoryMaxCount = value;
+                if (memoService.GetHistoryMaxCount() == value) return;
+
+                memoService.SaveHistoryMaxCount(value);
                 NotifyPropertyChanged();
             }
         }
@@ -76,12 +78,12 @@ namespace MapMemo.UI.Settings
         [UIValue("historyShowCount")]
         public int HistoryShowCount
         {
-            get => MemoSettingsManager.Instance.HistoryShowCount;
+            get => memoService.GetHistoryShowCount();
             set
             {
                 Plugin.Log?.Info($"historyShowCount: {value}");
-                if (MemoSettingsManager.Instance.HistoryShowCount == value) return;
-                MemoSettingsManager.Instance.HistoryShowCount = value;
+                if (memoService.GetHistoryShowCount() == value) return;
+                memoService.SaveHistoryShowCount(value);
                 NotifyPropertyChanged();
             }
         }
@@ -92,7 +94,7 @@ namespace MapMemo.UI.Settings
         [UIAction("on-clear-history")]
         private void OnClearHistory()
         {
-            InputHistoryManager.DeleteHistory();
+            memoService.DeleteHistory();
             UIHelper.Instance.ShowTemporaryMessage(historyClearMessage,
                 "<color=#FF0000>History cleared.</color>");
         }
