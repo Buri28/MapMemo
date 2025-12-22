@@ -2,11 +2,12 @@
 using System;
 using System.Linq;
 using BeatSaberMarkupLanguage.Components;
-using MapMemo.Services;
+using Mapmemo.Models;
 using MapMemo.UI.Edit;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Zenject;
 
 namespace MapMemo.Services
 {
@@ -17,6 +18,8 @@ namespace MapMemo.Services
     {
         private ClickableText[] keys;
         private TextMeshProUGUI[] buttons;
+        private MemoService memoService = MemoService.Instance;
+
 
         public InputKeyHandler(ClickableText[] keys, TextMeshProUGUI[] buttons)
         {
@@ -75,24 +78,6 @@ namespace MapMemo.Services
                         layout.preferredWidth = 5f;
                         layout.minWidth = 5f;
                     }
-                    // // ラベルを設定
-                    // {
-                    //     var label = btn.text.Trim().Replace(" ", "");
-                    //     // 識別用コンポーネントを追加
-                    //     var idComp = btn.gameObject.AddComponent<KeyIdentifier>();
-                    //     if (label.StartsWith("emoji-"))
-                    //     {
-                    //         // 絵文字の場合は初期設定のtextをidとして扱う
-                    //         idComp.Id = label;
-                    //         btn.text = MemoEditModalHelper.GetEmojiKeyById(label);
-                    //     }
-                    //     else
-                    //     {
-                    //         // ラベルの大文字小文字変換
-                    //         label = isShift ? label.ToLowerInvariant() : label.ToUpperInvariant();
-                    //         btn.text = EditLabel(label);
-                    //     }
-                    // }
                     ApplyKeyBindings(btn);
                 }
             }
@@ -103,7 +88,7 @@ namespace MapMemo.Services
         /// KeyManager の設定に基づき、ClickableText 要素のラベルを置換・初期化します（表示を上書きします）。
         /// </summary>
         /// <param name="ct">対象の ClickableText</param>
-        private static void ApplyKeyBindings(ClickableText ct)
+        private void ApplyKeyBindings(ClickableText ct)
         {
             try
             {
@@ -116,7 +101,7 @@ namespace MapMemo.Services
                     return;
                 }
 
-                entry = InputKeyManager.Instance?.FindForClickableTextEntry(ct);
+                entry = FindForClickableTextEntry(ct);
                 if (entry == null)
                 {
                     Plugin.Log?.Info($"ApplyKeyBindings: no KeyEntry found for ClickableText '{ct.gameObject.name}' with text '{ct.text}'");
@@ -126,12 +111,12 @@ namespace MapMemo.Services
 
                 // BSML変更前のtextをidとして退避する
                 entry.id = ct.text.Trim().Replace("　", ""); // 全角スペースを除去
-                if (string.Equals(entry.type, "EmojiRange", StringComparison.OrdinalIgnoreCase))
+                if (entry.IsEmojiType())
                 {
                     // 絵文字の場合のラベル設定
                     ct.text = entry.label;
                 }
-                else if (string.Equals(entry.type, "Literal", StringComparison.OrdinalIgnoreCase))
+                else if (entry.IsLiteralType())
                 {
                     // リテラル文字の場合のラベル設定
                     var label = entry.label ?? entry.@char ?? "";
@@ -232,6 +217,7 @@ namespace MapMemo.Services
                 (c >= 'ァ' && c <= 'ヶ') ? (char)(c - 0x60) : c
             ).ToArray());
         }
+
         /// <summary>
         /// ボタンラベルを編集用に整形します。 
         /// </summary>
@@ -240,5 +226,31 @@ namespace MapMemo.Services
             return "  " + label + "  ";
         }
 
+        /// <summary>
+        /// ClickableText に対応する KeyEntry を探す
+        /// </summary>
+        /// <param name="ct"></param>
+        /// <returns></returns>
+        private InputKeyEntry FindForClickableTextEntry(ClickableText ct)
+        {
+            if (ct == null) return null;
+            var txt = (ct.text ?? "").Trim().Replace("　", ""); // 全角スペースを除去
+            if (string.IsNullOrEmpty(txt)) return null;
+
+            // Emoji タブでは 'emoji-N' のリテラルが使われるため、N をパースして keyNo を取得します
+            if (txt.StartsWith("emoji-", StringComparison.OrdinalIgnoreCase))
+            {
+                if (int.TryParse(txt.Substring("emoji-".Length), out int kn))
+                    return memoService.GetInputKeyEntry(kn, InputKeyEntry.InputKeyType_Emoji);
+            }
+
+            // BSML 内で 'literal-<keyNo>' として埋め込まれたリテラルキーに対応します
+            if (txt.StartsWith("literal-", StringComparison.OrdinalIgnoreCase))
+            {
+                if (int.TryParse(txt.Substring("literal-".Length), out int lkn))
+                    return memoService.GetInputKeyEntry(lkn, InputKeyEntry.InputKeyType_Literal);
+            }
+            return null;
+        }
     }
 }

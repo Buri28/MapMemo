@@ -2,22 +2,11 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using Mapmemo.Models;
 using Newtonsoft.Json;
 
-namespace MapMemo.Services
+namespace MapMemo.Domain
 {
-    /// <summary>
-    /// メモのデータモデル
-    /// </summary>
-    public class MemoEntry
-    {
-        public string key { get; set; }
-        public string songName { get; set; }
-        public string songAuthor { get; set; }
-        public string memo { get; set; }
-        public DateTime updatedAt { get; set; } // UTC（協定世界時）
-    }
-
     /// <summary>
     /// メモの永続化（ファイルベース）を提供する静的ユーティリティクラス。
     /// 将来的にはインターフェイス化して差し替え可能にできます。
@@ -123,7 +112,7 @@ namespace MapMemo.Services
                 }
                 catch (Exception e)
                 {
-                    MapMemo.Plugin.Log?.Warn($"MemoRepository.SaveAsync: Failed to delete file '{path}': {e.Message}");
+                    Plugin.Log?.Warn($"MemoRepository.SaveAsync: Failed to delete file '{path}': {e.Message}");
                 }
                 return;
             }

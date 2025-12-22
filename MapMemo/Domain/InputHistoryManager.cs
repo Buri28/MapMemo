@@ -2,9 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using MapMemo.Utilities;
 using UnityEngine;
 
-namespace MapMemo.Services
+namespace MapMemo.Domain
 {
     /// <summary>
     /// 入力履歴を管理し、ファイルへの保存と読み込みを提供する MonoBehaviour シングルトン。
@@ -54,7 +55,7 @@ namespace MapMemo.Services
             if (File.Exists(path))
                 File.Delete(path);
 
-            InputHistoryManager.Instance?.ClearHistory();
+            Instance?.ClearHistory();
             Plugin.Log?.Info("Input history deleted.");
         }
 
@@ -63,20 +64,19 @@ namespace MapMemo.Services
         /// </summary>
         public void AddHistory(string text, string subText = null)
         {
-            if (string.IsNullOrEmpty(text)) return;
-            if (historyList == null) historyList = new List<KeyValuePair<string, string>>();
-            text = text.Trim().Replace("\r", "").Replace("\n", "");
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"Adding to input history: '{text}' (subText: '{subText}')");
 
+            // 完全一致の重複を削除
+            historyList.RemoveAll(x =>
+                string.Equals(
+                    StringHelper.RemoveLineBreaks(x.Key),
+                    subText,
+                    StringComparison.Ordinal) &&
+                string.Equals(
+                    StringHelper.RemoveLineBreaks(x.Value),
+                    text,
+                    StringComparison.Ordinal));
 
-            if (string.IsNullOrWhiteSpace(text)) return;
-
-            // 絵文字は1文字でも履歴に追加するが、絵文字以外の1文字は無視する
-            if (!InputKeyManager.Instance.IsOnlyEmoji(text) && text.Length < 2)
-            {
-                return;
-            }
-
-            historyList.RemoveAll(x => x.Key == subText && x.Value == text);
             historyList.Add(new KeyValuePair<string, string>(subText, text));
             while (historyList.Count > MemoSettingsManager.Instance.HistoryMaxCount)
             {
@@ -98,20 +98,18 @@ namespace MapMemo.Services
             historyList = historyLines
                 .Select(line =>
                 {
-                    var parts = line.Split(new[] { ',' }, 2);
                     var splitIndex = line.IndexOf(',');
-                    if (splitIndex >= 0)
-                    {
-                        var key = line.Substring(0, splitIndex).Trim();
-                        var value = line.Substring(splitIndex + 1).Trim();
-                        return new KeyValuePair<string, string>(key, value);
-                    }
-                    else
-                    {
-                        return new KeyValuePair<string, string>(null, line.Trim());
-                    }
+                    string key = splitIndex >= 0 ? line.Substring(0, splitIndex) : null;
+                    string value = splitIndex >= 0 ? line.Substring(splitIndex + 1) : line;
+
+                    key = StringHelper.RemoveLineBreaks(key);
+                    value = StringHelper.RemoveLineBreaks(value);
+
+                    return new KeyValuePair<string, string>(key, value);
                 })
+                .Distinct()
                 .ToList();
+
             Plugin.Log?.Info($"Input history loaded. {historyList.Count} entries.");
         }
 

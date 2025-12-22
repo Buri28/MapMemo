@@ -2,15 +2,10 @@ using IPA.Utilities;
 using Newtonsoft.Json;
 using System.IO;
 using UnityEngine;
+using Mapmemo.Models;
 
-namespace MapMemo.Services
+namespace MapMemo.Domain
 {
-    public class MemoSettingEntity
-    {
-        public int HistoryMaxCount { get; set; } = 500;
-        public int HistoryShowCount { get; set; } = 3;
-    }
-
     /// <summary>
     /// MapMemo の設定を読み書きするユーティリティクラス。
     /// </summary>
@@ -19,13 +14,19 @@ namespace MapMemo.Services
         public static MemoSettingsManager Instance { get; private set; }
         private static readonly string SettingsPath = Path.Combine(
             UnityGame.UserDataPath, "MapMemo", "#settings.json");
-        private MemoSettingEntity settingsEntity { get; set; }
+        public MemoSettingEntity settingsEntity { get; set; }
 
+        /// <summary>
+        /// 履歴の最大保存件数を取得または設定します。設定時は保存も行います。
+        /// </summary>
         public int HistoryMaxCount
         {
             get => settingsEntity.HistoryMaxCount;
             set { settingsEntity.HistoryMaxCount = value; Save(); }
         }
+        /// <summary>
+        /// 履歴の表示件数を取得または設定します。 設定時は保存も行います。
+        /// </summary>
         public int HistoryShowCount
         {
             get => settingsEntity.HistoryShowCount;

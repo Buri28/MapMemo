@@ -2,7 +2,7 @@
 
 using System;
 
-namespace MapMemo.Patches
+namespace MapMemo.Models
 {
     /// <summary>
     /// BeatmapLevel からキー/曲情報を抽出して扱いやすくするラッパークラス。

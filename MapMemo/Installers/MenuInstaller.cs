@@ -1,4 +1,4 @@
-using MapMemo.Services;
+using MapMemo.Domain;
 using MapMemo.UI.Common;
 using MapMemo.UI.Settings;
 using UnityEngine;
@@ -22,18 +22,20 @@ namespace MapMemo.Installers
             go.SetActive(true);
             Object.DontDestroyOnLoad(go); // シーン遷移で消えないようにする
 
+            // マネージャコンポーネントのバインディング
             go.AddComponent<InputHistoryManager>();
             go.AddComponent<DictionaryManager>();
             go.AddComponent<InputKeyManager>();
             go.AddComponent<MemoSettingsManager>();
+            // UI ヘルパーコンポーネントのバインディング
             go.AddComponent<UIHelper>();
-            var controller = go.AddComponent<MapMemoSettingsController>();
 
+            // 設定画面コントローラーのバインディング
+            var settingsController =
+                Container.InstantiateComponent<MapMemoSettingsController>(go);
             Container.BindInterfacesAndSelfTo<MapMemoSettingsController>()
-                .FromInstance(controller)
+                .FromInstance(settingsController)
                 .AsSingle();
-
-            Container.Bind<MemoEditModalService>().AsSingle();
         }
     }
 

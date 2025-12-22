@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using MapMemo.UI.Edit;
 using UnityEngine;
 
-namespace MapMemo.Services
+namespace MapMemo.Domain
 {
     /// <summary>
     /// 辞書（単語/候補リスト）の読み込みおよび検索を管理するシングルトンの MonoBehaviour。
@@ -14,7 +12,7 @@ namespace MapMemo.Services
     public class DictionaryManager : MonoBehaviour
     {
         private readonly object _lock = new object();
-        private List<KeyValuePair<string, string>> dictionaryWords =
+        public List<KeyValuePair<string, string>> dictionaryWords { get; private set; } =
             new List<KeyValuePair<string, string>>();
         private bool loaded = false;
         private string userDictionaryPath;
@@ -37,24 +35,6 @@ namespace MapMemo.Services
         }
 
         /// <summary>
-        /// Unity の初期化前でも静的呼び出しに対応するため、必要なら GameObject とインスタンスを作成します。
-        /// </summary>
-        // private static DictionaryManager EnsureInstance()
-        // {
-        //     if (Instance != null) return Instance;
-        //     var go = new GameObject("DictionaryManager");
-        //     return go.AddComponent<DictionaryManager>();
-        // }
-
-        /// <summary>
-        /// 読み込み済みの辞書エントリの読み取り専用リストを返します。
-        /// </summary>
-        // public IReadOnlyList<KeyValuePair<string, string>> DictionaryWords
-        // {
-        //     get { lock (_lock) { return dictionaryWords; } }
-        // }
-
-        /// <summary>
         /// インスタンス用 API（辞書の読み込みなどを提供します）。
         /// </summary>
         public DictionaryManager Load(string baseDir = null)
@@ -65,26 +45,6 @@ namespace MapMemo.Services
             LoadInternal();
             return this;
         }
-
-        // /// <summary>
-        // /// 必要なら辞書を読み込みます（既に読み込まれていれば何もしません）。
-        // /// </summary>
-        // public void EnsureLoadedInstance()
-        // {
-        //     if (!loaded) LoadInternal();
-        // }
-
-        /// <summary>
-        /// 辞書を再読み込みします（内部キャッシュをクリアして再ロード）。
-        /// </summary>
-        // public void ReloadInstance()
-        // {
-        //     lock (_lock)
-        //     {
-        //         loaded = false;
-        //     }
-        //     LoadInternal();
-        // }
 
         /// <summary>
         /// 辞書を読み込む内部処理です。埋め込みリソースのコピーとファイルの解析を行います。
@@ -171,35 +131,6 @@ namespace MapMemo.Services
                 }
             }
             return list;
-        }
-
-        /// <summary>
-        /// 指定したプレフィックスに一致する辞書エントリを返します。
-        /// </summary>
-        public IEnumerable<KeyValuePair<string, string>> Search(string prefix)
-        {
-            // EnsureLoadedInstance();
-            if (string.IsNullOrEmpty(prefix) || prefix == ",")
-            {
-                return Enumerable.Empty<KeyValuePair<string, string>>();
-            }
-            if (Plugin.VerboseLogs) Plugin.Log?.Info($"DictionaryManager: Searching for prefix '{prefix}'" +
-                $" among {dictionaryWords.Count} dictionary words.");
-
-            // キーがヒットしなかったら値を見るのではなく、キーがなかったら値をみる
-            return dictionaryWords.Where(
-                pair =>
-                    ((!string.IsNullOrEmpty(pair.Key) && SuggestionListHandler.StartsWithTextElement(pair.Key, prefix)) ||
-                    (string.IsNullOrEmpty(pair.Key) && SuggestionListHandler.StartsWithTextElement(pair.Value, prefix))
-            ));
-
-            // return dictionaryWords.Where(
-            //     pair =>
-            //         (!string.IsNullOrEmpty(pair.Key)
-            //          && SuggestionListController.StartsWithTextElement(pair.Key, prefix)) ||
-            //         (!string.IsNullOrEmpty(pair.Value)
-            //          && SuggestionListController.StartsWithTextElement(pair.Value, prefix))
-            // );
         }
     }
 }

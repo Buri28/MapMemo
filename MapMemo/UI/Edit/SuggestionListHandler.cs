@@ -1,10 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 using BeatSaberMarkupLanguage.Components;
 using HMUI;
-using MapMemo.UI;
 
 namespace MapMemo.Services
 {
@@ -19,6 +16,8 @@ namespace MapMemo.Services
         /// サジェストが選択されたときに発火するイベント（value, subText）。
         /// </summary>
         public event Action<string, string> SuggestionSelected;
+
+        private MemoService memoService = MemoService.Instance;
 
         public SuggestionListHandler(CustomListTableData suggestionList)
         {
@@ -117,24 +116,21 @@ namespace MapMemo.Services
         private void AddEmojiSuggestions(string search, HashSet<KeyValuePair<string, string>> already)
         {
             if (string.IsNullOrEmpty(search)) return;
-            if (!InputKeyManager.Instance.IsOnlyEmoji(search)) return;
+            if (!memoService.IsOnlyEmoji(search)) return;
 
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"SuggestionListController: Adding emoji suggestions for '{search}'");
-            var supportedEmojis = InputKeyManager.Instance.supportedEmojiMap;
-            // 絵文字マップのキーに該当する場合は、そのキーに対する絵文字をすべて追加
-            foreach (var kvp in supportedEmojis)
+
+            var matchedEmojis = memoService.SearchEmojis(search);
+            foreach (var kvp in matchedEmojis)
             {
                 var key = kvp.Key;
-                if (StartsWithTextElement(key, search))
+                var emojiList = kvp.Value;
+                foreach (var emoji in emojiList)
                 {
-                    var emojiList = kvp.Value;
-                    foreach (var emoji in emojiList)
+                    if (already.Add(new KeyValuePair<string, string>(key, emoji)))
                     {
-                        if (already.Add(new KeyValuePair<string, string>(key, emoji)))
-                        {
-                            if (Plugin.VerboseLogs) Plugin.Log?.Info($"Adding emoji suggestion: '{emoji}' for key '{key}'");
-                            AddSuggestion(emoji, key);
-                        }
+                        if (Plugin.VerboseLogs) Plugin.Log?.Info($"Adding emoji suggestion: '{emoji}' for key '{key}'");
+                        AddSuggestion(emoji, key);
                     }
                 }
             }
@@ -145,20 +141,8 @@ namespace MapMemo.Services
         /// </summary>
         private void AddHistorySuggestions(string search, HashSet<KeyValuePair<string, string>> already)
         {
-            var history = InputHistoryManager.Instance.historyList;
-            var historyShowCount = MemoSettingsManager.Instance.HistoryShowCount;
-            if (Plugin.VerboseLogs) Plugin.Log?.Info($"SuggestionListController: Adding history suggestions for '{search}' historyShowCount={historyShowCount}");
 
-            var historyMatches = history
-                .AsEnumerable()
-                .Reverse()
-                .Where(h =>
-                        (h.Key != null && StartsWithTextElement(h.Key, search)) ||
-                        StartsWithTextElement(h.Value, search))
-                .Distinct()
-                .Take(historyShowCount)
-                .ToList();
-
+            var historyMatches = memoService.SearchHistory(search);
             foreach (var h in historyMatches)
             {
                 if (already.Add(h))
@@ -170,34 +154,6 @@ namespace MapMemo.Services
         }
 
         /// <summary>
-        /// 指定した文字列が指定したプレフィックスで始まるかを、テキスト要素単位で判定します。
-        /// </summary>
-        public static bool StartsWithTextElement(string text, string prefix)
-        {
-            if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(prefix)) return false;
-
-            var textEnum = StringInfo.GetTextElementEnumerator(text);
-            var prefixEnum = StringInfo.GetTextElementEnumerator(prefix);
-
-            var textBuilder = new List<string>();
-            var prefixBuilder = new List<string>();
-
-            while (prefixEnum.MoveNext())
-            {
-                prefixBuilder.Add(prefixEnum.GetTextElement());
-            }
-
-            for (int i = 0; i < prefixBuilder.Count; i++)
-            {
-                if (!textEnum.MoveNext()) return false;
-                textBuilder.Add(textEnum.GetTextElement());
-            }
-
-            return string.Join("", textBuilder) == string.Join("", prefixBuilder);
-        }
-
-
-        /// <summary>
         /// 辞書から候補を追加します。
         /// </summary>
         private void AddDictionarySuggestions(
@@ -205,9 +161,7 @@ namespace MapMemo.Services
         {
             if (string.IsNullOrEmpty(search) || search == ",") return;
 
-            var matches = DictionaryManager.Instance.Search(search)
-                .Distinct()
-                .ToList();
+            var matches = memoService.SearchDictionary(search);
             foreach (var pair in matches)
             {
                 if (already.Add(pair))
@@ -216,6 +170,13 @@ namespace MapMemo.Services
                     AddSuggestion(pair.Value, pair.Key);
                 }
             }
+        }
+        /// <summary>
+        /// 指定したプレフィックスに一致する辞書エントリを返します。
+        /// </summary>
+        private IEnumerable<KeyValuePair<string, string>> SearchDictionary(string prefix)
+        {
+            return memoService.SearchDictionary(prefix);
         }
 
         /// <summary>

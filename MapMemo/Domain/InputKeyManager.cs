@@ -4,40 +4,10 @@ using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
 using UnityEngine;
-using BeatSaberMarkupLanguage.Components;
+using Mapmemo.Models;
 
-namespace MapMemo.Services
+namespace MapMemo.Domain
 {
-    /// <summary>
-    /// デシリアライズ用の設定モデル（キー割当と除外コードポイント）。
-    /// </summary>
-    public class InputKeyBindingsConfig
-    {
-        public List<InputKeyEntry> keys { get; set; }
-        public List<string> excluded { get; set; }
-    }
-
-    /// <summary>
-    /// キー割当のエントリを表すモデル。
-    /// </summary>
-    public class InputKeyEntry
-    {
-        public int keyNo { get; set; }
-        public string type { get; set; }
-        public string label { get; set; }
-        public string @char { get; set; }
-        public List<RangeModel> ranges { get; set; }
-
-        // BSMLの変更前のtextから識別するidを取得して退避するためのプロパティ
-        public string id { get; set; }
-    }
-
-    public class RangeModel
-    {
-        public string start { get; set; }
-        public string end { get; set; }
-    }
-
     /// <summary>
     /// キー入力（絵文字、リテラルなど）の定義を読み込み、絵文字判定等の機能を提供する Manager。
     /// </summary>
@@ -48,7 +18,7 @@ namespace MapMemo.Services
 
         public List<InputKeyEntry> Keys { get; private set; } = new List<InputKeyEntry>();
 
-        public Dictionary<string, List<string>> supportedEmojiMap = null;
+        public Dictionary<string, List<string>> supportedEmojiMap { get; private set; } = null;
 
         /// <summary>
         /// MonoBehaviour の初期化時に呼ばれ、シングルトン登録と DontDestroyOnLoad を実行します。
@@ -205,13 +175,22 @@ namespace MapMemo.Services
 
                 Keys = new List<InputKeyEntry>();
                 ExcludedCodePoints = new HashSet<int>();
-
-
             }
         }
 
-        public InputKeyEntry GetByKeyNo(int keyNo, string type)
+        /// <summary>
+        /// 指定した keyNo と type に一致する InputKeyEntry を返します。
+        /// </summary>
+        /// <param name="keyNo">キー番号</param>
+        /// <param name="type">キータイプ（例: "Emoji", "Literal"）</param>
+        public InputKeyEntry GetInputKeyEntryByKeyNo(int keyNo, string type)
         {
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"GetInputKeyEntryByKeyNo: keyNo={keyNo}, type={type} Keys.Count={Keys.Count}");
+            Keys.ForEach(k =>
+            {
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"  Key Entry: keyNo={k.keyNo}, type={k.type}, label={k.label}");
+            });
+
             return Keys.FirstOrDefault(k => k.keyNo == keyNo
                 && string.Equals(k.type, type, StringComparison.OrdinalIgnoreCase));
         }
@@ -224,7 +203,7 @@ namespace MapMemo.Services
             var dict = new Dictionary<string, List<string>>();
             foreach (var keyEntry in Keys)
             {
-                if (!string.Equals(keyEntry.type, "EmojiRange", StringComparison.OrdinalIgnoreCase))
+                if (!string.Equals(keyEntry.type, "Emoji", StringComparison.OrdinalIgnoreCase))
                     continue;
                 if (keyEntry.ranges == null || keyEntry.ranges.Count == 0)
                     continue;
@@ -272,118 +251,6 @@ namespace MapMemo.Services
             if (int.TryParse(s, out int v2)) return v2;
             return 0;
         }
-
-        /// <summary>
-        /// ClickableText に対応する KeyEntry を探す
-        /// </summary>
-        /// <param name="ct"></param>
-        /// <returns></returns>
-        public InputKeyEntry FindForClickableTextEntry(ClickableText ct)
-        {
-            if (ct == null) return null;
-            var txt = (ct.text ?? "").Trim().Replace("　", ""); // 全角スペースを除去
-            if (string.IsNullOrEmpty(txt)) return null;
-
-            // Emoji タブでは 'emoji-N' のリテラルが使われるため、N をパースして keyNo を取得します
-            if (txt.StartsWith("emoji-", StringComparison.OrdinalIgnoreCase))
-            {
-                if (int.TryParse(txt.Substring("emoji-".Length), out int kn))
-                    return GetByKeyNo(kn, "EmojiRange");
-            }
-
-            // BSML 内で 'literal-<keyNo>' として埋め込まれたリテラルキーに対応します
-            if (txt.StartsWith("literal-", StringComparison.OrdinalIgnoreCase))
-            {
-                if (int.TryParse(txt.Substring("literal-".Length), out int lkn))
-                    return GetByKeyNo(lkn, "Literal");
-            }
-            return null;
-        }
-
-        public void Reload()
-        {
-            LoadFromFile();
-        }
-
-        // public void Save()
-        // {
-        //     try
-        //     {
-        //         if (string.IsNullOrEmpty(bindingsFilePath)) return;
-        //         var cfg = new KeyBindingsConfig { keys = Keys, excluded = excludedRaw };
-        //         // excludedRaw が null または空で ExcludedCodePoints を持つ場合は、16 進表記でシリアライズします
-        //         if ((cfg.excluded == null || cfg.excluded.Count == 0) && ExcludedCodePoints != null && ExcludedCodePoints.Count > 0)
-        //         {
-        //             cfg.excluded = ExcludedCodePoints.Select(v => "0x" + v.ToString("X")).ToList();
-        //         }
-        //         File.WriteAllText(bindingsFilePath, JsonConvert.SerializeObject(cfg, Formatting.Indented));
-        //         Plugin.Log?.Info("KeyManager: Saved key bindings file.");
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         Plugin.Log?.Error($"KeyManager: Failed to save key bindings: {ex}");
-        //     }
-        // }
-
-        /// <summary>
-        /// 入力文字列が絵文字のみで構成されているかを判定する 1文字の場合
-        /// </summary>  
-        public bool IsOnlyEmoji(string input)
-        {
-            if (string.IsNullOrWhiteSpace(input)) return false;
-
-            var supportedEmojis = supportedEmojiMap;
-            foreach (var emojiList in supportedEmojis.Values)
-            {
-                foreach (var emoji in emojiList)
-                {
-                    if (input == emoji)
-                        return true;
-                }
-
-            }
-            return false;
-            // var enumerator = StringInfo.GetTextElementEnumerator(input);
-            // while (enumerator.MoveNext())
-            // {
-            //     string element = enumerator.GetTextElement();
-            //     if (!IsEmoji(element))
-            //         return false;
-            // }
-            // return true;
-        }
-
-        /// 絵文字かどうかを判定する 1文字の場合
-        /// <param name="textElement">判定する文字列（テキスト要素）1文字</param>   
-        // public bool IsEmoji(string textElement)
-        // {
-        //     int codepoint = Char.ConvertToUtf32(textElement, 0);
-
-        //     // 絵文字かどうかを判定
-        //     foreach (var keyEntry in Keys)
-        //     {
-        //         var (keyNo, block, ranges) = keyEntry.keyNo > 0 && keyEntry.ranges != null
-        //             ? (keyEntry.keyNo, keyEntry.block, keyEntry.ranges.Select(r =>
-        //             {
-        //                 int start = ParseHexOrDecimal(r.start);
-        //                 int end = ParseHexOrDecimal(r.end);
-        //                 return (start, end);
-        //             }).Where(t => t.start > 0 && t.end >= t.start).ToList())
-        //             : (0, null, new List<(int, int)>());
-        //         foreach (var (start, end) in ranges)
-        //         {
-        //             if (codepoint >= start && codepoint <= end)
-        //             {
-        //                 bool supported = IsEmojiSupported(codepoint);
-        //                 if (supported)
-        //                 {
-        //                     return true;
-        //                 }
-        //             }
-        //         }
-        //     }
-        //     return false;
-        // }
 
         /// <summary>
         /// 指定したコードポイントがサポート対象かどうかを判定します（除外リストを考慮）。
