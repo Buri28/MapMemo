@@ -85,6 +85,11 @@
       <HintPath>$(BeatSaberManagedPath)\Zenject.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="Zenject-usage">
+      <HintPath>$(BeatSaberManagedPath)\Zenject-usage.dll</HintPath>
+      <Private>False</Private>
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
 
     <!-- SiraUtil / BSML / BS Utils（BepInEx/Plugins などの配置に応じて修正） -->
     <Reference Include="SiraUtil">

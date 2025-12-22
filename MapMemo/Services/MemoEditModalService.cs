@@ -2,17 +2,17 @@ using System;
 using UnityEngine;
 using HMUI;
 
-namespace MapMemo.UI.Edit
+namespace MapMemo.Services
 {
     /// <summary>
     /// MemoEditModal に関する小さなユーティリティ関数群（位置調整や日時フォーマットなど）。
     /// </summary>
-    public static class MemoEditModalHelper
+    public class MemoEditModalService
     {
         /// <summary>
         /// モーダルを画面左半分に移動して表示位置を調整します。
         /// </summary>
-        public static void RepositionModalToLeftHalf(ModalView modal)
+        public void RepositionModalToLeftHalf(ModalView modal)
         {
             if (modal == null) return;
             try
@@ -48,7 +48,7 @@ namespace MapMemo.UI.Edit
         /// <summary>
         /// UTC の日時をローカル時間に変換してフォーマットした文字列を返します。
         /// </summary>
-        public static string FormatLocal(DateTime utc)
+        public string FormatLocal(DateTime utc)
         {
             var local = utc.ToLocalTime();
             return $"{local:yyyy/MM/dd HH:mm:ss}";

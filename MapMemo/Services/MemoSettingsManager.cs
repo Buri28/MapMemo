@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using System.IO;
 using UnityEngine;
 
-namespace MapMemo.Core
+namespace MapMemo.Services
 {
     public class MemoSettingEntity
     {

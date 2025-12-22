@@ -2,21 +2,23 @@
 using System;
 using System.Linq;
 using BeatSaberMarkupLanguage.Components;
+using MapMemo.Services;
+using MapMemo.UI.Edit;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace MapMemo.UI.Edit
+namespace MapMemo.Services
 {
     /// <summary>
     /// キークリック用のコントローラー。ClickableText のリスナー設定やボタン外観の初期化を行います。
     /// </summary>
-    public class InputKeyController
+    public class InputKeyHandler
     {
         private ClickableText[] keys;
         private TextMeshProUGUI[] buttons;
 
-        public InputKeyController(ClickableText[] keys, TextMeshProUGUI[] buttons)
+        public InputKeyHandler(ClickableText[] keys, TextMeshProUGUI[] buttons)
         {
             this.keys = keys;
             this.buttons = buttons;
@@ -114,7 +116,7 @@ namespace MapMemo.UI.Edit
                     return;
                 }
 
-                entry = Core.InputKeyManager.Instance?.FindForClickableTextEntry(ct);
+                entry = InputKeyManager.Instance?.FindForClickableTextEntry(ct);
                 if (entry == null)
                 {
                     Plugin.Log?.Info($"ApplyKeyBindings: no KeyEntry found for ClickableText '{ct.gameObject.name}' with text '{ct.text}'");

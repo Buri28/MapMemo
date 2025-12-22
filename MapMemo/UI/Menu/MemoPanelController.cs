@@ -8,7 +8,8 @@ using UnityEngine;
 using BeatSaberMarkupLanguage.Components;
 using UnityEngine.UI;
 using MapMemo.UI.Edit;
-using MapMemo.Core;
+using MapMemo.Services;
+using MapMemo.Patches;
 
 namespace MapMemo.UI.Menu
 {
@@ -51,7 +52,7 @@ namespace MapMemo.UI.Menu
                 // 親に追加（ここでは view は既存の ViewController）
                 instance.transform.SetParent(view.transform, false);
 
-                var bsmlContent = Utilities.GetResourceContent(
+                var bsmlContent = BeatSaberMarkupLanguage.Utilities.GetResourceContent(
                      typeof(MemoPanelController).Assembly,
                      "MapMemo.Resources.MemoPanel.bsml");
                 instance.ParseBSML(bsmlContent, instance.gameObject);

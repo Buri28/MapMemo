@@ -5,7 +5,7 @@ using System.Linq;
 using MapMemo.UI.Edit;
 using UnityEngine;
 
-namespace MapMemo.Core
+namespace MapMemo.Services
 {
     /// <summary>
     /// 辞書（単語/候補リスト）の読み込みおよび検索を管理するシングルトンの MonoBehaviour。
@@ -189,8 +189,8 @@ namespace MapMemo.Core
             // キーがヒットしなかったら値を見るのではなく、キーがなかったら値をみる
             return dictionaryWords.Where(
                 pair =>
-                    ((!string.IsNullOrEmpty(pair.Key) && SuggestionListController.StartsWithTextElement(pair.Key, prefix)) ||
-                    (string.IsNullOrEmpty(pair.Key) && SuggestionListController.StartsWithTextElement(pair.Value, prefix))
+                    ((!string.IsNullOrEmpty(pair.Key) && SuggestionListHandler.StartsWithTextElement(pair.Key, prefix)) ||
+                    (string.IsNullOrEmpty(pair.Key) && SuggestionListHandler.StartsWithTextElement(pair.Value, prefix))
             ));
 
             // return dictionaryWords.Where(

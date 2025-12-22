@@ -1,4 +1,4 @@
-using MapMemo.Core;
+using MapMemo.Services;
 using MapMemo.UI.Common;
 using MapMemo.UI.Settings;
 using UnityEngine;
@@ -32,6 +32,8 @@ namespace MapMemo.Installers
             Container.BindInterfacesAndSelfTo<MapMemoSettingsController>()
                 .FromInstance(controller)
                 .AsSingle();
+
+            Container.Bind<MemoEditModalService>().AsSingle();
         }
     }
 
