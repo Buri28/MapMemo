@@ -22,6 +22,9 @@ namespace MapMemo.Utilities
             return false;
         }
 
+        /// <summary>
+        /// 文字列から改行コードを削除します。
+        /// </summary>
         public static string RemoveLineBreaks(string s)
         {
             return s?.Replace("\r", "").Replace("\n", "");
