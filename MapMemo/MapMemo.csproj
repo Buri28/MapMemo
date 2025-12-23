@@ -36,7 +36,7 @@
       <HintPath>$(BeatSaberPath)\Libs\0Harmony.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <!-- IPA.Loader のみ参照（IPA/IPA.Configは未配置のため外す） -->
+    
     <Reference Include="IPA.Loader">
       <HintPath>$(BeatSaberManagedPath)\IPA.Loader.dll</HintPath>
       <Private>false</Private>
@@ -60,7 +60,6 @@
       <Private>false</Private>
     </Reference>
 
-    <!-- Harmony は未使用（ファイル除外済み）なので参照も外す -->
 
     <!-- Newtonsoft.Json -->
     <Reference Include="Newtonsoft.Json">
@@ -139,14 +138,13 @@
     <PackageReference Include="System.ValueTuple" Version="4.6.1" />
   </ItemGroup>
 
-  <!-- BeatSaberPath をユーザーの環境に合わせて設定してください -->
   <Target Name="EchoBeatSaberPaths" BeforeTargets="Build">
     <Message Importance="high" Text="BeatSaberPath = '$(BeatSaberPath)'" />
     <Message Importance="high" Text="BeatSaberManagedPath = '$(BeatSaberManagedPath)'" />
     <Message Importance="high" Text="BeatSaberPluginsPath = '$(BeatSaberPluginsPath)'" />
   </Target>
 
-  <!-- ビルド後にPluginsへ配置（WallHitSoundに近い構成） -->
+
   <Target Name="CopyToBeatSaberPlugins" AfterTargets="Build">
     <ItemGroup>
       <PluginFiles Include="$(OutDir)\*.dll" />
