@@ -1,0 +1,1173 @@
+All Emoji List (1062 emojis)
+
+Key '😀' has 20 emojis:
+key '😀' emoji '😀' code point 0x1F600
+key '😀' emoji '😁' code point 0x1F601
+key '😀' emoji '😂' code point 0x1F602
+key '😀' emoji '😃' code point 0x1F603
+key '😀' emoji '😄' code point 0x1F604
+key '😀' emoji '😅' code point 0x1F605
+key '😀' emoji '😆' code point 0x1F606
+key '😀' emoji '😇' code point 0x1F607
+key '😀' emoji '😈' code point 0x1F608
+key '😀' emoji '😉' code point 0x1F609
+key '😀' emoji '😊' code point 0x1F60A
+key '😀' emoji '😋' code point 0x1F60B
+key '😀' emoji '😌' code point 0x1F60C
+key '😀' emoji '😍' code point 0x1F60D
+key '😀' emoji '😎' code point 0x1F60E
+key '😀' emoji '😏' code point 0x1F60F
+key '😀' emoji '😐' code point 0x1F610
+key '😀' emoji '😑' code point 0x1F611
+key '😀' emoji '😒' code point 0x1F612
+key '😀' emoji '😓' code point 0x1F613
+
+Key '😔' has 19 emojis:
+key '😔' emoji '😔' code point 0x1F614
+key '😔' emoji '😕' code point 0x1F615
+key '😔' emoji '😖' code point 0x1F616
+key '😔' emoji '😗' code point 0x1F617
+key '😔' emoji '😘' code point 0x1F618
+key '😔' emoji '😙' code point 0x1F619
+key '😔' emoji '😚' code point 0x1F61A
+key '😔' emoji '😛' code point 0x1F61B
+key '😔' emoji '😜' code point 0x1F61C
+key '😔' emoji '😝' code point 0x1F61D
+key '😔' emoji '😞' code point 0x1F61E
+key '😔' emoji '😟' code point 0x1F61F
+key '😔' emoji '😠' code point 0x1F620
+key '😔' emoji '😡' code point 0x1F621
+key '😔' emoji '😢' code point 0x1F622
+key '😔' emoji '😣' code point 0x1F623
+key '😔' emoji '😤' code point 0x1F624
+key '😔' emoji '😥' code point 0x1F625
+key '😔' emoji '😦' code point 0x1F626
+
+Key '😭' has 21 emojis:
+key '😭' emoji '😧' code point 0x1F627
+key '😭' emoji '😨' code point 0x1F628
+key '😭' emoji '😩' code point 0x1F629
+key '😭' emoji '😪' code point 0x1F62A
+key '😭' emoji '😫' code point 0x1F62B
+key '😭' emoji '😬' code point 0x1F62C
+key '😭' emoji '😭' code point 0x1F62D
+key '😭' emoji '😮' code point 0x1F62E
+key '😭' emoji '😯' code point 0x1F62F
+key '😭' emoji '😰' code point 0x1F630
+key '😭' emoji '😱' code point 0x1F631
+key '😭' emoji '😲' code point 0x1F632
+key '😭' emoji '😳' code point 0x1F633
+key '😭' emoji '😴' code point 0x1F634
+key '😭' emoji '😵' code point 0x1F635
+key '😭' emoji '😶' code point 0x1F636
+key '😭' emoji '😷' code point 0x1F637
+key '😭' emoji '🙁' code point 0x1F641
+key '😭' emoji '🙂' code point 0x1F642
+key '😭' emoji '🙃' code point 0x1F643
+key '😭' emoji '🙄' code point 0x1F644
+
+Key '🤔' has 16 emojis:
+key '🤔' emoji '🤐' code point 0x1F910
+key '🤔' emoji '🤑' code point 0x1F911
+key '🤔' emoji '🤒' code point 0x1F912
+key '🤔' emoji '🤓' code point 0x1F913
+key '🤔' emoji '🤔' code point 0x1F914
+key '🤔' emoji '🤕' code point 0x1F915
+key '🤔' emoji '🤖' code point 0x1F916
+key '🤔' emoji '🤗' code point 0x1F917
+key '🤔' emoji '🤠' code point 0x1F920
+key '🤔' emoji '🤡' code point 0x1F921
+key '🤔' emoji '🤢' code point 0x1F922
+key '🤔' emoji '🤣' code point 0x1F923
+key '🤔' emoji '🤤' code point 0x1F924
+key '🤔' emoji '🤥' code point 0x1F925
+key '🤔' emoji '🤦' code point 0x1F926
+key '🤔' emoji '🤧' code point 0x1F927
+
+Key '👍' has 36 emojis:
+key '👍' emoji '👊' code point 0x1F44A
+key '👍' emoji '👋' code point 0x1F44B
+key '👍' emoji '👌' code point 0x1F44C
+key '👍' emoji '👍' code point 0x1F44D
+key '👍' emoji '👎' code point 0x1F44E
+key '👍' emoji '👏' code point 0x1F44F
+key '👍' emoji '👐' code point 0x1F450
+key '👍' emoji '🤘' code point 0x1F918
+key '👍' emoji '🤙' code point 0x1F919
+key '👍' emoji '🤚' code point 0x1F91A
+key '👍' emoji '🤛' code point 0x1F91B
+key '👍' emoji '🤜' code point 0x1F91C
+key '👍' emoji '🤝' code point 0x1F91D
+key '👍' emoji '🤞' code point 0x1F91E
+key '👍' emoji '🖎' code point 0x1F58E
+key '👍' emoji '🖏' code point 0x1F58F
+key '👍' emoji '🖐' code point 0x1F590
+key '👍' emoji '🖑' code point 0x1F591
+key '👍' emoji '🖒' code point 0x1F592
+key '👍' emoji '🖓' code point 0x1F593
+key '👍' emoji '🖔' code point 0x1F594
+key '👍' emoji '🖕' code point 0x1F595
+key '👍' emoji '🖖' code point 0x1F596
+key '👍' emoji '🖗' code point 0x1F597
+key '👍' emoji '🖘' code point 0x1F598
+key '👍' emoji '🖙' code point 0x1F599
+key '👍' emoji '🖞' code point 0x1F59E
+key '👍' emoji '🖟' code point 0x1F59F
+key '👍' emoji '✊' code point 0x270A
+key '👍' emoji '✋' code point 0x270B
+key '👍' emoji '✌' code point 0x270C
+key '👍' emoji '✍' code point 0x270D
+key '👍' emoji '☜' code point 0x261C
+key '👍' emoji '☝' code point 0x261D
+key '👍' emoji '☞' code point 0x261E
+key '👍' emoji '☟' code point 0x261F
+
+Key '🙅' has 11 emojis:
+key '🙅' emoji '🙅' code point 0x1F645
+key '🙅' emoji '🙆' code point 0x1F646
+key '🙅' emoji '🙇' code point 0x1F647
+key '🙅' emoji '🙈' code point 0x1F648
+key '🙅' emoji '🙉' code point 0x1F649
+key '🙅' emoji '🙊' code point 0x1F64A
+key '🙅' emoji '🙋' code point 0x1F64B
+key '🙅' emoji '🙌' code point 0x1F64C
+key '🙅' emoji '🙍' code point 0x1F64D
+key '🙅' emoji '🙎' code point 0x1F64E
+key '🙅' emoji '🙏' code point 0x1F64F
+
+Key '💪' has 12 emojis:
+key '💪' emoji '💡' code point 0x1F4A1
+key '💪' emoji '💢' code point 0x1F4A2
+key '💪' emoji '💣' code point 0x1F4A3
+key '💪' emoji '💤' code point 0x1F4A4
+key '💪' emoji '💥' code point 0x1F4A5
+key '💪' emoji '💦' code point 0x1F4A6
+key '💪' emoji '💧' code point 0x1F4A7
+key '💪' emoji '💨' code point 0x1F4A8
+key '💪' emoji '💩' code point 0x1F4A9
+key '💪' emoji '💪' code point 0x1F4AA
+key '💪' emoji '♨' code point 0x2668
+key '💪' emoji '🗑' code point 0x1F5D1
+
+Key '💯' has 15 emojis:
+key '💯' emoji '💮' code point 0x1F4AE
+key '💯' emoji '💯' code point 0x1F4AF
+key '💯' emoji '💰' code point 0x1F4B0
+key '💯' emoji '💐' code point 0x1F490
+key '💯' emoji '💓' code point 0x1F493
+key '💯' emoji '💔' code point 0x1F494
+key '💯' emoji '💕' code point 0x1F495
+key '💯' emoji '💖' code point 0x1F496
+key '💯' emoji '💗' code point 0x1F497
+key '💯' emoji '💘' code point 0x1F498
+key '💯' emoji '💝' code point 0x1F49D
+key '💯' emoji '💞' code point 0x1F49E
+key '💯' emoji '💟' code point 0x1F49F
+key '💯' emoji '🖤' code point 0x1F5A4
+key '💯' emoji '🕭' code point 0x1F56D
+
+Key '👶' has 11 emojis:
+key '👶' emoji '👦' code point 0x1F466
+key '👶' emoji '👧' code point 0x1F467
+key '👶' emoji '👨' code point 0x1F468
+key '👶' emoji '👩' code point 0x1F469
+key '👶' emoji '👪' code point 0x1F46A
+key '👶' emoji '👱' code point 0x1F471
+key '👶' emoji '👲' code point 0x1F472
+key '👶' emoji '👳' code point 0x1F473
+key '👶' emoji '👴' code point 0x1F474
+key '👶' emoji '👵' code point 0x1F475
+key '👶' emoji '👶' code point 0x1F476
+
+Key '👹' has 8 emojis:
+key '👹' emoji '👹' code point 0x1F479
+key '👹' emoji '👺' code point 0x1F47A
+key '👹' emoji '👻' code point 0x1F47B
+key '👹' emoji '👼' code point 0x1F47C
+key '👹' emoji '👽' code point 0x1F47D
+key '👹' emoji '👾' code point 0x1F47E
+key '👹' emoji '👿' code point 0x1F47F
+key '👹' emoji '💀' code point 0x1F480
+
+Key '😸' has 9 emojis:
+key '😸' emoji '😸' code point 0x1F638
+key '😸' emoji '😹' code point 0x1F639
+key '😸' emoji '😺' code point 0x1F63A
+key '😸' emoji '😻' code point 0x1F63B
+key '😸' emoji '😼' code point 0x1F63C
+key '😸' emoji '😽' code point 0x1F63D
+key '😸' emoji '😾' code point 0x1F63E
+key '😸' emoji '😿' code point 0x1F63F
+key '😸' emoji '🙀' code point 0x1F640
+
+Key '🐇' has 24 emojis:
+key '🐇' emoji '🐀' code point 0x1F400
+key '🐇' emoji '🐁' code point 0x1F401
+key '🐇' emoji '🐂' code point 0x1F402
+key '🐇' emoji '🐃' code point 0x1F403
+key '🐇' emoji '🐄' code point 0x1F404
+key '🐇' emoji '🐅' code point 0x1F405
+key '🐇' emoji '🐆' code point 0x1F406
+key '🐇' emoji '🐇' code point 0x1F407
+key '🐇' emoji '🐈' code point 0x1F408
+key '🐇' emoji '🐉' code point 0x1F409
+key '🐇' emoji '🐊' code point 0x1F40A
+key '🐇' emoji '🐋' code point 0x1F40B
+key '🐇' emoji '🐌' code point 0x1F40C
+key '🐇' emoji '🐍' code point 0x1F40D
+key '🐇' emoji '🐎' code point 0x1F40E
+key '🐇' emoji '🐏' code point 0x1F40F
+key '🐇' emoji '🐐' code point 0x1F410
+key '🐇' emoji '🐑' code point 0x1F411
+key '🐇' emoji '🐒' code point 0x1F412
+key '🐇' emoji '🐓' code point 0x1F413
+key '🐇' emoji '🐔' code point 0x1F414
+key '🐇' emoji '🐕' code point 0x1F415
+key '🐇' emoji '🐖' code point 0x1F416
+key '🐇' emoji '🐗' code point 0x1F417
+
+Key '🐘' has 20 emojis:
+key '🐘' emoji '🐘' code point 0x1F418
+key '🐘' emoji '🐙' code point 0x1F419
+key '🐘' emoji '🐚' code point 0x1F41A
+key '🐘' emoji '🐛' code point 0x1F41B
+key '🐘' emoji '🐜' code point 0x1F41C
+key '🐘' emoji '🐝' code point 0x1F41D
+key '🐘' emoji '🐞' code point 0x1F41E
+key '🐘' emoji '🐟' code point 0x1F41F
+key '🐘' emoji '🐠' code point 0x1F420
+key '🐘' emoji '🐡' code point 0x1F421
+key '🐘' emoji '🐢' code point 0x1F422
+key '🐘' emoji '🐣' code point 0x1F423
+key '🐘' emoji '🐤' code point 0x1F424
+key '🐘' emoji '🐥' code point 0x1F425
+key '🐘' emoji '🐦' code point 0x1F426
+key '🐘' emoji '🐧' code point 0x1F427
+key '🐘' emoji '🐨' code point 0x1F428
+key '🐘' emoji '🐩' code point 0x1F429
+key '🐘' emoji '🐪' code point 0x1F42A
+key '🐘' emoji '🐫' code point 0x1F42B
+
+Key '🐬' has 19 emojis:
+key '🐬' emoji '🐬' code point 0x1F42C
+key '🐬' emoji '🐭' code point 0x1F42D
+key '🐬' emoji '🐮' code point 0x1F42E
+key '🐬' emoji '🐯' code point 0x1F42F
+key '🐬' emoji '🐰' code point 0x1F430
+key '🐬' emoji '🐱' code point 0x1F431
+key '🐬' emoji '🐲' code point 0x1F432
+key '🐬' emoji '🐳' code point 0x1F433
+key '🐬' emoji '🐴' code point 0x1F434
+key '🐬' emoji '🐵' code point 0x1F435
+key '🐬' emoji '🐶' code point 0x1F436
+key '🐬' emoji '🐷' code point 0x1F437
+key '🐬' emoji '🐸' code point 0x1F438
+key '🐬' emoji '🐹' code point 0x1F439
+key '🐬' emoji '🐺' code point 0x1F43A
+key '🐬' emoji '🐻' code point 0x1F43B
+key '🐬' emoji '🐼' code point 0x1F43C
+key '🐬' emoji '🐽' code point 0x1F43D
+key '🐬' emoji '🐾' code point 0x1F43E
+
+Key '🦀' has 19 emojis:
+key '🦀' emoji '🦀' code point 0x1F980
+key '🦀' emoji '🦁' code point 0x1F981
+key '🦀' emoji '🦂' code point 0x1F982
+key '🦀' emoji '🦃' code point 0x1F983
+key '🦀' emoji '🦄' code point 0x1F984
+key '🦀' emoji '🦅' code point 0x1F985
+key '🦀' emoji '🦆' code point 0x1F986
+key '🦀' emoji '🦇' code point 0x1F987
+key '🦀' emoji '🦈' code point 0x1F988
+key '🦀' emoji '🦉' code point 0x1F989
+key '🦀' emoji '🦊' code point 0x1F98A
+key '🦀' emoji '🦋' code point 0x1F98B
+key '🦀' emoji '🦌' code point 0x1F98C
+key '🦀' emoji '🦍' code point 0x1F98D
+key '🦀' emoji '🦎' code point 0x1F98E
+key '🦀' emoji '🦏' code point 0x1F98F
+key '🦀' emoji '🦐' code point 0x1F990
+key '🦀' emoji '🦑' code point 0x1F991
+key '🦀' emoji '🕊' code point 0x1F54A
+
+Key '🌱' has 21 emojis:
+key '🌱' emoji '🌰' code point 0x1F330
+key '🌱' emoji '🌱' code point 0x1F331
+key '🌱' emoji '🌲' code point 0x1F332
+key '🌱' emoji '🌳' code point 0x1F333
+key '🌱' emoji '🌴' code point 0x1F334
+key '🌱' emoji '🌵' code point 0x1F335
+key '🌱' emoji '🌶' code point 0x1F336
+key '🌱' emoji '🌷' code point 0x1F337
+key '🌱' emoji '🌸' code point 0x1F338
+key '🌱' emoji '🌹' code point 0x1F339
+key '🌱' emoji '🌺' code point 0x1F33A
+key '🌱' emoji '🌻' code point 0x1F33B
+key '🌱' emoji '🌼' code point 0x1F33C
+key '🌱' emoji '🌽' code point 0x1F33D
+key '🌱' emoji '🌾' code point 0x1F33E
+key '🌱' emoji '🌿' code point 0x1F33F
+key '🌱' emoji '🍀' code point 0x1F340
+key '🌱' emoji '🍁' code point 0x1F341
+key '🌱' emoji '🍂' code point 0x1F342
+key '🌱' emoji '🍃' code point 0x1F343
+key '🌱' emoji '🍄' code point 0x1F344
+
+Key '🍅' has 15 emojis:
+key '🍅' emoji '🍅' code point 0x1F345
+key '🍅' emoji '🍆' code point 0x1F346
+key '🍅' emoji '🍇' code point 0x1F347
+key '🍅' emoji '🍈' code point 0x1F348
+key '🍅' emoji '🍉' code point 0x1F349
+key '🍅' emoji '🍊' code point 0x1F34A
+key '🍅' emoji '🍋' code point 0x1F34B
+key '🍅' emoji '🍌' code point 0x1F34C
+key '🍅' emoji '🍍' code point 0x1F34D
+key '🍅' emoji '🍎' code point 0x1F34E
+key '🍅' emoji '🍏' code point 0x1F34F
+key '🍅' emoji '🍐' code point 0x1F350
+key '🍅' emoji '🍑' code point 0x1F351
+key '🍅' emoji '🍒' code point 0x1F352
+key '🍅' emoji '🍓' code point 0x1F353
+
+Key '🍔' has 20 emojis:
+key '🍔' emoji '🍔' code point 0x1F354
+key '🍔' emoji '🍕' code point 0x1F355
+key '🍔' emoji '🍖' code point 0x1F356
+key '🍔' emoji '🍗' code point 0x1F357
+key '🍔' emoji '🍘' code point 0x1F358
+key '🍔' emoji '🍙' code point 0x1F359
+key '🍔' emoji '🍚' code point 0x1F35A
+key '🍔' emoji '🍛' code point 0x1F35B
+key '🍔' emoji '🍜' code point 0x1F35C
+key '🍔' emoji '🍝' code point 0x1F35D
+key '🍔' emoji '🍞' code point 0x1F35E
+key '🍔' emoji '🍟' code point 0x1F35F
+key '🍔' emoji '🍠' code point 0x1F360
+key '🍔' emoji '🍡' code point 0x1F361
+key '🍔' emoji '🍢' code point 0x1F362
+key '🍔' emoji '🍣' code point 0x1F363
+key '🍔' emoji '🍤' code point 0x1F364
+key '🍔' emoji '🍥' code point 0x1F365
+key '🍔' emoji '🍦' code point 0x1F366
+key '🍔' emoji '🍧' code point 0x1F367
+
+Key '🍨' has 13 emojis:
+key '🍨' emoji '🍨' code point 0x1F368
+key '🍨' emoji '🍩' code point 0x1F369
+key '🍨' emoji '🍪' code point 0x1F36A
+key '🍨' emoji '🍫' code point 0x1F36B
+key '🍨' emoji '🍬' code point 0x1F36C
+key '🍨' emoji '🍭' code point 0x1F36D
+key '🍨' emoji '🍮' code point 0x1F36E
+key '🍨' emoji '🍯' code point 0x1F36F
+key '🍨' emoji '🍰' code point 0x1F370
+key '🍨' emoji '🍱' code point 0x1F371
+key '🍨' emoji '🍲' code point 0x1F372
+key '🍨' emoji '🍳' code point 0x1F373
+key '🍨' emoji '🍴' code point 0x1F374
+
+Key '🍵' has 12 emojis:
+key '🍵' emoji '☕' code point 0x2615
+key '🍵' emoji '🍵' code point 0x1F375
+key '🍵' emoji '🍶' code point 0x1F376
+key '🍵' emoji '🍷' code point 0x1F377
+key '🍵' emoji '🍸' code point 0x1F378
+key '🍵' emoji '🍹' code point 0x1F379
+key '🍵' emoji '🍺' code point 0x1F37A
+key '🍵' emoji '🍻' code point 0x1F37B
+key '🍵' emoji '🍼' code point 0x1F37C
+key '🍵' emoji '🍽' code point 0x1F37D
+key '🍵' emoji '🍾' code point 0x1F37E
+key '🍵' emoji '🍿' code point 0x1F37F
+
+Key '🚀' has 20 emojis:
+key '🚀' emoji '🚀' code point 0x1F680
+key '🚀' emoji '🚁' code point 0x1F681
+key '🚀' emoji '🚂' code point 0x1F682
+key '🚀' emoji '🚃' code point 0x1F683
+key '🚀' emoji '🚄' code point 0x1F684
+key '🚀' emoji '🚅' code point 0x1F685
+key '🚀' emoji '🚆' code point 0x1F686
+key '🚀' emoji '🚇' code point 0x1F687
+key '🚀' emoji '🚈' code point 0x1F688
+key '🚀' emoji '🚉' code point 0x1F689
+key '🚀' emoji '🚊' code point 0x1F68A
+key '🚀' emoji '🚋' code point 0x1F68B
+key '🚀' emoji '🚌' code point 0x1F68C
+key '🚀' emoji '🚍' code point 0x1F68D
+key '🚀' emoji '🚎' code point 0x1F68E
+key '🚀' emoji '🚏' code point 0x1F68F
+key '🚀' emoji '🛩' code point 0x1F6E9
+key '🚀' emoji '🛪' code point 0x1F6EA
+key '🚀' emoji '🛫' code point 0x1F6EB
+key '🚀' emoji '🛬' code point 0x1F6EC
+
+Key '🚐' has 21 emojis:
+key '🚐' emoji '🚐' code point 0x1F690
+key '🚐' emoji '🚑' code point 0x1F691
+key '🚐' emoji '🚒' code point 0x1F692
+key '🚐' emoji '🚓' code point 0x1F693
+key '🚐' emoji '🚔' code point 0x1F694
+key '🚐' emoji '🚕' code point 0x1F695
+key '🚐' emoji '🚖' code point 0x1F696
+key '🚐' emoji '🚗' code point 0x1F697
+key '🚐' emoji '🚘' code point 0x1F698
+key '🚐' emoji '🚙' code point 0x1F699
+key '🚐' emoji '🚚' code point 0x1F69A
+key '🚐' emoji '🚛' code point 0x1F69B
+key '🚐' emoji '🚜' code point 0x1F69C
+key '🚐' emoji '🚝' code point 0x1F69D
+key '🚐' emoji '🚞' code point 0x1F69E
+key '🚐' emoji '🚟' code point 0x1F69F
+key '🚐' emoji '🚠' code point 0x1F6A0
+key '🚐' emoji '🚡' code point 0x1F6A1
+key '🚐' emoji '🚢' code point 0x1F6A2
+key '🚐' emoji '🚣' code point 0x1F6A3
+key '🚐' emoji '🚤' code point 0x1F6A4
+
+Key '🚥' has 12 emojis:
+key '🚥' emoji '🚥' code point 0x1F6A5
+key '🚥' emoji '🚦' code point 0x1F6A6
+key '🚥' emoji '🚧' code point 0x1F6A7
+key '🚥' emoji '🚨' code point 0x1F6A8
+key '🚥' emoji '🚩' code point 0x1F6A9
+key '🚥' emoji '🚪' code point 0x1F6AA
+key '🚥' emoji '🚫' code point 0x1F6AB
+key '🚥' emoji '🚬' code point 0x1F6AC
+key '🚥' emoji '🚭' code point 0x1F6AD
+key '🚥' emoji '🚮' code point 0x1F6AE
+key '🚥' emoji '🚯' code point 0x1F6AF
+key '🚥' emoji '🚰' code point 0x1F6B0
+
+Key '☀' has 10 emojis:
+key '☀' emoji '☀' code point 0x2600
+key '☀' emoji '☁' code point 0x2601
+key '☀' emoji '☂' code point 0x2602
+key '☀' emoji '☃' code point 0x2603
+key '☀' emoji '☔' code point 0x2614
+key '☀' emoji '⛄' code point 0x26C4
+key '☀' emoji '⛅' code point 0x26C5
+key '☀' emoji '⛆' code point 0x26C6
+key '☀' emoji '⛇' code point 0x26C7
+key '☀' emoji '⛈' code point 0x26C8
+
+Key '☪' has 7 emojis:
+key '☪' emoji '☄' code point 0x2604
+key '☪' emoji '★' code point 0x2605
+key '☪' emoji '☆' code point 0x2606
+key '☪' emoji '☪' code point 0x262A
+key '☪' emoji '☽' code point 0x263D
+key '☪' emoji '☾' code point 0x263E
+key '☪' emoji '💫' code point 0x1F4AB
+
+Key '♪' has 7 emojis:
+key '♪' emoji '♩' code point 0x2669
+key '♪' emoji '♪' code point 0x266A
+key '♪' emoji '♫' code point 0x266B
+key '♪' emoji '♬' code point 0x266C
+key '♪' emoji '♭' code point 0x266D
+key '♪' emoji '♮' code point 0x266E
+key '♪' emoji '♯' code point 0x266F
+
+Key '♔' has 21 emojis:
+key '♔' emoji '👑' code point 0x1F451
+key '♔' emoji '♔' code point 0x2654
+key '♔' emoji '♕' code point 0x2655
+key '♔' emoji '♖' code point 0x2656
+key '♔' emoji '♗' code point 0x2657
+key '♔' emoji '♘' code point 0x2658
+key '♔' emoji '♙' code point 0x2659
+key '♔' emoji '♚' code point 0x265A
+key '♔' emoji '♛' code point 0x265B
+key '♔' emoji '♜' code point 0x265C
+key '♔' emoji '♝' code point 0x265D
+key '♔' emoji '♞' code point 0x265E
+key '♔' emoji '♟' code point 0x265F
+key '♔' emoji '♠' code point 0x2660
+key '♔' emoji '♡' code point 0x2661
+key '♔' emoji '♢' code point 0x2662
+key '♔' emoji '♣' code point 0x2663
+key '♔' emoji '♤' code point 0x2664
+key '♔' emoji '♥' code point 0x2665
+key '♔' emoji '♦' code point 0x2666
+key '♔' emoji '♧' code point 0x2667
+
+Key '👗' has 18 emojis:
+key '👗' emoji '👒' code point 0x1F452
+key '👗' emoji '👓' code point 0x1F453
+key '👗' emoji '👔' code point 0x1F454
+key '👗' emoji '👕' code point 0x1F455
+key '👗' emoji '👖' code point 0x1F456
+key '👗' emoji '👗' code point 0x1F457
+key '👗' emoji '👘' code point 0x1F458
+key '👗' emoji '👙' code point 0x1F459
+key '👗' emoji '👚' code point 0x1F45A
+key '👗' emoji '👛' code point 0x1F45B
+key '👗' emoji '👜' code point 0x1F45C
+key '👗' emoji '👝' code point 0x1F45D
+key '👗' emoji '👞' code point 0x1F45E
+key '👗' emoji '👟' code point 0x1F45F
+key '👗' emoji '👠' code point 0x1F460
+key '👗' emoji '👡' code point 0x1F461
+key '👗' emoji '👢' code point 0x1F462
+key '👗' emoji '👣' code point 0x1F463
+
+Key '⚔' has 16 emojis:
+key '⚔' emoji '⚒' code point 0x2692
+key '⚔' emoji '⚓' code point 0x2693
+key '⚔' emoji '⚔' code point 0x2694
+key '⚔' emoji '⚕' code point 0x2695
+key '⚔' emoji '⚖' code point 0x2696
+key '⚔' emoji '☣' code point 0x2623
+key '⚔' emoji '☤' code point 0x2624
+key '⚔' emoji '☫' code point 0x262B
+key '⚔' emoji '☬' code point 0x262C
+key '⚔' emoji '☭' code point 0x262D
+key '⚔' emoji '⚚' code point 0x269A
+key '⚔' emoji '⛌' code point 0x26CC
+key '⚔' emoji '🔧' code point 0x1F527
+key '⚔' emoji '🔨' code point 0x1F528
+key '⚔' emoji '🔪' code point 0x1F52A
+key '⚔' emoji '🔫' code point 0x1F52B
+
+Key '⚽' has 13 emojis:
+key '⚽' emoji '⚽' code point 0x26BD
+key '⚽' emoji '⚾' code point 0x26BE
+key '⚽' emoji '⚿' code point 0x26BF
+key '⚽' emoji '⛀' code point 0x26C0
+key '⚽' emoji '⛁' code point 0x26C1
+key '⚽' emoji '⛂' code point 0x26C2
+key '⚽' emoji '⛃' code point 0x26C3
+key '⚽' emoji '⛷' code point 0x26F7
+key '⚽' emoji '⛸' code point 0x26F8
+key '⚽' emoji '⛹' code point 0x26F9
+key '⚽' emoji '🔑' code point 0x1F511
+key '⚽' emoji '🔒' code point 0x1F512
+key '⚽' emoji '🔓' code point 0x1F513
+
+Key '🗽' has 19 emojis:
+key '🗽' emoji '🗺' code point 0x1F5FA
+key '🗽' emoji '🗻' code point 0x1F5FB
+key '🗽' emoji '🗼' code point 0x1F5FC
+key '🗽' emoji '🗽' code point 0x1F5FD
+key '🗽' emoji '🗾' code point 0x1F5FE
+key '🗽' emoji '🗿' code point 0x1F5FF
+key '🗽' emoji '⛰' code point 0x26F0
+key '🗽' emoji '⛱' code point 0x26F1
+key '🗽' emoji '⛲' code point 0x26F2
+key '🗽' emoji '⛳' code point 0x26F3
+key '🗽' emoji '⛴' code point 0x26F4
+key '🗽' emoji '⛵' code point 0x26F5
+key '🗽' emoji '⛶' code point 0x26F6
+key '🗽' emoji '⛺' code point 0x26FA
+key '🗽' emoji '⛻' code point 0x26FB
+key '🗽' emoji '⛼' code point 0x26FC
+key '🗽' emoji '⛽' code point 0x26FD
+key '🗽' emoji '⛾' code point 0x26FE
+key '🗽' emoji '⛿' code point 0x26FF
+
+Key '☠' has 12 emojis:
+key '☠' emoji '☠' code point 0x2620
+key '☠' emoji '☡' code point 0x2621
+key '☠' emoji '☢' code point 0x2622
+key '☠' emoji '☥' code point 0x2625
+key '☠' emoji '☦' code point 0x2626
+key '☠' emoji '☧' code point 0x2627
+key '☠' emoji '☨' code point 0x2628
+key '☠' emoji '☩' code point 0x2629
+key '☠' emoji '☮' code point 0x262E
+key '☠' emoji '☯' code point 0x262F
+key '☠' emoji '🕱' code point 0x1F571
+key '☠' emoji '📿' code point 0x1F4FF
+
+Key '☿' has 21 emojis:
+key '☿' emoji '☿' code point 0x263F
+key '☿' emoji '♀' code point 0x2640
+key '☿' emoji '♁' code point 0x2641
+key '☿' emoji '♂' code point 0x2642
+key '☿' emoji '♃' code point 0x2643
+key '☿' emoji '♄' code point 0x2644
+key '☿' emoji '♅' code point 0x2645
+key '☿' emoji '♆' code point 0x2646
+key '☿' emoji '♇' code point 0x2647
+key '☿' emoji '♈' code point 0x2648
+key '☿' emoji '♉' code point 0x2649
+key '☿' emoji '♊' code point 0x264A
+key '☿' emoji '♋' code point 0x264B
+key '☿' emoji '♌' code point 0x264C
+key '☿' emoji '♍' code point 0x264D
+key '☿' emoji '♎' code point 0x264E
+key '☿' emoji '♏' code point 0x264F
+key '☿' emoji '♐' code point 0x2650
+key '☿' emoji '♑' code point 0x2651
+key '☿' emoji '♒' code point 0x2652
+key '☿' emoji '♓' code point 0x2653
+
+Key '♲' has 18 emojis:
+key '♲' emoji '♲' code point 0x2672
+key '♲' emoji '♳' code point 0x2673
+key '♲' emoji '♴' code point 0x2674
+key '♲' emoji '♵' code point 0x2675
+key '♲' emoji '♶' code point 0x2676
+key '♲' emoji '♷' code point 0x2677
+key '♲' emoji '♸' code point 0x2678
+key '♲' emoji '♹' code point 0x2679
+key '♲' emoji '♺' code point 0x267A
+key '♲' emoji '♻' code point 0x267B
+key '♲' emoji '♼' code point 0x267C
+key '♲' emoji '♽' code point 0x267D
+key '♲' emoji '♾' code point 0x267E
+key '♲' emoji '🔀' code point 0x1F500
+key '♲' emoji '🔁' code point 0x1F501
+key '♲' emoji '🔂' code point 0x1F502
+key '♲' emoji '🔃' code point 0x1F503
+key '♲' emoji '🔄' code point 0x1F504
+
+Key '⛔' has 22 emojis:
+key '⛔' emoji '⛍' code point 0x26CD
+key '⛔' emoji '⛎' code point 0x26CE
+key '⛔' emoji '⛏' code point 0x26CF
+key '⛔' emoji '⛐' code point 0x26D0
+key '⛔' emoji '⛑' code point 0x26D1
+key '⛔' emoji '⛒' code point 0x26D2
+key '⛔' emoji '⛓' code point 0x26D3
+key '⛔' emoji '⛔' code point 0x26D4
+key '⛔' emoji '⛕' code point 0x26D5
+key '⛔' emoji '⛖' code point 0x26D6
+key '⛔' emoji '⛗' code point 0x26D7
+key '⛔' emoji '⛘' code point 0x26D8
+key '⛔' emoji '⛙' code point 0x26D9
+key '⛔' emoji '⛚' code point 0x26DA
+key '⛔' emoji '⛛' code point 0x26DB
+key '⛔' emoji '⛜' code point 0x26DC
+key '⛔' emoji '⛝' code point 0x26DD
+key '⛔' emoji '⛞' code point 0x26DE
+key '⛔' emoji '⛟' code point 0x26DF
+key '⛔' emoji '⛠' code point 0x26E0
+key '⛔' emoji '⛡' code point 0x26E1
+key '⛔' emoji '⚠' code point 0x26A0
+
+Key '⛨' has 18 emojis:
+key '⛨' emoji '⛢' code point 0x26E2
+key '⛨' emoji '⛣' code point 0x26E3
+key '⛨' emoji '⛤' code point 0x26E4
+key '⛨' emoji '⛥' code point 0x26E5
+key '⛨' emoji '⛦' code point 0x26E6
+key '⛨' emoji '⛧' code point 0x26E7
+key '⛨' emoji '⛨' code point 0x26E8
+key '⛨' emoji '⛩' code point 0x26E9
+key '⛨' emoji '⛪' code point 0x26EA
+key '⛨' emoji '⛫' code point 0x26EB
+key '⛨' emoji '⛬' code point 0x26EC
+key '⛨' emoji '⛭' code point 0x26ED
+key '⛨' emoji '⛮' code point 0x26EE
+key '⛨' emoji '⛯' code point 0x26EF
+key '⛨' emoji '⚛' code point 0x269B
+key '⛨' emoji '⚝' code point 0x269D
+key '⛨' emoji '🔯' code point 0x1F52F
+key '⛨' emoji '✡' code point 0x2721
+
+Key '✀' has 23 emojis:
+key '✀' emoji '✀' code point 0x2700
+key '✀' emoji '✁' code point 0x2701
+key '✀' emoji '✂' code point 0x2702
+key '✀' emoji '✃' code point 0x2703
+key '✀' emoji '✄' code point 0x2704
+key '✀' emoji '✅' code point 0x2705
+key '✀' emoji '✆' code point 0x2706
+key '✀' emoji '✇' code point 0x2707
+key '✀' emoji '✈' code point 0x2708
+key '✀' emoji '✉' code point 0x2709
+key '✀' emoji '✎' code point 0x270E
+key '✀' emoji '✏' code point 0x270F
+key '✀' emoji '✐' code point 0x2710
+key '✀' emoji '✑' code point 0x2711
+key '✀' emoji '✒' code point 0x2712
+key '✀' emoji '📏' code point 0x1F4CF
+key '✀' emoji '📐' code point 0x1F4D0
+key '✀' emoji '📑' code point 0x1F4D1
+key '✀' emoji '📒' code point 0x1F4D2
+key '✀' emoji '📓' code point 0x1F4D3
+key '✀' emoji '📔' code point 0x1F4D4
+key '✀' emoji '📕' code point 0x1F4D5
+key '✀' emoji '📖' code point 0x1F4D6
+
+Key '✓' has 10 emojis:
+key '✓' emoji '✓' code point 0x2713
+key '✓' emoji '✔' code point 0x2714
+key '✓' emoji '✕' code point 0x2715
+key '✓' emoji '✖' code point 0x2716
+key '✓' emoji '✗' code point 0x2717
+key '✓' emoji '✘' code point 0x2718
+key '✓' emoji '☐' code point 0x2610
+key '✓' emoji '☑' code point 0x2611
+key '✓' emoji '☒' code point 0x2612
+key '✓' emoji '☓' code point 0x2613
+
+Key '✙' has 17 emojis:
+key '✙' emoji '✙' code point 0x2719
+key '✙' emoji '✚' code point 0x271A
+key '✙' emoji '✛' code point 0x271B
+key '✙' emoji '✜' code point 0x271C
+key '✙' emoji '✝' code point 0x271D
+key '✙' emoji '✞' code point 0x271E
+key '✙' emoji '✟' code point 0x271F
+key '✙' emoji '✠' code point 0x2720
+key '✙' emoji '✢' code point 0x2722
+key '✙' emoji '✣' code point 0x2723
+key '✙' emoji '✤' code point 0x2724
+key '✙' emoji '✥' code point 0x2725
+key '✙' emoji '🕀' code point 0x1F540
+key '✙' emoji '🕁' code point 0x1F541
+key '✙' emoji '🕂' code point 0x1F542
+key '✙' emoji '🕆' code point 0x1F546
+key '✙' emoji '🕇' code point 0x1F547
+
+Key '✦' has 20 emojis:
+key '✦' emoji '✦' code point 0x2726
+key '✦' emoji '✧' code point 0x2727
+key '✦' emoji '✨' code point 0x2728
+key '✦' emoji '✩' code point 0x2729
+key '✦' emoji '✪' code point 0x272A
+key '✦' emoji '✫' code point 0x272B
+key '✦' emoji '✬' code point 0x272C
+key '✦' emoji '✭' code point 0x272D
+key '✦' emoji '✮' code point 0x272E
+key '✦' emoji '✯' code point 0x272F
+key '✦' emoji '✰' code point 0x2730
+key '✦' emoji '✱' code point 0x2731
+key '✦' emoji '✲' code point 0x2732
+key '✦' emoji '✳' code point 0x2733
+key '✦' emoji '✴' code point 0x2734
+key '✦' emoji '✵' code point 0x2735
+key '✦' emoji '✶' code point 0x2736
+key '✦' emoji '✷' code point 0x2737
+key '✦' emoji '✸' code point 0x2738
+key '✦' emoji '✹' code point 0x2739
+
+Key '✺' has 21 emojis:
+key '✺' emoji '✺' code point 0x273A
+key '✺' emoji '✻' code point 0x273B
+key '✺' emoji '✼' code point 0x273C
+key '✺' emoji '✽' code point 0x273D
+key '✺' emoji '✾' code point 0x273E
+key '✺' emoji '✿' code point 0x273F
+key '✺' emoji '❀' code point 0x2740
+key '✺' emoji '❁' code point 0x2741
+key '✺' emoji '❂' code point 0x2742
+key '✺' emoji '❃' code point 0x2743
+key '✺' emoji '❄' code point 0x2744
+key '✺' emoji '❅' code point 0x2745
+key '✺' emoji '❆' code point 0x2746
+key '✺' emoji '❇' code point 0x2747
+key '✺' emoji '❈' code point 0x2748
+key '✺' emoji '❉' code point 0x2749
+key '✺' emoji '❊' code point 0x274A
+key '✺' emoji '❋' code point 0x274B
+key '✺' emoji '❌' code point 0x274C
+key '✺' emoji '❍' code point 0x274D
+key '✺' emoji '❎' code point 0x274E
+
+Key '❏' has 25 emojis:
+key '❏' emoji '❏' code point 0x274F
+key '❏' emoji '❐' code point 0x2750
+key '❏' emoji '❑' code point 0x2751
+key '❏' emoji '❒' code point 0x2752
+key '❏' emoji '❓' code point 0x2753
+key '❏' emoji '❔' code point 0x2754
+key '❏' emoji '❕' code point 0x2755
+key '❏' emoji '❖' code point 0x2756
+key '❏' emoji '❗' code point 0x2757
+key '❏' emoji '❘' code point 0x2758
+key '❏' emoji '❙' code point 0x2759
+key '❏' emoji '❚' code point 0x275A
+key '❏' emoji '❛' code point 0x275B
+key '❏' emoji '❜' code point 0x275C
+key '❏' emoji '❝' code point 0x275D
+key '❏' emoji '❞' code point 0x275E
+key '❏' emoji '❟' code point 0x275F
+key '❏' emoji '❠' code point 0x2760
+key '❏' emoji '❡' code point 0x2761
+key '❏' emoji '❢' code point 0x2762
+key '❏' emoji '❣' code point 0x2763
+key '❏' emoji '❤' code point 0x2764
+key '❏' emoji '❥' code point 0x2765
+key '❏' emoji '❦' code point 0x2766
+key '❏' emoji '❧' code point 0x2767
+
+Key '❨' has 14 emojis:
+key '❨' emoji '❨' code point 0x2768
+key '❨' emoji '❩' code point 0x2769
+key '❨' emoji '❪' code point 0x276A
+key '❨' emoji '❫' code point 0x276B
+key '❨' emoji '❬' code point 0x276C
+key '❨' emoji '❭' code point 0x276D
+key '❨' emoji '❮' code point 0x276E
+key '❨' emoji '❯' code point 0x276F
+key '❨' emoji '❰' code point 0x2770
+key '❨' emoji '❱' code point 0x2771
+key '❨' emoji '❲' code point 0x2772
+key '❨' emoji '❳' code point 0x2773
+key '❨' emoji '❴' code point 0x2774
+key '❨' emoji '❵' code point 0x2775
+
+Key '❶' has 30 emojis:
+key '❶' emoji '❶' code point 0x2776
+key '❶' emoji '❷' code point 0x2777
+key '❶' emoji '❸' code point 0x2778
+key '❶' emoji '❹' code point 0x2779
+key '❶' emoji '❺' code point 0x277A
+key '❶' emoji '❻' code point 0x277B
+key '❶' emoji '❼' code point 0x277C
+key '❶' emoji '❽' code point 0x277D
+key '❶' emoji '❾' code point 0x277E
+key '❶' emoji '❿' code point 0x277F
+key '❶' emoji '➀' code point 0x2780
+key '❶' emoji '➁' code point 0x2781
+key '❶' emoji '➂' code point 0x2782
+key '❶' emoji '➃' code point 0x2783
+key '❶' emoji '➄' code point 0x2784
+key '❶' emoji '➅' code point 0x2785
+key '❶' emoji '➆' code point 0x2786
+key '❶' emoji '➇' code point 0x2787
+key '❶' emoji '➈' code point 0x2788
+key '❶' emoji '➉' code point 0x2789
+key '❶' emoji '➊' code point 0x278A
+key '❶' emoji '➋' code point 0x278B
+key '❶' emoji '➌' code point 0x278C
+key '❶' emoji '➍' code point 0x278D
+key '❶' emoji '➎' code point 0x278E
+key '❶' emoji '➏' code point 0x278F
+key '❶' emoji '➐' code point 0x2790
+key '❶' emoji '➑' code point 0x2791
+key '❶' emoji '➒' code point 0x2792
+key '❶' emoji '➓' code point 0x2793
+
+Key '➔' has 44 emojis:
+key '➔' emoji '➔' code point 0x2794
+key '➔' emoji '➕' code point 0x2795
+key '➔' emoji '➖' code point 0x2796
+key '➔' emoji '➗' code point 0x2797
+key '➔' emoji '➘' code point 0x2798
+key '➔' emoji '➙' code point 0x2799
+key '➔' emoji '➚' code point 0x279A
+key '➔' emoji '➛' code point 0x279B
+key '➔' emoji '➜' code point 0x279C
+key '➔' emoji '➝' code point 0x279D
+key '➔' emoji '➞' code point 0x279E
+key '➔' emoji '➟' code point 0x279F
+key '➔' emoji '➠' code point 0x27A0
+key '➔' emoji '➡' code point 0x27A1
+key '➔' emoji '➢' code point 0x27A2
+key '➔' emoji '➣' code point 0x27A3
+key '➔' emoji '➤' code point 0x27A4
+key '➔' emoji '➥' code point 0x27A5
+key '➔' emoji '➦' code point 0x27A6
+key '➔' emoji '➧' code point 0x27A7
+key '➔' emoji '➨' code point 0x27A8
+key '➔' emoji '➩' code point 0x27A9
+key '➔' emoji '➪' code point 0x27AA
+key '➔' emoji '➫' code point 0x27AB
+key '➔' emoji '➬' code point 0x27AC
+key '➔' emoji '➭' code point 0x27AD
+key '➔' emoji '➮' code point 0x27AE
+key '➔' emoji '➯' code point 0x27AF
+key '➔' emoji '➰' code point 0x27B0
+key '➔' emoji '➱' code point 0x27B1
+key '➔' emoji '➲' code point 0x27B2
+key '➔' emoji '➳' code point 0x27B3
+key '➔' emoji '➴' code point 0x27B4
+key '➔' emoji '➵' code point 0x27B5
+key '➔' emoji '➶' code point 0x27B6
+key '➔' emoji '➷' code point 0x27B7
+key '➔' emoji '➸' code point 0x27B8
+key '➔' emoji '➹' code point 0x27B9
+key '➔' emoji '➺' code point 0x27BA
+key '➔' emoji '➻' code point 0x27BB
+key '➔' emoji '➼' code point 0x27BC
+key '➔' emoji '➽' code point 0x27BD
+key '➔' emoji '➾' code point 0x27BE
+key '➔' emoji '➿' code point 0x27BF
+
+Key '🀄' has 44 emojis:
+key '🀄' emoji '🀀' code point 0x1F000
+key '🀄' emoji '🀁' code point 0x1F001
+key '🀄' emoji '🀂' code point 0x1F002
+key '🀄' emoji '🀃' code point 0x1F003
+key '🀄' emoji '🀄' code point 0x1F004
+key '🀄' emoji '🀅' code point 0x1F005
+key '🀄' emoji '🀆' code point 0x1F006
+key '🀄' emoji '🀇' code point 0x1F007
+key '🀄' emoji '🀈' code point 0x1F008
+key '🀄' emoji '🀉' code point 0x1F009
+key '🀄' emoji '🀊' code point 0x1F00A
+key '🀄' emoji '🀋' code point 0x1F00B
+key '🀄' emoji '🀌' code point 0x1F00C
+key '🀄' emoji '🀍' code point 0x1F00D
+key '🀄' emoji '🀎' code point 0x1F00E
+key '🀄' emoji '🀏' code point 0x1F00F
+key '🀄' emoji '🀐' code point 0x1F010
+key '🀄' emoji '🀑' code point 0x1F011
+key '🀄' emoji '🀒' code point 0x1F012
+key '🀄' emoji '🀓' code point 0x1F013
+key '🀄' emoji '🀔' code point 0x1F014
+key '🀄' emoji '🀕' code point 0x1F015
+key '🀄' emoji '🀖' code point 0x1F016
+key '🀄' emoji '🀗' code point 0x1F017
+key '🀄' emoji '🀘' code point 0x1F018
+key '🀄' emoji '🀙' code point 0x1F019
+key '🀄' emoji '🀚' code point 0x1F01A
+key '🀄' emoji '🀛' code point 0x1F01B
+key '🀄' emoji '🀜' code point 0x1F01C
+key '🀄' emoji '🀝' code point 0x1F01D
+key '🀄' emoji '🀞' code point 0x1F01E
+key '🀄' emoji '🀟' code point 0x1F01F
+key '🀄' emoji '🀠' code point 0x1F020
+key '🀄' emoji '🀡' code point 0x1F021
+key '🀄' emoji '🀢' code point 0x1F022
+key '🀄' emoji '🀣' code point 0x1F023
+key '🀄' emoji '🀤' code point 0x1F024
+key '🀄' emoji '🀥' code point 0x1F025
+key '🀄' emoji '🀦' code point 0x1F026
+key '🀄' emoji '🀧' code point 0x1F027
+key '🀄' emoji '🀨' code point 0x1F028
+key '🀄' emoji '🀩' code point 0x1F029
+key '🀄' emoji '🀪' code point 0x1F02A
+key '🀄' emoji '🀫' code point 0x1F02B
+
+Key '🄐' has 31 emojis:
+key '🄐' emoji '🄐' code point 0x1F110
+key '🄐' emoji '🄑' code point 0x1F111
+key '🄐' emoji '🄒' code point 0x1F112
+key '🄐' emoji '🄓' code point 0x1F113
+key '🄐' emoji '🄔' code point 0x1F114
+key '🄐' emoji '🄕' code point 0x1F115
+key '🄐' emoji '🄖' code point 0x1F116
+key '🄐' emoji '🄗' code point 0x1F117
+key '🄐' emoji '🄘' code point 0x1F118
+key '🄐' emoji '🄙' code point 0x1F119
+key '🄐' emoji '🄚' code point 0x1F11A
+key '🄐' emoji '🄛' code point 0x1F11B
+key '🄐' emoji '🄜' code point 0x1F11C
+key '🄐' emoji '🄝' code point 0x1F11D
+key '🄐' emoji '🄞' code point 0x1F11E
+key '🄐' emoji '🄟' code point 0x1F11F
+key '🄐' emoji '🄠' code point 0x1F120
+key '🄐' emoji '🄡' code point 0x1F121
+key '🄐' emoji '🄢' code point 0x1F122
+key '🄐' emoji '🄣' code point 0x1F123
+key '🄐' emoji '🄤' code point 0x1F124
+key '🄐' emoji '🄥' code point 0x1F125
+key '🄐' emoji '🄦' code point 0x1F126
+key '🄐' emoji '🄧' code point 0x1F127
+key '🄐' emoji '🄨' code point 0x1F128
+key '🄐' emoji '🄩' code point 0x1F129
+key '🄐' emoji '🄪' code point 0x1F12A
+key '🄐' emoji '🄫' code point 0x1F12B
+key '🄐' emoji '🄬' code point 0x1F12C
+key '🄐' emoji '🄭' code point 0x1F12D
+key '🄐' emoji '🄮' code point 0x1F12E
+
+Key '🄰' has 32 emojis:
+key '🄰' emoji '🄰' code point 0x1F130
+key '🄰' emoji '🄱' code point 0x1F131
+key '🄰' emoji '🄲' code point 0x1F132
+key '🄰' emoji '🄳' code point 0x1F133
+key '🄰' emoji '🄴' code point 0x1F134
+key '🄰' emoji '🄵' code point 0x1F135
+key '🄰' emoji '🄶' code point 0x1F136
+key '🄰' emoji '🄷' code point 0x1F137
+key '🄰' emoji '🄸' code point 0x1F138
+key '🄰' emoji '🄹' code point 0x1F139
+key '🄰' emoji '🄺' code point 0x1F13A
+key '🄰' emoji '🄻' code point 0x1F13B
+key '🄰' emoji '🄼' code point 0x1F13C
+key '🄰' emoji '🄽' code point 0x1F13D
+key '🄰' emoji '🄾' code point 0x1F13E
+key '🄰' emoji '🄿' code point 0x1F13F
+key '🄰' emoji '🅀' code point 0x1F140
+key '🄰' emoji '🅁' code point 0x1F141
+key '🄰' emoji '🅂' code point 0x1F142
+key '🄰' emoji '🅃' code point 0x1F143
+key '🄰' emoji '🅄' code point 0x1F144
+key '🄰' emoji '🅅' code point 0x1F145
+key '🄰' emoji '🅆' code point 0x1F146
+key '🄰' emoji '🅇' code point 0x1F147
+key '🄰' emoji '🅈' code point 0x1F148
+key '🄰' emoji '🅉' code point 0x1F149
+key '🄰' emoji '🅊' code point 0x1F14A
+key '🄰' emoji '🅋' code point 0x1F14B
+key '🄰' emoji '🅌' code point 0x1F14C
+key '🄰' emoji '🅍' code point 0x1F14D
+key '🄰' emoji '🅎' code point 0x1F14E
+key '🄰' emoji '🅏' code point 0x1F14F
+
+Key '🅐' has 26 emojis:
+key '🅐' emoji '🅐' code point 0x1F150
+key '🅐' emoji '🅑' code point 0x1F151
+key '🅐' emoji '🅒' code point 0x1F152
+key '🅐' emoji '🅓' code point 0x1F153
+key '🅐' emoji '🅔' code point 0x1F154
+key '🅐' emoji '🅕' code point 0x1F155
+key '🅐' emoji '🅖' code point 0x1F156
+key '🅐' emoji '🅗' code point 0x1F157
+key '🅐' emoji '🅘' code point 0x1F158
+key '🅐' emoji '🅙' code point 0x1F159
+key '🅐' emoji '🅚' code point 0x1F15A
+key '🅐' emoji '🅛' code point 0x1F15B
+key '🅐' emoji '🅜' code point 0x1F15C
+key '🅐' emoji '🅝' code point 0x1F15D
+key '🅐' emoji '🅞' code point 0x1F15E
+key '🅐' emoji '🅟' code point 0x1F15F
+key '🅐' emoji '🅠' code point 0x1F160
+key '🅐' emoji '🅡' code point 0x1F161
+key '🅐' emoji '🅢' code point 0x1F162
+key '🅐' emoji '🅣' code point 0x1F163
+key '🅐' emoji '🅤' code point 0x1F164
+key '🅐' emoji '🅥' code point 0x1F165
+key '🅐' emoji '🅦' code point 0x1F166
+key '🅐' emoji '🅧' code point 0x1F167
+key '🅐' emoji '🅨' code point 0x1F168
+key '🅐' emoji '🅩' code point 0x1F169
+
+Key '🅰' has 26 emojis:
+key '🅰' emoji '🅰' code point 0x1F170
+key '🅰' emoji '🅱' code point 0x1F171
+key '🅰' emoji '🅲' code point 0x1F172
+key '🅰' emoji '🅳' code point 0x1F173
+key '🅰' emoji '🅴' code point 0x1F174
+key '🅰' emoji '🅵' code point 0x1F175
+key '🅰' emoji '🅶' code point 0x1F176
+key '🅰' emoji '🅷' code point 0x1F177
+key '🅰' emoji '🅸' code point 0x1F178
+key '🅰' emoji '🅹' code point 0x1F179
+key '🅰' emoji '🅺' code point 0x1F17A
+key '🅰' emoji '🅻' code point 0x1F17B
+key '🅰' emoji '🅼' code point 0x1F17C
+key '🅰' emoji '🅽' code point 0x1F17D
+key '🅰' emoji '🅾' code point 0x1F17E
+key '🅰' emoji '🅿' code point 0x1F17F
+key '🅰' emoji '🆀' code point 0x1F180
+key '🅰' emoji '🆁' code point 0x1F181
+key '🅰' emoji '🆂' code point 0x1F182
+key '🅰' emoji '🆃' code point 0x1F183
+key '🅰' emoji '🆄' code point 0x1F184
+key '🅰' emoji '🆅' code point 0x1F185
+key '🅰' emoji '🆆' code point 0x1F186
+key '🅰' emoji '🆇' code point 0x1F187
+key '🅰' emoji '🆈' code point 0x1F188
+key '🅰' emoji '🆉' code point 0x1F189
+
+Key '🆊' has 17 emojis:
+key '🆊' emoji '🆊' code point 0x1F18A
+key '🆊' emoji '🆋' code point 0x1F18B
+key '🆊' emoji '🆌' code point 0x1F18C
+key '🆊' emoji '🆍' code point 0x1F18D
+key '🆊' emoji '🆎' code point 0x1F18E
+key '🆊' emoji '🆏' code point 0x1F18F
+key '🆊' emoji '🆐' code point 0x1F190
+key '🆊' emoji '🆑' code point 0x1F191
+key '🆊' emoji '🆒' code point 0x1F192
+key '🆊' emoji '🆓' code point 0x1F193
+key '🆊' emoji '🆔' code point 0x1F194
+key '🆊' emoji '🆕' code point 0x1F195
+key '🆊' emoji '🆖' code point 0x1F196
+key '🆊' emoji '🆗' code point 0x1F197
+key '🆊' emoji '🆘' code point 0x1F198
+key '🆊' emoji '🆙' code point 0x1F199
+key '🆊' emoji '🆚' code point 0x1F19A
+
+Key '🈀' has 47 emojis:
+key '🈀' emoji '🈀' code point 0x1F200
+key '🈀' emoji '🈁' code point 0x1F201
+key '🈀' emoji '🈂' code point 0x1F202
+key '🈀' emoji '🈐' code point 0x1F210
+key '🈀' emoji '🈑' code point 0x1F211
+key '🈀' emoji '🈒' code point 0x1F212
+key '🈀' emoji '🈓' code point 0x1F213
+key '🈀' emoji '🈔' code point 0x1F214
+key '🈀' emoji '🈕' code point 0x1F215
+key '🈀' emoji '🈖' code point 0x1F216
+key '🈀' emoji '🈗' code point 0x1F217
+key '🈀' emoji '🈘' code point 0x1F218
+key '🈀' emoji '🈙' code point 0x1F219
+key '🈀' emoji '🈚' code point 0x1F21A
+key '🈀' emoji '🈛' code point 0x1F21B
+key '🈀' emoji '🈜' code point 0x1F21C
+key '🈀' emoji '🈝' code point 0x1F21D
+key '🈀' emoji '🈞' code point 0x1F21E
+key '🈀' emoji '🈟' code point 0x1F21F
+key '🈀' emoji '🈠' code point 0x1F220
+key '🈀' emoji '🈡' code point 0x1F221
+key '🈀' emoji '🈢' code point 0x1F222
+key '🈀' emoji '🈣' code point 0x1F223
+key '🈀' emoji '🈤' code point 0x1F224
+key '🈀' emoji '🈥' code point 0x1F225
+key '🈀' emoji '🈦' code point 0x1F226
+key '🈀' emoji '🈧' code point 0x1F227
+key '🈀' emoji '🈨' code point 0x1F228
+key '🈀' emoji '🈩' code point 0x1F229
+key '🈀' emoji '🈪' code point 0x1F22A
+key '🈀' emoji '🈫' code point 0x1F22B
+key '🈀' emoji '🈬' code point 0x1F22C
+key '🈀' emoji '🈭' code point 0x1F22D
+key '🈀' emoji '🈮' code point 0x1F22E
+key '🈀' emoji '🈯' code point 0x1F22F
+key '🈀' emoji '🈰' code point 0x1F230
+key '🈀' emoji '🈱' code point 0x1F231
+key '🈀' emoji '🈲' code point 0x1F232
+key '🈀' emoji '🈳' code point 0x1F233
+key '🈀' emoji '🈴' code point 0x1F234
+key '🈀' emoji '🈵' code point 0x1F235
+key '🈀' emoji '🈶' code point 0x1F236
+key '🈀' emoji '🈷' code point 0x1F237
+key '🈀' emoji '🈸' code point 0x1F238
+key '🈀' emoji '🈹' code point 0x1F239
+key '🈀' emoji '🈺' code point 0x1F23A
+key '🈀' emoji '🈻' code point 0x1F23B
+
+Key '🉀' has 17 emojis:
+key '🉀' emoji '🉀' code point 0x1F240
+key '🉀' emoji '🉁' code point 0x1F241
+key '🉀' emoji '🉂' code point 0x1F242
+key '🉀' emoji '🉃' code point 0x1F243
+key '🉀' emoji '🉄' code point 0x1F244
+key '🉀' emoji '🉅' code point 0x1F245
+key '🉀' emoji '🉆' code point 0x1F246
+key '🉀' emoji '🉇' code point 0x1F247
+key '🉀' emoji '🉈' code point 0x1F248
+key '🉀' emoji '🉐' code point 0x1F250
+key '🉀' emoji '🉑' code point 0x1F251
+key '🉀' emoji '🉠' code point 0x1F260
+key '🉀' emoji '🉡' code point 0x1F261
+key '🉀' emoji '🉢' code point 0x1F262
+key '🉀' emoji '🉣' code point 0x1F263
+key '🉀' emoji '🉤' code point 0x1F264
+key '🉀' emoji '🉥' code point 0x1F265
+
+Key '🔥' has 22 emojis:
+key '🔥' emoji '🔋' code point 0x1F50B
+key '🔥' emoji '🔌' code point 0x1F50C
+key '🔥' emoji '🔝' code point 0x1F51D
+key '🔥' emoji '🔞' code point 0x1F51E
+key '🔥' emoji '🔟' code point 0x1F51F
+key '🔥' emoji '🔤' code point 0x1F524
+key '🔥' emoji '🔥' code point 0x1F525
+key '🔥' emoji '⚡' code point 0x26A1
+key '🔥' emoji '🔰' code point 0x1F530
+key '🔥' emoji '☘' code point 0x2618
+key '🔥' emoji '🔼' code point 0x1F53C
+key '🔥' emoji '🔽' code point 0x1F53D
+key '🔥' emoji '🕯' code point 0x1F56F
+key '🔥' emoji '🕰' code point 0x1F570
+key '🔥' emoji '🕶' code point 0x1F576
+key '🔥' emoji '🕷' code point 0x1F577
+key '🔥' emoji '🕸' code point 0x1F578
+key '🔥' emoji '🕹' code point 0x1F579
+key '🔥' emoji '🕺' code point 0x1F57A
+key '🔥' emoji '☸' code point 0x2638
+key '🔥' emoji '☎' code point 0x260E
+key '🔥' emoji '☏' code point 0x260F
+
+End of Emoji List
