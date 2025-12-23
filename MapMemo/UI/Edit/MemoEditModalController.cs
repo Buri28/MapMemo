@@ -376,8 +376,12 @@ namespace MapMemo.UI.Edit
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.Append: add='{s}' len-before={memo.Length}");
 
             // 未確定文字を削除して確定文字に設定
-            this.confirmedText = memo.Replace(GetPendingText(), "");
+            var pendingTextWithTag = GetPendingText();
 
+            if (!string.IsNullOrEmpty(pendingTextWithTag))
+            {
+                this.confirmedText = memo.Replace(pendingTextWithTag, "");
+            }
             int maxLines = 3;
             int maxCharsPerLine = 20;
             if (s == "\n")
@@ -494,6 +498,9 @@ namespace MapMemo.UI.Edit
         /// </summary>
         private string GetPendingText()
         {
+            // 未確定テキストが空の場合は空文字を返す
+            if (string.IsNullOrEmpty(pendingText)) return "";
+            // 未確定テキストを黄色の下線付きで装飾して返す
             return "<color=#FFFF00><u>" + pendingText + "</u></color>";
         }
 
