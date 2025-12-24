@@ -380,7 +380,12 @@ namespace MapMemo.UI.Edit
 
             if (!string.IsNullOrEmpty(pendingTextWithTag))
             {
-                this.confirmedText = memo.Replace(pendingTextWithTag, "");
+                // this.confirmedText = memo.Replace(pendingTextWithTag, "");
+                // 末尾に装飾済み未確定テキストがあればそこだけ切り取る
+                if (!string.IsNullOrEmpty(memo) && memo.EndsWith(pendingTextWithTag))
+                {
+                    this.confirmedText = memo.Substring(0, memo.Length - pendingTextWithTag.Length);
+                }
             }
             int maxLines = 3;
             int maxCharsPerLine = 20;
