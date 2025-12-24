@@ -1,5 +1,5 @@
 ﻿<modal id="modal" size-delta-x="140" size-delta-y="95" anchor-pos-y="25">
-  <vertical spacing="1.0" child-expand-width="true" pref-width="138" pad="2" align="TopCenter">
+  <vertical spacing="1.0" child-expand-width="true" pref-width="138" pad="2" pad-left="8" align="TopCenter">
     <horizontal child-expand-width="true" pad-top="1" pref-height="5">
       <text text="Map Memo" align="Left" font-size="4.5" />
       <!-- 更新日時をメモ表示エリアの上に表示 -->
