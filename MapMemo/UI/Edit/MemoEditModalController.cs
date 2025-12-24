@@ -13,6 +13,7 @@ using MapMemo.Utilities;
 using MapMemo.Services;
 using MapMemo.UI.Common;
 using MapMemo.Models;
+using System.Net;
 
 namespace MapMemo.UI.Edit
 {
@@ -30,7 +31,7 @@ namespace MapMemo.UI.Edit
         // かなモード状態（true = カタカナ、false = ひらがな）
         public bool isKanaMode { get; private set; } = false;
         // バインド対象のプロパティ
-        [UIValue("memo")] private string memo = "";
+        // [UIValue("memo")] private string memo = "";
         // UI コンポーネント
         [UIComponent("modal")] private ModalView modal = null;
         // メモ編集用テキストコンポーネント
@@ -54,6 +55,11 @@ namespace MapMemo.UI.Edit
         private TextMeshProUGUI message = null;
 
         private MemoService memoService = MemoService.Instance;
+
+        // 最大行数と1行あたりの最大文字数
+        private static int MAX_LINES = 3;
+        // 1行あたりの最大文字数
+        private static int MAX_CHARS_PER_LINE = 20;
 
         //// ◆画面初期表示関連メソッド Start ◆////
 
@@ -179,7 +185,7 @@ namespace MapMemo.UI.Edit
             // 既存のメモを読み込む (LevelContext を使用してキー/曲情報を解決)
             var existingMemoInfo = memoService.LoadMemo(levelContext);
 
-            this.memo = existingMemoInfo?.memo ?? "";
+            var memo = existingMemoInfo?.memo ?? "";
             this.lastUpdated.text = existingMemoInfo != null ?
                 "Updated:" + this.memoService.FormatLocal(existingMemoInfo.updatedAt) : "";
             this.levelContext = levelContext;
@@ -188,9 +194,9 @@ namespace MapMemo.UI.Edit
             if (this.memoText != null)
             {
                 this.memoText.richText = true;
-                this.UpdateMemoText(this.memo);
-                this.confirmedText = this.memo;
+                this.confirmedText = memo;
                 this.pendingText = "";
+                this.UpdateMemoText();
             }
             // サジェストリストを初期化
             this.suggestionHandler.Clear();
@@ -259,20 +265,47 @@ namespace MapMemo.UI.Edit
             confirmedText += pendingText;
 
             pendingText = "";
-            memo = confirmedText;
-            NotifyPropertyChanged("memo");
+            //memo = confirmedText;
+            // NotifyPropertyChanged("memo");
             if (memoText != null)
             {
-                UpdateMemoText(memo);
+                UpdateMemoText();
             }
         }
+        private static readonly string UserNewlinePlaceholder = "\uF000";
 
+
+        private string EscapeBsmlTag(string s)
+        {
+            if (string.IsNullOrEmpty(s)) return "";
+            string safe = s.Replace("<", "\u27E8").Replace(">", "\u27E9");
+            return safe;
+        }
+        private string EscapeForDisplayRaw(string s)
+        {
+            if (string.IsNullOrEmpty(s)) return "";
+            return s.Replace("\r", "").Replace("\n", UserNewlinePlaceholder);
+        }
         /// <summary>
         /// メモ表示テキストを更新します。
         /// </summary>
-        private void UpdateMemoText(string memoValue)
+        private void UpdateMemoText()
         {
-            memoText.text = memoValue.Replace("\n", "↲\n");
+            var confirmedEsc = EscapeForDisplayRaw(confirmedText);
+            var pendingEsc = EscapeForDisplayRaw(GetPendingText());
+            var raw = confirmedEsc + pendingEsc;
+
+
+            // 表示上の折り返しをシミュレーション（InsertLineBreaks は '\n' を挿入する）
+            var wrapped = StringHelper.InsertLineBreaks(raw, MAX_CHARS_PER_LINE);
+            var display = wrapped;
+
+            // プレースホルダをユーザー改行表示に戻す
+            display = display.Replace(UserNewlinePlaceholder, "↲\n");
+
+            Plugin.Log?.Debug($"MemoEditModal.UpdateMemoText: confirmedText: {confirmedEsc} pendingText: '{pendingEsc}'");
+            memoText.text = display;
+
             memoText.ForceMeshUpdate();
         }
         /// <summary>
@@ -283,7 +316,7 @@ namespace MapMemo.UI.Edit
         {
             try
             {
-                var text = confirmedText + pendingText ?? "";
+                var text = confirmedText + pendingText;
                 // メモを保存
                 await memoService.SaveMemoAsync(levelContext, text);
                 // 最終更新日時の表示を更新
@@ -350,7 +383,7 @@ namespace MapMemo.UI.Edit
         private void AppendSelectedString(string s, string subText = null)
         {
             pendingText = "";
-            memo = confirmedText;
+            // memo = confirmedText;
 
             if (string.IsNullOrEmpty(s)) return;
 
@@ -372,46 +405,49 @@ namespace MapMemo.UI.Edit
         public bool Append(string s, bool isSuggestUpdate = true)
         {
             if (string.IsNullOrEmpty(s)) return false;
-            if (memo == null) memo = "";
-            if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.Append: add='{s}' len-before={memo.Length}");
+            // if (memo == null) memo = "";
+            // if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.Append: add='{s}' len-before={memo.Length}");
 
             // 未確定文字を削除して確定文字に設定
             var pendingTextWithTag = GetPendingText();
+            var confirmedText = this.confirmedText;
 
-            if (!string.IsNullOrEmpty(pendingTextWithTag))
+            // if (!string.IsNullOrEmpty(pendingTextWithTag))
+            // {
+            //     // this.confirmedText = memo.Replace(pendingTextWithTag, "");
+            //     // 末尾に装飾済み未確定テキストがあればそこだけ切り取る
+            //     if (!string.IsNullOrEmpty(memo) && memo.EndsWith(pendingTextWithTag))
+            //     {
+            //         this.confirmedText = memo.Substring(0, memo.Length - pendingTextWithTag.Length);
+            //     }
+            // }
+
+            // ここで重みづけを考慮した文字数制限を行う
+            // 3行、かつ各行20文字（ASCIIアルファベットは0.5文字換算）を超えないようにする
+            // 改行／非改行に関わらず、追加後に表示上の行数制限を満たすかをチェック
+            if (!StringHelper.FitsWithinLines(
+                confirmedText + pendingText + s, MAX_LINES, MAX_CHARS_PER_LINE))
             {
-                // this.confirmedText = memo.Replace(pendingTextWithTag, "");
-                // 末尾に装飾済み未確定テキストがあればそこだけ切り取る
-                if (!string.IsNullOrEmpty(memo) && memo.EndsWith(pendingTextWithTag))
-                {
-                    this.confirmedText = memo.Substring(0, memo.Length - pendingTextWithTag.Length);
-                }
-            }
-            int maxLines = 3;
-            int maxCharsPerLine = 20;
-            if (s == "\n")
-            {
-                // 改行の場合、3行を超過しない
-                if (isOverMaxLine(confirmedText + pendingText + s, maxLines))
-                {
-                    return false;
-                }
+                return false;
             }
 
-            if (GetLastLineLength(confirmedText + pendingText + s) > maxCharsPerLine)
-            {
-                // 3行超過する場合、改行も追加もしない
-                if (isOverMaxLine(confirmedText + pendingText + s, maxLines))
-                {
-                    return false;
-                }
-                // 最大文字数を超過する場合は強制改行を挿入
-                s = "\n" + s;
-            }
+            // ここで自動改行するのをやめる
+            // if (GetLastLineLength(confirmedText + pendingText + s) > maxCharsPerLine)
+            // {
+            //     // 3行超過する場合、改行も追加もしない
+            //     if (isOverMaxLine(confirmedText + pendingText + s, maxLines))
+            //     {
+            //         return false;
+            //     }
+            //     // 最大文字数を超過する場合は強制改行を挿入
+            //     s = "\n" + s;
+            // }
+
             // 未確定文字列に追加
-            this.pendingText += s;
+            this.pendingText += EscapeBsmlTag(s);
+
             // 表示用テキストを更新
-            this.memo = confirmedText + GetPendingText();
+            // this.memo = confirmedText + GetPendingText();
 
             // サジェストリストを更新
             if (isSuggestUpdate)
@@ -419,14 +455,14 @@ namespace MapMemo.UI.Edit
                 UpdateSuggestions();
             }
             // プロパティ変更通知
-            NotifyPropertyChanged("memo");
+            // NotifyPropertyChanged("memo");
 
             // テキストコンポーネントを更新
             if (memoText != null)
             {
-                UpdateMemoText(memo);
+                UpdateMemoText();
             }
-            if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.Append: len-after={memo.Length}");
+            // if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.Append: len-after={memo.Length}");
             return true;
         }
 
@@ -462,27 +498,27 @@ namespace MapMemo.UI.Edit
         }
 
 
-        /// <summary>
-        /// 指定したテキストの最終行の長さをテキスト要素単位で計算して返します（ASCII 分割ルール適用）。
-        /// </summary>
-        private double GetLastLineLength(string text)
-        {
-            if (string.IsNullOrEmpty(text)) return 0;
+        // /// <summary>
+        // /// 指定したテキストの最終行の長さをテキスト要素単位で計算して返します（ASCII 分割ルール適用）。
+        // /// </summary>
+        // private double GetLastLineLength(string text)
+        // {
+        //     if (string.IsNullOrEmpty(text)) return 0;
 
-            var lines = text.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
-            var lastLine = lines.LastOrDefault() ?? "";
+        //     var lines = text.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
+        //     var lastLine = lines.LastOrDefault() ?? "";
 
-            var enumerator = StringInfo.GetTextElementEnumerator(lastLine);
-            double length = 0.0;
-            while (enumerator.MoveNext())
-            {
-                var elem = enumerator.GetTextElement();
-                // ASCII のアルファベットのみを半分扱いにする
-                length += StringHelper.IsAsciiAlphabet(elem) ? 0.5 : 1.0;
-            }
+        //     var enumerator = StringInfo.GetTextElementEnumerator(lastLine);
+        //     double length = 0.0;
+        //     while (enumerator.MoveNext())
+        //     {
+        //         var elem = enumerator.GetTextElement();
+        //         // ASCII のアルファベットのみを半分扱いにする
+        //         length += StringHelper.IsAsciiAlphabet(elem) ? 0.5 : 1.0;
+        //     }
 
-            return length;
-        }
+        //     return length;
+        // }
 
         /// <summary>
         /// テキストが最大行数を超えるかどうかを判定します。
@@ -522,10 +558,10 @@ namespace MapMemo.UI.Edit
         {
             if (pendingText.Length > 0)
             {
-                pendingText = RemoveLastTextElement(pendingText);
-                memo = confirmedText + GetPendingText();
-                NotifyPropertyChanged("memo");
-                UpdateMemoText(memo);
+                this.pendingText = RemoveLastTextElement(pendingText);
+                // memo = confirmedText + GetPendingText();
+                // NotifyPropertyChanged("memo");
+                UpdateMemoText();
                 UpdateSuggestions();
                 return;
             }
@@ -536,9 +572,9 @@ namespace MapMemo.UI.Edit
             }
 
             confirmedText = RemoveLastTextElement(confirmedText);
-            memo = confirmedText;
-            NotifyPropertyChanged("memo");
-            UpdateMemoText(memo);
+            // memo = confirmedText;
+            //NotifyPropertyChanged("memo");
+            UpdateMemoText();
             UpdateSuggestions();
         }
 
