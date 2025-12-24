@@ -1,13 +1,13 @@
 ﻿<modal id="modal" size-delta-x="140" size-delta-y="95" anchor-pos-y="25">
-  <vertical spacing="1.0" child-expand-width="true" pref-width="138" pad="2" pad-left="8" align="TopCenter">
+  <vertical spacing="1.0" child-expand-width="true" child-force-expand-width="true" pref-width="138" pad="2" pad-left="8" align="TopCenter">
     <horizontal child-expand-width="true" pad-top="1" pref-height="5">
       <text text="Map Memo" align="Left" font-size="4.5" />
       <!-- 更新日時をメモ表示エリアの上に表示 -->
       <text id ="last-updated" text="" font-size="3.5" color="#888888" align="Right" />
     </horizontal> 
-    <horizontal spacing="7" child-expand-width="true" align="TopLeft">
-    <vertical spacing="0.5" pad="0" pref-height="20" child-expand-width="true"  align="TopLeft"  >
-        <vertical pref-height="15" child-expand-width="true" align="TopLeft" >
+    <horizontal spacing="7" child-expand-width="true" child-force-expand-width="true" align="TopLeft">
+    <vertical spacing="0.5" pad="0" pref-height="20" child-expand-width="true"  align="TopLeft" >
+        <vertical pref-height="15" pad-left="15" child-expand-width="true" child-force-expand-width="true" align="TopLeft" pref-width="108" >
           <!-- text="~memo" -->
           <text id="memoText" 
             text=""
