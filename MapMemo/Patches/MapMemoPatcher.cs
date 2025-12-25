@@ -26,9 +26,13 @@ namespace MapMemo.UI.Patches
                 return;
             }
             var characteristicArrayType = beatmapCharacteristicType.MakeArrayType();
-            if (Plugin.VerboseLogs) Plugin.Log?.Info($"ApplyPatches: Created BeatmapCharacteristicSO[] type: {characteristicArrayType.FullName}");
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"ApplyPatches: "
+                + $"Created BeatmapCharacteristicSO[] type: {characteristicArrayType.FullName}");
 
-            if (viewControllerType == null || beatmapLevelType == null || difficultyMaskType == null || characteristicArrayType == null)
+            if (viewControllerType == null
+                || beatmapLevelType == null
+                || difficultyMaskType == null
+                || characteristicArrayType == null)
             {
                 Plugin.Log?.Warn("ApplyPatches: type not found");
                 return;
@@ -46,7 +50,8 @@ namespace MapMemo.UI.Patches
                         parameters[0].ParameterType.Name == "BeatmapLevelPack" &&
                         parameters[1].ParameterType.Name == "BeatmapLevel")
                     {
-                        if (Plugin.VerboseLogs) MapMemo.Plugin.Log?.Info($"Patching SetData overload: {method}");
+                        if (Plugin.VerboseLogs) MapMemo.Plugin.Log?.Info(
+                                $"Patching SetData overload: {method}");
 
                         var postfix = new HarmonyMethod(typeof(StandardLevelDetailViewController_SetData_Patch)
                             .GetMethod("Postfix", BindingFlags.Static | BindingFlags.Public));
@@ -75,7 +80,8 @@ namespace MapMemo.UI.Patches
                 var type = asm.GetTypes().FirstOrDefault(t => t.Name == typeName);
                 if (type != null)
                 {
-                    if (Plugin.VerboseLogs) Plugin.Log?.Info($"Found type '{typeName}' in assembly: {asm.FullName}");
+                    if (Plugin.VerboseLogs) Plugin.Log?.Info(
+                        $"Found type '{typeName}' in assembly: {asm.FullName}");
                     return type;
                 }
             }

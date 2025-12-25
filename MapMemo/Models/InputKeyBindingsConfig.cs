@@ -7,7 +7,13 @@ namespace Mapmemo.Models
     /// </summary>
     public class InputKeyBindingsConfig
     {
+        /// <summary>
+        /// キー割当のリスト。
+        /// </summary>
         public List<InputKeyEntry> keys { get; set; }
+        /// <summary>
+        /// 除外コードポイントのリスト。
+        /// </summary>
         public List<string> excluded { get; set; }
     }
 }

@@ -18,7 +18,8 @@ namespace MapMemo.UI.Edit
         public void SetKeyEntry(InputKeyEntry entry) { this.keyEntry = entry; }
 
         /// <summary>
-        /// クリックイベントハンドラ。設定された KeyEntry または ClickableText のテキストを取得してモーダルに挿入します。
+        /// クリックイベントハンドラ。設定された KeyEntry または ClickableText のテキストを
+        /// 取得してモーダルに挿入します。
         /// </summary>
         public void OnPointerClick(PointerEventData eventData)
         {
@@ -55,7 +56,8 @@ namespace MapMemo.UI.Edit
                     txt.ToUpperInvariant();
 
                 if (string.IsNullOrEmpty(txt)) return;
-                if (Plugin.VerboseLogs) Plugin.Log?.Info($"KeyClickListener: Key '{txt}' clicked, appending to memo");
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"KeyClickListener: "
+                    + $"Key '{txt}' clicked, appending to memo");
 
                 MemoEditModalController.Instance.Append(txt);
             }

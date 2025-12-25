@@ -64,7 +64,8 @@ namespace MapMemo.Domain
         /// </summary>
         public void AddHistory(string text, string subText = null)
         {
-            if (Plugin.VerboseLogs) Plugin.Log?.Info($"Adding to input history: '{text}' (subText: '{subText}')");
+            if (Plugin.VerboseLogs) Plugin.Log?.Info("Adding to input history: " +
+                                                    $"'{text}' (subText: '{subText}')");
 
             // 完全一致の重複を削除
             historyList.RemoveAll(x =>

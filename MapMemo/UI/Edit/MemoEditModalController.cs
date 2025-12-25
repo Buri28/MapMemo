@@ -386,15 +386,14 @@ namespace MapMemo.UI.Edit
             var pendingTextWithTag = GetPendingText();
             var confirmedText = this.confirmedText;
 
-            // 全体の文字数制限を超過する場合は追加しない
-            if (MemoService.Instance.GetWeightedLength(
-                confirmedText + pendingText + s) > MAX_TOTAL_WEIGHTED_LENGTH)
-            {
-                return false;
-            }
-            // 行数制限を超過する場合は追加しない
-            if (StringHelper.isOverMaxLine(
-                confirmedText + pendingText + s, MAX_LINES))
+            var preferredWidth = memoText.preferredWidth;
+            RectTransform rt = memoText.GetComponent<RectTransform>();
+            float objectWidth = rt.rect.width;
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.Append: " +
+                                    $"preferredWidth={preferredWidth} objectWidth={objectWidth} ");
+
+            if (UIHelper.Instance.IsOverMaxLine(
+                memoText, MAX_LINES, s))
             {
                 return false;
             }

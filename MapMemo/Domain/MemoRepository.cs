@@ -13,7 +13,8 @@ namespace MapMemo.Domain
     /// </summary>
     public static class MemoRepository
     {
-        private static readonly string UserDataDir = Path.Combine(Environment.CurrentDirectory, "UserData", "MapMemo");
+        private static readonly string UserDataDir =
+            Path.Combine(Environment.CurrentDirectory, "UserData", "MapMemo");
 
         /// <summary>
         /// メモ保存用ディレクトリを作成します。
@@ -98,7 +99,9 @@ namespace MapMemo.Domain
         {
             EnsureDir();
             // 空フィールドにフォールバック
-            string path = BuildFileName(entry.key ?? "unknown", entry.songName ?? "unknown", entry.songAuthor ?? "unknown");
+            string path = BuildFileName(entry.key ?? "unknown",
+                                        entry.songName ?? "unknown",
+                                        entry.songAuthor ?? "unknown");
             // メモが空文字（0文字）の場合はファイルを削除して終了
             if (string.IsNullOrEmpty(entry.memo))
             {
@@ -107,18 +110,22 @@ namespace MapMemo.Domain
                     if (File.Exists(path))
                     {
                         File.Delete(path);
-                        if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoRepository.SaveAsync: Deleted file for empty memo path='{path}' key='{entry.key}'");
+                        if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoRepository.SaveAsync: "
+                            + $"Deleted file for empty memo path='{path}' key='{entry.key}'");
                     }
                 }
                 catch (Exception e)
                 {
-                    Plugin.Log?.Warn($"MemoRepository.SaveAsync: Failed to delete file '{path}': {e.Message}");
+                    Plugin.Log?.Warn($"MemoRepository.SaveAsync: "
+                                    + $"Failed to delete file '{path}': {e.Message}");
                 }
                 return;
             }
             entry.updatedAt = DateTime.UtcNow;
             var json = JsonConvert.SerializeObject(entry, Formatting.Indented);
-            if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoRepository.SaveAsync: path='{path}' key='{entry.key}' song='{entry.songName}' author='{entry.songAuthor}'");
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoRepository.SaveAsync: "
+                                            + $"path='{path}' key='{entry.key}' "
+                                            + $"song='{entry.songName}' author='{entry.songAuthor}'");
             using (var sw = new StreamWriter(path, false, Encoding.UTF8))
             {
                 await sw.WriteAsync(json);
