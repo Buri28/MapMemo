@@ -1,5 +1,6 @@
-﻿<modal id="modal" size-delta-x="140" size-delta-y="95" anchor-pos-y="25">
-  <vertical spacing="1.0" child-expand-width="true" child-force-expand-width="true" pref-width="138" pad="2" pad-left="8" align="TopCenter">
+﻿<!-- <modal id="modal" size-delta-x="140" size-delta-y="95" anchor-pos-y="25"> -->
+<modal id="modal" size-delta-x="142" size-delta-y="80" anchor-pos-y="25">
+  <vertical spacing="1.0" child-expand-width="true" child-force-expand-width="true" pref-width="138" pad="2" pad-left="2" align="TopCenter">
     <horizontal child-expand-width="true" pad-top="1" pref-height="5">
       <text text="Map Memo" align="Left" font-size="4.5" />
       <!-- 更新日時をメモ表示エリアの上に表示 -->
@@ -323,16 +324,20 @@
 
     </vertical>
     <!-- Save/Closeボタン（最下部） -->
-   <horizontal spacing="1" pad-top="1" pref-width="78" child-expand-width="true" child-force-expand-width="true" align="TopLeft">
-      <horizontal child-expand-width="true" child-force-expand-width="false" align="Left" pad-left="0">
-        <button text="Save" on-click="on-save" pref-width="20" />
-        <button text="Close" on-click="on-cancel" pref-width="20" />
+   <horizontal spacing="1" pad-top="1" pref-width="108" child-expand-width="false" child-force-expand-width="false" align="TopCenter">
+      <horizontal child-expand-width="true" child-force-expand-width="false" align="Center" pad-left="0" spacing="0" >
+        <horizontal child-expand-width="false" child-force-expand-width="false" pad-left="25">
+          <button text="Save" on-click="on-save" pref-width="20" />
+        </horizontal>
+        <horizontal child-expand-width="false" child-force-expand-width="false" pad-left="-22">
+          <button text="Close" on-click="on-cancel" pref-width="20" />
+        </horizontal>
       </horizontal>
     </horizontal>
       <text id="message" text="" active="false"/>
   </vertical>
   
-  <vertical pref-width="30" align="TopRight">
+  <vertical pref-width="30" pad-left="-6" align="TopRight">
     <text text=" ┌────────────────┐" font-size="2" align="Center" />
     <list id="suggestion-list"
       pref-width="30"
