@@ -33,8 +33,6 @@ namespace MapMemo.UI.Edit
 
         // かなモード状態（true = カタカナ、false = ひらがな）
         public bool isKanaMode { get; private set; } = false;
-        // バインド対象のプロパティ
-        // [UIValue("memo")] private string memo = "";
         // UI コンポーネント
         [UIComponent("modal")] private ModalView modal = null;
         // メモ編集用テキストコンポーネント
@@ -56,15 +54,13 @@ namespace MapMemo.UI.Edit
         // メッセージ表示コンポーネント
         [UIComponent("message")]
         private TextMeshProUGUI message = null;
-        private MemoService memoService = MemoService.Instance;
 
         // 最大行数
         private static int MAX_LINES = 3;
-        // 1行あたりの最大文字数
-        // private static int MAX_CHARS_PER_LINE = 20;
-
         // 全体の最大加重文字数
         private static int MAX_TOTAL_WEIGHTED_LENGTH = 80;
+        // メモサービス
+        private MemoService memoService = MemoService.Instance;
 
         //// ◆画面初期表示関連メソッド Start ◆////
 
@@ -270,8 +266,6 @@ namespace MapMemo.UI.Edit
             confirmedText += pendingText;
 
             pendingText = "";
-            //memo = confirmedText;
-            // NotifyPropertyChanged("memo");
             if (memoText != null)
             {
                 UpdateMemoText();
@@ -366,7 +360,6 @@ namespace MapMemo.UI.Edit
         private void AppendSelectedString(string s, string subText = null)
         {
             pendingText = "";
-            // memo = confirmedText;
 
             if (string.IsNullOrEmpty(s)) return;
 
@@ -388,8 +381,6 @@ namespace MapMemo.UI.Edit
         public bool Append(string s, bool isSuggestUpdate = true)
         {
             if (string.IsNullOrEmpty(s)) return false;
-            // if (memo == null) memo = "";
-            // if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.Append: add='{s}' len-before={memo.Length}");
 
             // 未確定文字を削除して確定文字に設定
             var pendingTextWithTag = GetPendingText();
@@ -449,8 +440,6 @@ namespace MapMemo.UI.Edit
                 suggestionHandler.UpdateSuggestions(pendingText);
                 return;
             }
-
-            // Fallback: clear list
             suggestionList.Data.Clear();
             suggestionList.TableView.ReloadData();
         }
@@ -480,8 +469,6 @@ namespace MapMemo.UI.Edit
             if (pendingText.Length > 0)
             {
                 this.pendingText = RemoveLastTextElement(pendingText);
-                // memo = confirmedText + GetPendingText();
-                // NotifyPropertyChanged("memo");
                 UpdateMemoText();
                 UpdateSuggestions();
                 return;
@@ -493,8 +480,6 @@ namespace MapMemo.UI.Edit
             }
 
             confirmedText = RemoveLastTextElement(confirmedText);
-            // memo = confirmedText;
-            //NotifyPropertyChanged("memo");
             UpdateMemoText();
             UpdateSuggestions();
         }
