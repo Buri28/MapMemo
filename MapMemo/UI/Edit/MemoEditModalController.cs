@@ -14,6 +14,9 @@ using MapMemo.Services;
 using MapMemo.UI.Common;
 using MapMemo.Models;
 using System.Net;
+using System.Text;
+using UnityEngine.UI;
+using System.Collections.Generic;
 
 namespace MapMemo.UI.Edit
 {
@@ -53,13 +56,15 @@ namespace MapMemo.UI.Edit
         // メッセージ表示コンポーネント
         [UIComponent("message")]
         private TextMeshProUGUI message = null;
-
         private MemoService memoService = MemoService.Instance;
 
-        // 最大行数と1行あたりの最大文字数
+        // 最大行数
         private static int MAX_LINES = 3;
         // 1行あたりの最大文字数
-        private static int MAX_CHARS_PER_LINE = 20;
+        // private static int MAX_CHARS_PER_LINE = 20;
+
+        // 全体の最大加重文字数
+        private static int MAX_TOTAL_WEIGHTED_LENGTH = 80;
 
         //// ◆画面初期表示関連メソッド Start ◆////
 
@@ -194,6 +199,7 @@ namespace MapMemo.UI.Edit
             if (this.memoText != null)
             {
                 this.memoText.richText = true;
+                this.memoText.enableWordWrapping = true;
                 this.confirmedText = memo;
                 this.pendingText = "";
                 this.UpdateMemoText();
@@ -249,7 +255,6 @@ namespace MapMemo.UI.Edit
         {
             // モーダルが有効化されたときに呼ばれる
             if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoEditModal: OnEnable called");
-
             // ボタンのラベルを更新する このタイミングではNullReferenceがでる
             // keyController.UpdateAlphaButtonLabels(isShift);
         }
@@ -272,42 +277,20 @@ namespace MapMemo.UI.Edit
                 UpdateMemoText();
             }
         }
-        private static readonly string UserNewlinePlaceholder = "\uF000";
 
-
-        private string EscapeBsmlTag(string s)
-        {
-            if (string.IsNullOrEmpty(s)) return "";
-            string safe = s.Replace("<", "\u27E8").Replace(">", "\u27E9");
-            return safe;
-        }
-        private string EscapeForDisplayRaw(string s)
-        {
-            if (string.IsNullOrEmpty(s)) return "";
-            return s.Replace("\r", "").Replace("\n", UserNewlinePlaceholder);
-        }
         /// <summary>
         /// メモ表示テキストを更新します。
         /// </summary>
         private void UpdateMemoText()
         {
-            var confirmedEsc = EscapeForDisplayRaw(confirmedText);
-            var pendingEsc = EscapeForDisplayRaw(GetPendingText());
-            var raw = confirmedEsc + pendingEsc;
+            var raw = confirmedText + GetPendingText(); ;
+            var display = raw.Replace("\n", "↲\n");
 
-
-            // 表示上の折り返しをシミュレーション（InsertLineBreaks は '\n' を挿入する）
-            var wrapped = StringHelper.InsertLineBreaks(raw, MAX_CHARS_PER_LINE);
-            var display = wrapped;
-
-            // プレースホルダをユーザー改行表示に戻す
-            display = display.Replace(UserNewlinePlaceholder, "↲\n");
-
-            Plugin.Log?.Debug($"MemoEditModal.UpdateMemoText: confirmedText: {confirmedEsc} pendingText: '{pendingEsc}'");
             memoText.text = display;
-
             memoText.ForceMeshUpdate();
         }
+
+        // ...existing code...
         /// <summary>
         /// 保存ボタン押下時の処理。メモを保存して親パネルを更新します。
         /// </summary>
@@ -412,57 +395,32 @@ namespace MapMemo.UI.Edit
             var pendingTextWithTag = GetPendingText();
             var confirmedText = this.confirmedText;
 
-            // if (!string.IsNullOrEmpty(pendingTextWithTag))
-            // {
-            //     // this.confirmedText = memo.Replace(pendingTextWithTag, "");
-            //     // 末尾に装飾済み未確定テキストがあればそこだけ切り取る
-            //     if (!string.IsNullOrEmpty(memo) && memo.EndsWith(pendingTextWithTag))
-            //     {
-            //         this.confirmedText = memo.Substring(0, memo.Length - pendingTextWithTag.Length);
-            //     }
-            // }
-
-            // ここで重みづけを考慮した文字数制限を行う
-            // 3行、かつ各行20文字（ASCIIアルファベットは0.5文字換算）を超えないようにする
-            // 改行／非改行に関わらず、追加後に表示上の行数制限を満たすかをチェック
-            if (!StringHelper.FitsWithinLines(
-                confirmedText + pendingText + s, MAX_LINES, MAX_CHARS_PER_LINE))
+            // 全体の文字数制限を超過する場合は追加しない
+            if (StringHelper.GetWeightedLength(
+                confirmedText + pendingText + s) > MAX_TOTAL_WEIGHTED_LENGTH)
+            {
+                return false;
+            }
+            // 行数制限を超過する場合は追加しない
+            if (StringHelper.isOverMaxLine(
+                confirmedText + pendingText + s, MAX_LINES))
             {
                 return false;
             }
 
-            // ここで自動改行するのをやめる
-            // if (GetLastLineLength(confirmedText + pendingText + s) > maxCharsPerLine)
-            // {
-            //     // 3行超過する場合、改行も追加もしない
-            //     if (isOverMaxLine(confirmedText + pendingText + s, maxLines))
-            //     {
-            //         return false;
-            //     }
-            //     // 最大文字数を超過する場合は強制改行を挿入
-            //     s = "\n" + s;
-            // }
-
             // 未確定文字列に追加
-            this.pendingText += EscapeBsmlTag(s);
-
-            // 表示用テキストを更新
-            // this.memo = confirmedText + GetPendingText();
+            this.pendingText += StringHelper.EscapeBsmlTag(s);
 
             // サジェストリストを更新
             if (isSuggestUpdate)
             {
                 UpdateSuggestions();
             }
-            // プロパティ変更通知
-            // NotifyPropertyChanged("memo");
-
             // テキストコンポーネントを更新
             if (memoText != null)
             {
                 UpdateMemoText();
             }
-            // if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.Append: len-after={memo.Length}");
             return true;
         }
 
@@ -495,43 +453,6 @@ namespace MapMemo.UI.Edit
             // Fallback: clear list
             suggestionList.Data.Clear();
             suggestionList.TableView.ReloadData();
-        }
-
-
-        // /// <summary>
-        // /// 指定したテキストの最終行の長さをテキスト要素単位で計算して返します（ASCII 分割ルール適用）。
-        // /// </summary>
-        // private double GetLastLineLength(string text)
-        // {
-        //     if (string.IsNullOrEmpty(text)) return 0;
-
-        //     var lines = text.Split(new[] { "\r\n", "\n", "\r" }, StringSplitOptions.None);
-        //     var lastLine = lines.LastOrDefault() ?? "";
-
-        //     var enumerator = StringInfo.GetTextElementEnumerator(lastLine);
-        //     double length = 0.0;
-        //     while (enumerator.MoveNext())
-        //     {
-        //         var elem = enumerator.GetTextElement();
-        //         // ASCII のアルファベットのみを半分扱いにする
-        //         length += StringHelper.IsAsciiAlphabet(elem) ? 0.5 : 1.0;
-        //     }
-
-        //     return length;
-        // }
-
-        /// <summary>
-        /// テキストが最大行数を超えるかどうかを判定します。
-        /// </summary>
-        private bool isOverMaxLine(string text, int maxLines)
-        {
-            var lines = text.Split(new[] { '\n' }, StringSplitOptions.None);
-            if (lines.LastOrDefault() == "")
-            {
-                // 最後が改行で終わっている場合は行数を-1する
-                return lines.Length > maxLines;
-            }
-            return lines.Length + 1 > maxLines;
         }
 
         /// <summary>

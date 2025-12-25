@@ -7,7 +7,7 @@
     </horizontal> 
     <horizontal spacing="7" child-expand-width="true" child-force-expand-width="true" align="TopLeft">
     <vertical spacing="0.5" pad="0" pref-height="20" child-expand-width="true"  align="TopLeft" >
-        <vertical pref-height="15" pad-left="15" child-expand-width="true" child-force-expand-width="true" align="TopLeft" pref-width="108" >
+        <vertical pref-height="15" pad-left="7" pad-right="7" child-expand-width="true" child-force-expand-width="true" align="TopLeft" pref-width="108" >
           <!-- text="~memo" -->
           <text id="memoText" 
             text=""
@@ -24,7 +24,7 @@
     <vertical pref-height="40" >
 
     <tab tags="keyboard-tabs" tab-name="A" child-align='TopCenter'>
-      <vertical spacing="0.5" child-force-expand-height="false" align="TopCenter" anchor-pos-y="0" anchor-pos-x="5">
+      <vertical spacing="0.5" child-force-expand-height="false" align="TopCenter" anchor-pos-y="0" anchor-pos-x="0">
         <!-- 英字キーボード -->
         <horizontal spacing="0.5"> <!-- 16-->
           <clickable-text text="literal-1" pref-width="6" pref-height="5"/>
@@ -121,7 +121,7 @@
       </vertical>
     </tab>
     <tab tags="keyboard-tabs" tab-name="あ/ア" child-align='TopCenter'>
-      <vertical anchor-pos-y="0" anchor-pos-x="5">
+      <vertical anchor-pos-y="0" anchor-pos-x="0">
         <horizontal spacing="0.5">
           <vertical spacing="0.5">
             <clickable-text text="literal-101" pref-width="6" pref-height="5" />
@@ -245,7 +245,7 @@
       </vertical>
     </tab>
     <tab tags="keyboard-tabs" tab-name="🙂" child-align='TopCenter'>
-      <vertical anchor-pos-y="0" anchor-pos-x="5">
+      <vertical anchor-pos-y="0" anchor-pos-x="0">
         <horizontal spacing="0.5" child-align="MiddleCenter">
           <clickable-text text="emoji-1" pref-width="4" pref-height="5"/>
           <clickable-text text="emoji-2" pref-width="4" pref-height="5"/>
@@ -323,9 +323,11 @@
 
     </vertical>
     <!-- Save/Closeボタン（最下部） -->
-    <horizontal spacing="4" pad-top="1">
-      <button text="Save" on-click="on-save" pref-width="20" />
-      <button text="Close" on-click="on-cancel" pref-width="20" />
+   <horizontal spacing="1" pad-top="1" pref-width="78" child-expand-width="true" child-force-expand-width="true" align="TopLeft">
+      <horizontal child-expand-width="true" child-force-expand-width="false" align="Left" pad-left="0">
+        <button text="Save" on-click="on-save" pref-width="20" />
+        <button text="Close" on-click="on-cancel" pref-width="20" />
+      </horizontal>
     </horizontal>
       <text id="message" text="" active="false"/>
   </vertical>
