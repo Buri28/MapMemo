@@ -528,7 +528,8 @@ namespace MapMemo.UI.Edit
             if (pendingText.Length > 0)
             {
                 // 入力履歴に追加
-                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnCharEnter: adding to history: '{pendingText}'");
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnCharEnter: "
+                                                    + $"adding to history: '{pendingText}'");
                 memoService.AddHistory(pendingText);
                 // 未確定文字を確定文字にする
                 CommitMemo();
