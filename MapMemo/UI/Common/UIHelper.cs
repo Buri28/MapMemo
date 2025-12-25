@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -59,6 +60,39 @@ namespace MapMemo.UI.Common
             yield return new WaitForSeconds(duration);
 
             text.gameObject.SetActive(false);
+        }
+
+        private float oneLineHeight = -1f;
+
+        /// <summary>
+        /// 指定した TextMeshProUGUI コンポーネントのテキスト
+        /// が最大行数を超えるかどうかを判定します。
+        /// </summary>
+        /// <param name="textComponent">対象の TextMeshProUGUI コンポーネント。</param>
+        /// <param name="maxLines">最大行数。</param>
+        /// <param name="s">追加予定のテキスト。</param>
+        public Boolean IsOverMaxLine(TextMeshProUGUI textComponent, int maxLines, string s)
+        {
+            float boxWidth = textComponent.rectTransform.rect.width;
+            if (oneLineHeight < 0f)
+            {
+                // 1行分の高さを測る（初回だけでOK）
+                string sample = "AgjÉÅあ漢字";
+                oneLineHeight = textComponent.GetPreferredValues(sample, boxWidth, 0).y;
+            }
+            string currentText = textComponent.text;
+
+            // 入力を受け取る前に、仮に1文字追加する
+            string simulatedText = currentText + s;  // s は入力予定の文字
+
+            // 高さを測る
+            float newHeight = textComponent.GetPreferredValues(simulatedText, boxWidth, 0).y;
+            int estimatedLines = Mathf.CeilToInt(newHeight / oneLineHeight);
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.Append: oneLineHeight={oneLineHeight} "
+                                                   + $"newHeight={newHeight} estimatedLines={estimatedLines}"
+                                                   + $"({(newHeight / oneLineHeight).ToString("F1")})");
+
+            return estimatedLines > maxLines;
         }
     }
 }

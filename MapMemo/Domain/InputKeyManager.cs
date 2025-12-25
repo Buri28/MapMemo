@@ -109,7 +109,8 @@ namespace MapMemo.Domain
                     {
                         stream.CopyTo(fs);
                     }
-                    Plugin.Log?.Info($"KeyManager: Copied embedded key bindings to {bindingsFilePath} (from {resourceName})");
+                    Plugin.Log?.Info($"KeyManager: Copied embedded key bindings to "
+                                   + $"{bindingsFilePath} (from {resourceName})");
                 }
             }
             catch (Exception ex)
@@ -122,7 +123,8 @@ namespace MapMemo.Domain
         public HashSet<int> ExcludedCodePoints { get; private set; } = new HashSet<int>();
 
         /// <summary>
-        /// キー割当ファイルを読み込み、`Keys` と `ExcludedCodePoints` を初期化します。破損時はバックアップおよびリカバリを試行します。
+        /// キー割当ファイルを読み込み、`Keys` と `ExcludedCodePoints` を初期化します。
+        /// 破損時はバックアップおよびリカバリを試行します。
         /// </summary>
         private void LoadFromFile()
         {
@@ -145,17 +147,21 @@ namespace MapMemo.Domain
                     .Select(s => ParseHexOrDecimal(s))
                     .Where(v => v > 0));
 
-                Plugin.Log?.Info($"KeyManager: Loaded {Keys.Count} key bindings from {bindingsFilePath}; excluded={ExcludedCodePoints.Count}");
+                Plugin.Log?.Info($"KeyManager: Loaded {Keys.Count}" +
+                                 $"key bindings from {bindingsFilePath}; " +
+                                 $"excluded={ExcludedCodePoints.Count}");
             }
             catch (Exception ex)
             {
                 Plugin.Log?.Error($"KeyManager: Failed to load key bindings: {ex}");
-                // リカバリ試行: 既存ファイルが破損している可能性があるため、バックアップを作成し埋め込みリソースで置き換えて再試行します。
+                // リカバリ試行: 既存ファイルが破損している可能性があるため、
+                // バックアップを作成し埋め込みリソースで置き換えて再試行します。
                 try
                 {
                     if (File.Exists(bindingsFilePath))
                     {
-                        var bak = bindingsFilePath + ".corrupt." + DateTime.UtcNow.ToString("yyyyMMddHHmmss") + ".bak";
+                        var bak = bindingsFilePath + ".corrupt." +
+                                    DateTime.UtcNow.ToString("yyyyMMddHHmmss") + ".bak";
                         File.Move(bindingsFilePath, bak);
                         Plugin.Log?.Warn($"KeyManager: Backed up corrupted bindings file to {bak}");
                         // Force-copy embedded resource to replace corrupted file
@@ -168,7 +174,9 @@ namespace MapMemo.Domain
                         ExcludedCodePoints = new HashSet<int>(excludedRaw
                             .Select(s => ParseHexOrDecimal(s))
                             .Where(v => v > 0));
-                        Plugin.Log?.Info($"KeyManager: Recovery successful, loaded {Keys.Count} key bindings; excluded={ExcludedCodePoints.Count}");
+                        Plugin.Log?.Info($"KeyManager: Recovery successful, "
+                                        + $"loaded {Keys.Count} key bindings; " +
+                                        $"excluded={ExcludedCodePoints.Count}");
                         return;
                     }
                 }
@@ -189,10 +197,12 @@ namespace MapMemo.Domain
         /// <param name="type">キータイプ（例: "Emoji", "Literal"）</param>
         public InputKeyEntry GetInputKeyEntryByKeyNo(int keyNo, string type)
         {
-            if (Plugin.VerboseLogs) Plugin.Log?.Info($"GetInputKeyEntryByKeyNo: keyNo={keyNo}, type={type} Keys.Count={Keys.Count}");
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"GetInputKeyEntryByKeyNo:"
+                                + $" keyNo={keyNo}, type={type} Keys.Count={Keys.Count}");
             Keys.ForEach(k =>
             {
-                if (Plugin.VerboseLogs) Plugin.Log?.Info($"  Key Entry: keyNo={k.keyNo}, type={k.type}, label={k.label}");
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"  Key Entry: "
+                    + $"keyNo={k.keyNo}, type={k.type}, label={k.label}");
             });
 
             return Keys.FirstOrDefault(k => k.keyNo == keyNo

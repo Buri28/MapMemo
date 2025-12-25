@@ -19,7 +19,10 @@ namespace MapMemo.Patches
             MonoBehaviour view, LevelContext levelContext)
         {
             // viewはStandardLevelDetailViewを想定
-            if (Plugin.VerboseLogs) Plugin.Log?.Info($"SelectionHook: OnSongSelected parent='{view?.name}' key='{levelContext.GetLevelId()}' song='{levelContext.GetSongName()}' author='{levelContext.GetSongAuthor()}'");
+            if (Plugin.VerboseLogs) Plugin.Log?.Info(
+                    $"SelectionHook: OnSongSelected " +
+                    $"parent='{view?.name}' key='{levelContext.GetLevelId()}' \n" +
+                    $"song='{levelContext.GetSongName()}' author='{levelContext.GetSongAuthor()}'");
             if (view == null) return;
 
             bool isInstance = MemoPanelController.isInstance();

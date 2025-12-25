@@ -97,7 +97,8 @@ namespace MapMemo.Domain
                         {
                             stream.CopyTo(fs);
                         }
-                        Plugin.Log?.Info($"DictionaryManager: Copied dictionary from embedded resource to UserData: {userDictionaryPath}");
+                        Plugin.Log?.Info($"DictionaryManager: "
+                            + "Copied dictionary from embedded resource to UserData: " + userDictionaryPath);
                     }
                     else
                     {

@@ -46,7 +46,8 @@ namespace MapMemo.Services
                 var listener = btn.gameObject.GetComponent<InputKeyClickListener>() ??
                     btn.gameObject.AddComponent<InputKeyClickListener>();
             }
-            if (Plugin.VerboseLogs) Plugin.Log?.Info("KeyController.SetupKeyClickListeners: completed key listener setup");
+            if (Plugin.VerboseLogs) Plugin.Log?.Info("KeyController.SetupKeyClickListeners: "
+                + $"completed key listener setup");
         }
 
         /// <summary>
@@ -108,7 +109,8 @@ namespace MapMemo.Services
                 entry = FindForClickableTextEntry(ct);
                 if (entry == null)
                 {
-                    Plugin.Log?.Info($"ApplyKeyBindings: no KeyEntry found for ClickableText '{ct.gameObject.name}' with text '{ct.text}'");
+                    Plugin.Log?.Info($"ApplyKeyBindings: "
+                        + $"no KeyEntry found for ClickableText '{ct.gameObject.name}' with text '{ct.text}'");
                     ct.text = "";
                     return;
                 }
@@ -124,7 +126,8 @@ namespace MapMemo.Services
                 {
                     // リテラル文字の場合のラベル設定
                     var label = entry.label ?? entry.@char ?? "";
-                    if (Plugin.VerboseLogs) Plugin.Log?.Info($"ApplyKeyBindings: setting Literal label '{label}' for ClickableText '{ct.gameObject.name}'");
+                    if (Plugin.VerboseLogs) Plugin.Log?.Info($"ApplyKeyBindings: "
+                        + $"setting Literal label '{label}' for ClickableText '{ct.gameObject.name}'");
                     ct.text = EditLabel(label);
                 }
                 // すでに登録されているリスナーに KeyEntry をセット
@@ -145,7 +148,8 @@ namespace MapMemo.Services
             try
             {
                 var comps = keys;
-                if (Plugin.VerboseLogs) Plugin.Log?.Info("InputKeyController.UpdateAlphaButtonLabels: " + comps.Count() + " ClickableText components found under modal");
+                if (Plugin.VerboseLogs) Plugin.Log?.Info("InputKeyController.UpdateAlphaButtonLabels: "
+                    + comps.Count() + " ClickableText components found under modal");
                 foreach (var btn in comps)
                 {
                     try

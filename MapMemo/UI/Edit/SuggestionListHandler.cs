@@ -122,7 +122,8 @@ namespace MapMemo.Services
             if (string.IsNullOrEmpty(search)) return;
             if (!memoService.IsOnlyEmoji(search)) return;
 
-            if (Plugin.VerboseLogs) Plugin.Log?.Info($"SuggestionListController: Adding emoji suggestions for '{search}'");
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"SuggestionListController: "
+                + $"Adding emoji suggestions for '{search}'");
 
             var matchedEmojis = memoService.SearchEmojis(search);
             foreach (var kvp in matchedEmojis)
@@ -133,7 +134,8 @@ namespace MapMemo.Services
                 {
                     if (already.Add(new KeyValuePair<string, string>(key, emoji)))
                     {
-                        if (Plugin.VerboseLogs) Plugin.Log?.Info($"Adding emoji suggestion: '{emoji}' for key '{key}'");
+                        if (Plugin.VerboseLogs) Plugin.Log?.Info($"Adding emoji suggestion: "
+                            + $"'{emoji}' for key '{key}'");
                         AddSuggestion(emoji, key);
                     }
                 }
@@ -151,7 +153,8 @@ namespace MapMemo.Services
             {
                 if (already.Add(h))
                 {
-                    if (Plugin.VerboseLogs) Plugin.Log?.Info($"Adding history suggestion: Key='{h.Key}', Value='{h.Value}'");
+                    if (Plugin.VerboseLogs) Plugin.Log?.Info($"Adding history suggestion: "
+                        + $"Key='{h.Key}', Value='{h.Value}'");
                     AddSuggestion(h.Value, h.Key);
                 }
             }
@@ -170,7 +173,8 @@ namespace MapMemo.Services
             {
                 if (already.Add(pair))
                 {
-                    if (Plugin.VerboseLogs) Plugin.Log?.Info($"Adding dictionary suggestion: Key='{pair.Key}', Value='{pair.Value}'");
+                    if (Plugin.VerboseLogs) Plugin.Log?.Info($"Adding dictionary suggestion: "
+                        + $"Key='{pair.Key}', Value='{pair.Value}'");
                     AddSuggestion(pair.Value, pair.Key);
                 }
             }
