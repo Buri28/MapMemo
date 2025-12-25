@@ -20,7 +20,11 @@ namespace MapMemo.Services
         private TextMeshProUGUI[] buttons;
         private MemoService memoService = MemoService.Instance;
 
-
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="keys">ClickableText 配列</param>
+        /// <param name="buttons">TextMeshProUGUI 配列</param>
         public InputKeyHandler(ClickableText[] keys, TextMeshProUGUI[] buttons)
         {
             this.keys = keys;

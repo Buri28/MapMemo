@@ -16,9 +16,15 @@ namespace MapMemo.Services
         /// サジェストが選択されたときに発火するイベント（value, subText）。
         /// </summary>
         public event Action<string, string> SuggestionSelected;
-
+        /// <summary>
+        /// MemoService のインスタンス。
+        /// </summary>
         private MemoService memoService = MemoService.Instance;
 
+        /// <summary>
+        /// コンストラクタ。サジェストリストの初期化を行います
+        /// </summary>
+        /// <param name="suggestionList">バインド対象のサジェストリストコンポーネント</param>
         public SuggestionListHandler(CustomListTableData suggestionList)
         {
             this.suggestionList = suggestionList ?? throw new ArgumentNullException(nameof(suggestionList));
