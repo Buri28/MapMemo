@@ -265,6 +265,65 @@ namespace MapMemo.Services
         }
 
         /// <summary>
+        /// 指定文字列の重み付き長さを返す（改行は無視）。
+        /// </summary>
+        public double GetWeightedLength(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return 0.0;
+            var oneLine = text.Replace("\r", "").Replace("\n", "");
+            var indices = StringInfo.ParseCombiningCharacters(oneLine);
+            double length = 0.0;
+            for (int i = 0; i < indices.Length; i++)
+            {
+                int start = indices[i];
+                int end = (i + 1 < indices.Length) ? indices[i + 1] : oneLine.Length;
+                var elem = oneLine.Substring(start, end - start);
+
+                var weightedRate = GetWeightedRate(elem);
+                if (weightedRate == 1.0)
+                {
+                    weightedRate = StringHelper.IsHalfWidthElement(elem) ? 0.5 : 1.0;
+                }
+
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"GetWeightedLength: elem='{elem}' weightedRate={weightedRate}");
+                length += weightedRate;
+            }
+            return length;
+        }
+        private static double GetWeightedRate(string text)
+        {
+            // 画面のpref-width=108で全角29文字入る　29文字を1.0とする
+            var baseCount = 29.0;
+            // pref-width=108で何文字入るか
+            var charRateDict = new Dictionary<string, double>()
+            {
+                { "Q", 54.0 },{ "W", 34.0 },{ "E", 62.0 },{ "R", 54.0 },
+                { "T", 67.0 },{ "Y", 57.0 },{ "U", 53.0 },{ "I", 106.0 },
+                { "O", 53.0 },{ "P", 56.0 },{ "A", 54.0 },{ "S", 58.0 },
+                { "D", 52.0 },{ "F", 64.0 },{ "G", 55.0 },{ "H", 51.0 },
+                { "J", 63.0 },{ "K", 55.0 },{ "L", 70.0 },{ "Z", 66.0 },
+                { "X", 56.0 },{ "C", 57.0 },{ "V", 56.0 },{ "B", 53.0 },
+                { "N", 52.0 },{ "M", 41.0 },
+                { "q", 59.0 },{ "w", 40.0 },{ "e", 59.0 },{ "r", 88.0 },
+                { "t", 96.0 },{ "y", 62.0 },{ "u", 58.0 },{ "i", 118.0 },
+                { "o", 58.0 },{ "p", 59.0 },{ "a", 59.0 },{ "s", 64.0 },
+                { "d", 59.0 },{ "f", 94.0 },{ "g", 59.0 },{ "h", 58.0 },
+                { "j", 118.0 },{ "k", 60.0 },{ "l", 118.0 },{ "z", 73.0 },
+                { "x", 62.0 },{ "c", 61.0 },{ "v", 65.0 },{ "b", 59.0 },
+                { "n", 58.0 },{ "m", 39.0 },
+            };
+            var weightedRate = 1.0;
+
+            if (charRateDict.ContainsKey(text))
+            {
+                var charCount = charRateDict[text];
+                weightedRate = baseCount / charCount;
+            }
+            return weightedRate;
+        }
+
+
+        /// <summary>
         /// UTC の日時をローカル時間に変換してフォーマットした文字列を返します。
         /// </summary>
         /// <param name="utc">UTC の日時</param>

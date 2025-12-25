@@ -58,7 +58,7 @@ namespace MapMemo.UI.Edit
         // 最大行数
         private static int MAX_LINES = 3;
         // 全体の最大加重文字数
-        private static int MAX_TOTAL_WEIGHTED_LENGTH = 80;
+        private static int MAX_TOTAL_WEIGHTED_LENGTH = 87;
         // メモサービス
         private MemoService memoService = MemoService.Instance;
 
@@ -363,7 +363,7 @@ namespace MapMemo.UI.Edit
 
             if (string.IsNullOrEmpty(s)) return;
 
-            var iter = System.Globalization.StringInfo.GetTextElementEnumerator(s);
+            var iter = StringInfo.GetTextElementEnumerator(s);
             while (iter.MoveNext())
             {
                 Append(iter.GetTextElement(), false);
@@ -387,7 +387,7 @@ namespace MapMemo.UI.Edit
             var confirmedText = this.confirmedText;
 
             // 全体の文字数制限を超過する場合は追加しない
-            if (StringHelper.GetWeightedLength(
+            if (MemoService.Instance.GetWeightedLength(
                 confirmedText + pendingText + s) > MAX_TOTAL_WEIGHTED_LENGTH)
             {
                 return false;

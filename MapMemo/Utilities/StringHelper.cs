@@ -1,6 +1,7 @@
 
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -85,23 +86,6 @@ namespace MapMemo.Utilities
             return linesCount > maxLines;
         }
 
-        /// <summary>
-        /// 指定文字列の重み付き長さを返す（半角=0.5、その他=1、改行は無視）。
-        /// </summary>
-        public static double GetWeightedLength(string text)
-        {
-            if (string.IsNullOrEmpty(text)) return 0.0;
-            var oneLine = text.Replace("\r", "").Replace("\n", "");
-            var indices = StringInfo.ParseCombiningCharacters(oneLine);
-            double length = 0.0;
-            for (int i = 0; i < indices.Length; i++)
-            {
-                int start = indices[i];
-                int end = (i + 1 < indices.Length) ? indices[i + 1] : oneLine.Length;
-                var elem = oneLine.Substring(start, end - start);
-                length += IsHalfWidthElement(elem) ? 0.5 : 1.0;
-            }
-            return length;
-        }
+
     }
 }
