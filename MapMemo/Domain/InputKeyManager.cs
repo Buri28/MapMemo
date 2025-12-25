@@ -15,9 +15,13 @@ namespace MapMemo.Domain
     {
         private string bindingsFilePath;
         public static InputKeyManager Instance { get; private set; }
-
+        /// <summary>
+        /// キー割当エントリのリスト。 
+        /// 
         public List<InputKeyEntry> Keys { get; private set; } = new List<InputKeyEntry>();
-
+        /// <summary>
+        /// サポートされている絵文字のマップ（ラベルごとに絵文字リスト）。
+        /// </summary>
         public Dictionary<string, List<string>> supportedEmojiMap { get; private set; } = null;
 
         /// <summary>
