@@ -36,25 +36,25 @@ namespace MapMemo.Utilities
         /// - 特殊に扱うコードポイント（U+27E8, U+27E9）
         /// 複数文字からなる要素はすべてのコードユニットが半角範囲にある場合のみ true を返します。
         /// </summary>
-        // public static bool IsHalfWidthElement(string textElement)
-        // {
-        //     if (string.IsNullOrEmpty(textElement)) return false;
-        //     // 単一文字で特殊コードポイントを許可
-        //     if (textElement.Length == 1)
-        //     {
-        //         var c = textElement[0];
-        //         if (c == '\u27E8' || c == '\u27E9') return true;
-        //         if (c <= 0x7F) return true;
-        //         if (c >= '\uFF61' && c <= '\uFFDC') return true;
-        //         return false;
-        //     }
-        //     // 複数文字の場合はすべてが半角範囲にあるかを確認
-        //     foreach (var ch in textElement)
-        //     {
-        //         if (!(ch <= 0x7F || (ch >= '\uFF61' && ch <= '\uFFDC'))) return false;
-        //     }
-        //     return true;
-        // }
+        public static bool IsHalfWidthElement(string textElement)
+        {
+            if (string.IsNullOrEmpty(textElement)) return false;
+            // 単一文字で特殊コードポイントを許可
+            if (textElement.Length == 1)
+            {
+                var c = textElement[0];
+                if (c == '\u27E8' || c == '\u27E9') return true;
+                if (c <= 0x7F) return true;
+                if (c >= '\uFF61' && c <= '\uFFDC') return true;
+                return false;
+            }
+            // 複数文字の場合はすべてが半角範囲にあるかを確認
+            foreach (var ch in textElement)
+            {
+                if (!(ch <= 0x7F || (ch >= '\uFF61' && ch <= '\uFFDC'))) return false;
+            }
+            return true;
+        }
 
         /// <summary>
         /// 文字列から改行コードを削除します。

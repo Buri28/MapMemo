@@ -10,6 +10,7 @@ using UnityEngine.UI;
 using MapMemo.UI.Edit;
 using MapMemo.Models;
 using MapMemo.Services;
+using Mapmemo.Models;
 
 namespace MapMemo.UI.Menu
 {
@@ -206,7 +207,7 @@ namespace MapMemo.UI.Menu
                 }
 
                 SetHoverHint(penText.gameObject,
-                    MakeTooltipLine(entry.memo, 30) + " (" + FormatLocal(entry.updatedAt) + ")");
+                    MakeTooltipLine(entry, 40));
             }
 
             return Task.CompletedTask;
@@ -226,11 +227,26 @@ namespace MapMemo.UI.Menu
         /// <summary>
         /// ツールチップ用のテキストを作成する
         /// </summary>
-        private static string MakeTooltipLine(string text, int max)
+        private static string MakeTooltipLine(MemoEntry entry, int max)
         {
-            if (string.IsNullOrEmpty(text)) return "";
-            var oneLine = text.Replace("\r", "").Replace("\n", " ");
-            return oneLine.Length <= max ? oneLine : oneLine.Substring(0, max) + "…";
+            if (string.IsNullOrEmpty(entry.memo)) return "";
+            var oneLine = entry.memo.Replace("\r", "").Replace("\n", " ");
+
+            var (cutString, isComplete, weightedLength) = MemoService.Instance.GetWeightedCutString(oneLine, 40);
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoPanel.MakeTooltipLine: "
+                + $"original='{oneLine}' cutString='{cutString}' "
+                + $"isComplete={isComplete} weightedLength={weightedLength}");
+            var toolTipStr = isComplete ? cutString : cutString + "…";
+            // 日時が大体10文字分で1行全角18文字と仮定すると8文字までは日時が同じ行に入る
+            if (weightedLength % 18 <= 8)
+            {
+                toolTipStr += " (" + FormatLocal(entry.updatedAt) + ")";
+            }
+            else
+            {
+                toolTipStr += "\n　(" + FormatLocal(entry.updatedAt) + ")";
+            }
+            return toolTipStr;
         }
     }
 }
