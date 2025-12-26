@@ -4,6 +4,7 @@ using System.Linq;
 using BeatSaberMarkupLanguage.Components;
 using Mapmemo.Models;
 using MapMemo.UI.Edit;
+using MapMemo.Utilities;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -181,8 +182,8 @@ namespace MapMemo.Services
                     var stored = btn.text.Trim().Replace("　", "");
 
                     var labelConverted = isKanaMode ?
-                        HiraganaToKatakana(stored) :
-                        KatakanaToHiragana(stored);
+                        StringHelper.HiraganaToKatakana(stored) :
+                        StringHelper.KatakanaToHiragana(stored);
                     // Plugin.Log?.Info($"InputKeyController.UpdateKanaModeButtonLabel: changing button label from '{stored}' to '{labelConverted}'");
                     btn.text = EditLabel(labelConverted);
                 }
@@ -203,27 +204,50 @@ namespace MapMemo.Services
         }
 
         /// <summary>
-        /// ひらがなをカタカナに変換する
+        /// 濁点変換モードボタンのラベルを切り替える
         /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        public static string HiraganaToKatakana(string input)
+        /// <param name="dakutenMode">0=無効、1=濁点有効、2=半濁点有効</param>
+        public void UpdateDakutenButtonLabel(int dakutenMode)
         {
-            return new string(input.Select(c =>
-                (c >= 'ぁ' && c <= 'ゖ') ? (char)(c + 0x60) : c
-            ).ToArray());
-        }
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"InputKeyController.UpdateDakutenButtonLabel: dakutenMode={dakutenMode}");
+            try
+            {
+                foreach (var btn in keys)
+                {
+                    var stored = btn.text.Trim().Replace("　", "");
 
-        /// <summary>
-        /// カタカナをひらがなに変換する
-        /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
-        public static string KatakanaToHiragana(string input)
-        {
-            return new string(input.Select(c =>
-                (c >= 'ァ' && c <= 'ヶ') ? (char)(c - 0x60) : c
-            ).ToArray());
+                    // 一度濁点/半濁点を除去してから変換を行う
+                    stored = StringHelper.GetDakutenConverted(stored, false);
+                    stored = StringHelper.GetHandakutenConverted(stored, false);
+
+                    if (dakutenMode == 1)
+                    {
+                        stored = StringHelper.GetDakutenConverted(stored, true);
+                    }
+                    else if (dakutenMode == 2)
+                    {
+                        stored = StringHelper.GetHandakutenConverted(stored, true);
+                    }
+                    if (Plugin.VerboseLogs) Plugin.Log?.Info($"InputKeyController.UpdateDakutenButtonLabel: changing button label to '{stored}'");
+                    btn.text = EditLabel(stored);
+                }
+
+                var dakutenButton = buttons
+                    .FirstOrDefault(btn => btn.text.Trim().Replace("　", "") == "濁点/半濁"
+                                        || btn.text.Trim().Replace("　", "") == "濁点✓/半濁"
+                                        || btn.text.Trim().Replace("　", "") == "濁点/半濁✓");
+                if (dakutenButton != null)
+                {
+                    string label = dakutenMode == 1 ? "濁点✓/半濁"
+                                 : dakutenMode == 2 ? "濁点/半濁✓"
+                                 : "濁点/半濁";
+                    dakutenButton.text = EditLabel(label);
+                }
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log?.Warn($"InputKeyController.UpdateDakutenButtonLabel: {ex.Message}");
+            }
         }
 
         /// <summary>
@@ -259,6 +283,26 @@ namespace MapMemo.Services
                     return memoService.GetInputKeyEntry(lkn, InputKeyEntry.InputKeyType_Literal);
             }
             return null;
+        }
+
+        /// <summary>
+        /// ひらがなをカタカナに変換します。
+        /// </summary>
+        /// <param name="txt"></param>
+        /// <returns></returns>
+        public static string HiraganaToKatakana(string txt)
+        {
+            return StringHelper.HiraganaToKatakana(txt);
+        }
+
+        /// <summary>
+        /// カタカナをひらがなに変換します。
+        /// </summary>
+        /// <param name="txt"></param>
+        /// <returns></returns>
+        public static string KatakanaToHiragana(string txt)
+        {
+            return StringHelper.KatakanaToHiragana(txt);
         }
     }
 }

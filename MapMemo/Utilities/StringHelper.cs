@@ -76,6 +76,153 @@ namespace MapMemo.Utilities
             return safe;
         }
 
+        /// <summary>
+        /// 濁点変換マップ
+        /// </summary>
+        private static readonly Dictionary<string, string> DakutenMap = new Dictionary<string, string>
+        {
+            // ひらがな
+            {"か", "が"}, {"き", "ぎ"}, {"く", "ぐ"}, {"け", "げ"}, {"こ", "ご"},
+            {"さ", "ざ"}, {"し", "じ"}, {"す", "ず"}, {"せ", "ぜ"}, {"そ", "ぞ"},
+            {"た", "だ"}, {"ち", "ぢ"}, {"つ", "づ"}, {"て", "で"}, {"と", "ど"},
+            {"は", "ば"}, {"ひ", "び"}, {"ふ", "ぶ"}, {"へ", "べ"}, {"ほ", "ぼ"},
+            // カタカナ
+            {"カ", "ガ"}, {"キ", "ギ"}, {"ク", "グ"}, {"ケ", "ゲ"}, {"コ", "ゴ"},
+            {"サ", "ザ"}, {"シ", "ジ"}, {"ス", "ズ"}, {"セ", "ゼ"}, {"ソ", "ゾ"},
+            {"タ", "ダ"}, {"チ", "ヂ"}, {"ツ", "ヅ"}, {"テ", "デ"}, {"ト", "ド"},
+            {"ハ", "バ"}, {"ヒ", "ビ"}, {"フ", "ブ"}, {"ヘ", "ベ"}, {"ホ", "ボ"},
+        };
+
+
+        /// <summary>
+        /// 濁点変換を行います。
+        /// </summary>
+        /// <param name="lastChar">変換対象の文字</param>
+        /// <param name="isDakuten">濁点変換かどうか</param>
+        /// <returns>変換後の文字（変換不可の場合は元の文字）</returns>
+        public static string GetDakutenConverted(string lastChar, bool isDakuten)
+        {
+            if (string.IsNullOrEmpty(lastChar)) return lastChar;
+
+            var reverseDakutenMap = DakutenMap.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
+
+            if (isDakuten)
+            {
+                if (DakutenMap.TryGetValue(lastChar, out var converted))
+                {
+                    return converted;
+                }
+            }
+            else
+            {
+                if (reverseDakutenMap.TryGetValue(lastChar, out var reverted))
+                {
+                    return reverted;
+                }
+            }
+            return lastChar;
+        }
+
+        /// <summary>
+        /// 文字が濁点・半濁点変換可能かどうかを判定します。
+        /// </summary>
+        /// <param name="lastChar">変換対象の文字</param>
+        /// <param name="newChar">変換後の文字（変換不可の場合は空文字）</param>
+        /// <returns>変換可能な場合は true、不可の場合は false</returns>
+        public static bool IsDakutenConvertible(string lastChar, out string newChar)
+        {
+            newChar = "";
+            if (string.IsNullOrEmpty(lastChar)) return false;
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"StringHelper.IsDakutenConvertible: "
+                    + $"lastChar='{lastChar}'");
+            if (DakutenMap.TryGetValue(lastChar, out var converted))
+            {
+                newChar = converted;
+                return true;
+            }
+            return false;
+        }
+        /// <summary>
+        /// 半濁点変換マップ
+        /// </summary>
+        private static readonly Dictionary<string, string> HandakutenMap = new Dictionary<string, string>
+        {
+            // ひらがな
+            {"は", "ぱ"}, {"ひ", "ぴ"}, {"ふ", "ぷ"}, {"へ", "ぺ"}, {"ほ", "ぽ"},
+            // カタカナ
+            {"ハ", "パ"}, {"ヒ", "ピ"}, {"フ", "プ"}, {"ヘ", "ペ"}, {"ホ", "ポ"},
+        };
+
+        /// <summary>
+        /// 半濁点変換を行います
+        /// </summary>
+        /// <param name="lastChar">変換対象の文字</param>
+        /// <param name="isHandakuten">半濁点変換かどうか</param>
+        /// <returns>変換後の文字（変換不可の場合は元の文字）</returns>
+        public static string GetHandakutenConverted(string lastChar, bool isHandakuten)
+        {
+            if (string.IsNullOrEmpty(lastChar)) return lastChar;
+
+            var reverseHandakutenMap = HandakutenMap.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
+
+            if (isHandakuten)
+            {
+                if (HandakutenMap.TryGetValue(lastChar, out var converted))
+                {
+                    return converted;
+                }
+            }
+            else
+            {
+                if (reverseHandakutenMap.TryGetValue(lastChar, out var reverted))
+                {
+                    return reverted;
+                }
+            }
+            return lastChar;
+        }
+
+        /// <summary>
+        /// 文字が半濁点変換可能かどうかを判定します
+        /// </summary>
+        /// <param name="lastChar">変換対象の文字</param>
+        /// <param name="newChar">変換後の文字（変換不可の場合は空文字）</param>
+        /// <returns>変換可能な場合は true、不可の場合は false</returns
+        public static bool IsHandakutenConvertible(string lastChar, out string newChar)
+        {
+            newChar = "";
+            if (string.IsNullOrEmpty(lastChar)) return false;
+            if (HandakutenMap.TryGetValue(lastChar, out var converted))
+            {
+                newChar = converted;
+                return true;
+            }
+            return false;
+        }
+        /// <summary>
+        /// ひらがなをカタカナに変換する
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static string HiraganaToKatakana(string input)
+        {
+            return new string(input.Select(c =>
+                (c >= 'ぁ' && c <= 'ゖ') ? (char)(c + 0x60) : c
+            ).ToArray());
+        }
+        /// <summary>
+        /// カタカナをひらがなに変換する
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static string KatakanaToHiragana(string input)
+        {
+            return new string(input.Select(c =>
+                (c >= 'ァ' && c <= 'ヶ') ? (char)(c - 0x60) : c
+            ).ToArray());
+        }
+
+
         // /// <summary>
         // /// テキストが最大行数を超えるかどうかを判定します。
         // /// </summary>
