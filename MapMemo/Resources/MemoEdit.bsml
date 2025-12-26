@@ -370,12 +370,15 @@
       </tab>
     </vertical>
     <!-- Save/Closeボタン（最下部） -->
-   <horizontal spacing="1" pad-top="0" pref-width="108" child-expand-width="false" child-force-expand-width="false" align="TopCenter">
-      <horizontal child-expand-width="true" child-force-expand-width="false" align="Center" pad-left="0" spacing="0" >
-        <horizontal child-expand-width="false" child-force-expand-width="false" pad-left="25">
+   <horizontal spacing="1" pad-top="0" pref-width="108" child-expand-width="false" child-force-expand-width="false" align="TopCenter">  
+      <horizontal child-expand-width="false" child-force-expand-width="false" pad-left="2" align="Left">
+          <button text="Clear" on-click="on-clear" pref-width="15" />
+      </horizontal>
+    　<horizontal child-expand-width="true" child-force-expand-width="false" align="Center" pad-left="0" spacing="0" >
+        <horizontal child-expand-width="false" child-force-expand-width="false" pad-left="14">
           <button text="Save" on-click="on-save" pref-width="20" />
         </horizontal>
-        <horizontal child-expand-width="false" child-force-expand-width="false" pad-left="-22">
+        <horizontal child-expand-width="false" child-force-expand-width="false" pad-left="-24">
           <button text="Close" on-click="on-cancel" pref-width="20" />
         </horizontal>
       </horizontal>

@@ -598,5 +598,14 @@ namespace MapMemo.UI.Edit
             }
 
         }
+
+        [UIAction("on-clear")]
+        private void OnClear()
+        {
+            confirmedText = "";
+            pendingText = "";
+            UpdateMemoText();
+            UpdateSuggestions();
+        }
     }
 }
