@@ -33,6 +33,10 @@ namespace MapMemo.UI.Edit
 
         // かなモード状態（true = カタカナ、false = ひらがな）
         public bool isKanaMode { get; private set; } = false;
+        // 濁点/半濁点変換モード状態（0 = 濁点無効、1 = 濁点有効、2 = 半濁点有効）
+        public int dakutenMode { get; private set; } = 0;
+
+
         // UI コンポーネント
         [UIComponent("modal")] private ModalView modal = null;
         // メモ編集用テキストコンポーネント
@@ -58,7 +62,7 @@ namespace MapMemo.UI.Edit
         // 最大行数
         private static int MAX_LINES = 3;
         // 全体の最大加重文字数
-        private static int MAX_TOTAL_WEIGHTED_LENGTH = 87;
+        // private static int MAX_TOTAL_WEIGHTED_LENGTH = 87;
         // メモサービス
         private MemoService memoService = MemoService.Instance;
 
@@ -517,6 +521,58 @@ namespace MapMemo.UI.Edit
         {
             isKanaMode = !isKanaMode;
             keyHandler.UpdateKanaModeButtonLabel(isKanaMode);
+        }
+
+        /// <summary>
+        /// 濁点/半濁点変換モード切替処理
+        /// </summary>
+        [UIAction("on-char-toggle-dakuten")]
+        private void OnCharToggleDakuten()
+        {
+            dakutenMode = (dakutenMode + 1) % 3; // 0=無効、1=濁点有効、2=半濁点有効
+            keyHandler.UpdateDakutenButtonLabel(dakutenMode);
+        }
+
+
+        [UIAction("on-char-dakuten")]
+        private void OnCharDakuten()
+        {
+            // 最後の文字が濁点の対象だったら濁点に変換しサジェストリストを更新
+            // 最後の文字を取得
+            if (pendingText.Length == 0) return;
+            var lastChar = pendingText.LastOrDefault().ToString();
+
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnCharDakuten: "
+                                + $"lastChar='{lastChar}' isKanaMode={isKanaMode}");
+            if (StringHelper.IsDakutenConvertible(lastChar, out string newChar))
+            {
+                // 最後の文字を濁点文字に置き換える
+                pendingText = pendingText.Substring(0, pendingText.Length - 1) + newChar;
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnCharDakuten: "
+                                + $"pendingText='{pendingText}'");
+                UpdateMemoText();
+                UpdateSuggestions();
+            }
+        }
+
+        [UIAction("on-char-handakuten")]
+        private void OnCharHandakuten()
+        {
+            // 最後の文字が半濁点の対象だったら半濁点に変換しサジェストリストを更新
+            // 最後の文字を取得
+            if (pendingText.Length == 0) return;
+            var lastChar = pendingText.LastOrDefault().ToString();
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnCharHandakuten: "
+                                + $"lastChar='{lastChar}' isKanaMode={isKanaMode}");
+            if (StringHelper.IsHandakutenConvertible(lastChar, out string newChar))
+            {
+                // 最後の文字を半濁点文字に置き換える
+                pendingText = pendingText.Substring(0, pendingText.Length - 1) + newChar;
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnCharHandakuten: "
+                                + $"pendingText='{pendingText}'");
+                UpdateMemoText();
+                UpdateSuggestions();
+            }
         }
 
         /// <summary>
