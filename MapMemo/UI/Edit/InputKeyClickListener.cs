@@ -1,6 +1,7 @@
 using System;
 using Mapmemo.Models;
 using MapMemo.Services;
+using MapMemo.Utilities;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -54,6 +55,10 @@ namespace MapMemo.UI.Edit
                 txt = MemoEditModalController.Instance.isShift ?
                     txt.ToLowerInvariant() :
                     txt.ToUpperInvariant();
+
+                // 濁点・半濁点変換を行う
+                txt = StringHelper.ConvertDakutenHandakuten(
+                    txt, MemoEditModalController.Instance.dakutenMode);
 
                 if (string.IsNullOrEmpty(txt)) return;
                 if (Plugin.VerboseLogs) Plugin.Log?.Info($"KeyClickListener: "
