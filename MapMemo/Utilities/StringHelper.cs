@@ -86,21 +86,53 @@ namespace MapMemo.Utilities
             {"さ", "ざ"}, {"し", "じ"}, {"す", "ず"}, {"せ", "ぜ"}, {"そ", "ぞ"},
             {"た", "だ"}, {"ち", "ぢ"}, {"つ", "づ"}, {"て", "で"}, {"と", "ど"},
             {"は", "ば"}, {"ひ", "び"}, {"ふ", "ぶ"}, {"へ", "べ"}, {"ほ", "ぼ"},
+            {"う", "ゔ"},
             // カタカナ
             {"カ", "ガ"}, {"キ", "ギ"}, {"ク", "グ"}, {"ケ", "ゲ"}, {"コ", "ゴ"},
             {"サ", "ザ"}, {"シ", "ジ"}, {"ス", "ズ"}, {"セ", "ゼ"}, {"ソ", "ゾ"},
             {"タ", "ダ"}, {"チ", "ヂ"}, {"ツ", "ヅ"}, {"テ", "デ"}, {"ト", "ド"},
             {"ハ", "バ"}, {"ヒ", "ビ"}, {"フ", "ブ"}, {"ヘ", "ベ"}, {"ホ", "ボ"},
+            {"ウ", "ヴ"},
+        };
+        /// <summary>
+        /// 半濁点変換マップ
+        /// </summary>
+        private static readonly Dictionary<string, string> HandakutenMap = new Dictionary<string, string>
+        {
+            // ひらがな
+            {"は", "ぱ"}, {"ひ", "ぴ"}, {"ふ", "ぷ"}, {"へ", "ぺ"}, {"ほ", "ぽ"},
+            // カタカナ
+            {"ハ", "パ"}, {"ヒ", "ピ"}, {"フ", "プ"}, {"ヘ", "ペ"}, {"ホ", "ポ"},
         };
 
+        /// <summary>
+        /// 濁点・半濁点変換を行います。
+        /// </summary>
+        /// <param name="lastChar">変換対象の文字</param>
+        /// <param name="dakutenMode">濁点・半濁点モード（0: なし、1: 濁点、2: 半濁点）</param>
+        /// <returns>変換後の文字（変換不可の場合は元の文字）</returns>
+        public static string ConvertDakutenHandakuten(string lastChar, int dakutenMode)
+        {
+            var stored = StringHelper.ConvertDakuten(lastChar, false);
+            stored = StringHelper.ConvertHandakuten(stored, false);
 
+            if (dakutenMode == 1)
+            {
+                stored = StringHelper.ConvertDakuten(stored, true);
+            }
+            else if (dakutenMode == 2)
+            {
+                stored = StringHelper.ConvertHandakuten(stored, true);
+            }
+            return stored;
+        }
         /// <summary>
         /// 濁点変換を行います。
         /// </summary>
         /// <param name="lastChar">変換対象の文字</param>
         /// <param name="isDakuten">濁点変換かどうか</param>
         /// <returns>変換後の文字（変換不可の場合は元の文字）</returns>
-        public static string GetDakutenConverted(string lastChar, bool isDakuten)
+        private static string ConvertDakuten(string lastChar, bool isDakuten)
         {
             if (string.IsNullOrEmpty(lastChar)) return lastChar;
 
@@ -135,23 +167,17 @@ namespace MapMemo.Utilities
             if (string.IsNullOrEmpty(lastChar)) return false;
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"StringHelper.IsDakutenConvertible: "
                     + $"lastChar='{lastChar}'");
-            if (DakutenMap.TryGetValue(lastChar, out var converted))
+            // 半濁点がついている場合は外してから判定
+            var lastCharConverted = StringHelper.ConvertHandakuten(lastChar, false);
+            // 濁点変換可能か判定
+            if (DakutenMap.TryGetValue(lastCharConverted, out var converted))
             {
                 newChar = converted;
                 return true;
             }
             return false;
         }
-        /// <summary>
-        /// 半濁点変換マップ
-        /// </summary>
-        private static readonly Dictionary<string, string> HandakutenMap = new Dictionary<string, string>
-        {
-            // ひらがな
-            {"は", "ぱ"}, {"ひ", "ぴ"}, {"ふ", "ぷ"}, {"へ", "ぺ"}, {"ほ", "ぽ"},
-            // カタカナ
-            {"ハ", "パ"}, {"ヒ", "ピ"}, {"フ", "プ"}, {"ヘ", "ペ"}, {"ホ", "ポ"},
-        };
+
 
         /// <summary>
         /// 半濁点変換を行います
@@ -159,7 +185,7 @@ namespace MapMemo.Utilities
         /// <param name="lastChar">変換対象の文字</param>
         /// <param name="isHandakuten">半濁点変換かどうか</param>
         /// <returns>変換後の文字（変換不可の場合は元の文字）</returns>
-        public static string GetHandakutenConverted(string lastChar, bool isHandakuten)
+        private static string ConvertHandakuten(string lastChar, bool isHandakuten)
         {
             if (string.IsNullOrEmpty(lastChar)) return lastChar;
 
@@ -192,7 +218,10 @@ namespace MapMemo.Utilities
         {
             newChar = "";
             if (string.IsNullOrEmpty(lastChar)) return false;
-            if (HandakutenMap.TryGetValue(lastChar, out var converted))
+            // 濁点がついている場合は外してから判定
+            var lastCharConverted = StringHelper.ConvertDakuten(lastChar, false);
+            // 半濁点変換可能か判定
+            if (HandakutenMap.TryGetValue(lastCharConverted, out var converted))
             {
                 newChar = converted;
                 return true;
@@ -220,6 +249,43 @@ namespace MapMemo.Utilities
             return new string(input.Select(c =>
                 (c >= 'ァ' && c <= 'ヶ') ? (char)(c - 0x60) : c
             ).ToArray());
+        }
+        /// <summary>
+        /// 文字が大文字アルファベットかどうかを判定します。
+        /// </summary>
+        public static bool IsAlphabetUppercase(string lastChar, out string newChar)
+        {
+            newChar = "";
+            if (string.IsNullOrEmpty(lastChar)) return false;
+            if (lastChar.Length == 1)
+            {
+                var c = lastChar[0];
+                if (c >= 'A' && c <= 'Z')
+                {
+                    newChar = char.ToLowerInvariant(c).ToString();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 文字が小文字アルファベットかどうかを判定します。
+        /// </summary>
+        public static bool IsAlphabetLowercase(string lastChar, out string newChar)
+        {
+            newChar = "";
+            if (string.IsNullOrEmpty(lastChar)) return false;
+            if (lastChar.Length == 1)
+            {
+                var c = lastChar[0];
+                if (c >= 'a' && c <= 'z')
+                {
+                    newChar = char.ToUpperInvariant(c).ToString();
+                    return true;
+                }
+            }
+            return false;
         }
 
 

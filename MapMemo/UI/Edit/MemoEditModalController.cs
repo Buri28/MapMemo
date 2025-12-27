@@ -36,7 +36,6 @@ namespace MapMemo.UI.Edit
         // 濁点/半濁点変換モード状態（0 = 濁点無効、1 = 濁点有効、2 = 半濁点有効）
         public int dakutenMode { get; private set; } = 0;
 
-
         // UI コンポーネント
         [UIComponent("modal")] private ModalView modal = null;
         // メモ編集用テキストコンポーネント
@@ -574,6 +573,48 @@ namespace MapMemo.UI.Edit
                 UpdateSuggestions();
             }
         }
+        /// <summary>
+        /// 大文字変換ボタン押下時の処理
+        /// </summary>
+        [UIAction("on-char-lower")]
+        private void OnCharLower()
+        {
+            // 最後の文字が大文字の英字だったら小文字に変換しサジェストリストを更新
+            // 最後の文字を取得
+            if (pendingText.Length == 0) return;
+            var lastChar = pendingText.LastOrDefault().ToString();
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnCharLower: "
+                                + $"lastChar='{lastChar}'");
+            if (StringHelper.IsAlphabetUppercase(lastChar, out string newChar))
+            {
+                // 最後の文字を小文字に置き換える
+                pendingText = pendingText.Substring(0, pendingText.Length - 1) + newChar;
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnCharLower: "
+                                + $"pendingText='{pendingText}'");
+                UpdateMemoText();
+                UpdateSuggestions();
+            }
+        }
+
+        [UIAction("on-char-upper")]
+        private void OnCharUpper()
+        {
+            // 最後の文字が小文字の英字だったら大文字に変換しサジェストリストを更新
+            // 最後の文字を取得
+            if (pendingText.Length == 0) return;
+            var lastChar = pendingText.LastOrDefault().ToString();
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnCharUpper: "
+                                + $"lastChar='{lastChar}'");
+            if (StringHelper.IsAlphabetLowercase(lastChar, out string newChar))
+            {
+                // 最後の文字を大文字に置き換える
+                pendingText = pendingText.Substring(0, pendingText.Length - 1) + newChar;
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnCharUpper: "
+                                + $"pendingText='{pendingText}'");
+                UpdateMemoText();
+                UpdateSuggestions();
+            }
+        }
 
         /// <summary>
         /// 確定ボタン押下時の処理
@@ -599,6 +640,9 @@ namespace MapMemo.UI.Edit
 
         }
 
+        /// <summary>
+        /// クリアボタン押下時の処理。メモ内容を全削除します。
+        /// </summary>
         [UIAction("on-clear")]
         private void OnClear()
         {
@@ -607,5 +651,6 @@ namespace MapMemo.UI.Edit
             UpdateMemoText();
             UpdateSuggestions();
         }
+
     }
 }

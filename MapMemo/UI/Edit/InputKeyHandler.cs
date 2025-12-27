@@ -72,6 +72,7 @@ namespace MapMemo.Services
                         btn.alignment = TextAlignmentOptions.Center;
                         btn.color = Color.cyan;
                         btn.DefaultColor = Color.cyan;
+                        // フォント選択時は赤くする(FF4D00)
                         btn.HighlightColor = new Color(1f, 0.3f, 0f, 1f);
                         btn.outlineColor = Color.yellow;
                         btn.outlineWidth = 0.3f;
@@ -91,7 +92,8 @@ namespace MapMemo.Services
         }
 
         /// <summary>
-        /// KeyManager の設定に基づき、ClickableText 要素のラベルを置換・初期化します（表示を上書きします）。
+        /// KeyManager の設定に基づき、ClickableText 要素のラベルを置換・初期化します
+        /// （表示を上書きします）。
         /// </summary>
         /// <param name="ct">対象の ClickableText</param>
         private void ApplyKeyBindings(ClickableText ct)
@@ -111,7 +113,8 @@ namespace MapMemo.Services
                 if (entry == null)
                 {
                     Plugin.Log?.Info($"ApplyKeyBindings: "
-                        + $"no KeyEntry found for ClickableText '{ct.gameObject.name}' with text '{ct.text}'");
+                        + $"no KeyEntry found for ClickableText '{ct.gameObject.name}' "
+                        + $"with text '{ct.text}'");
                     ct.text = "";
                     return;
                 }
@@ -128,7 +131,8 @@ namespace MapMemo.Services
                     // リテラル文字の場合のラベル設定
                     var label = entry.label ?? entry.@char ?? "";
                     if (Plugin.VerboseLogs) Plugin.Log?.Info($"ApplyKeyBindings: "
-                        + $"setting Literal label '{label}' for ClickableText '{ct.gameObject.name}'");
+                        + $"setting Literal label '{label}' for ClickableText "
+                        + $"'{ct.gameObject.name}'");
                     ct.text = EditLabel(label);
                 }
                 // すでに登録されているリスナーに KeyEntry をセット
@@ -156,7 +160,9 @@ namespace MapMemo.Services
                     try
                     {
                         var stored = btn.text.Trim().Replace("　", "");
-                        var label = isShift ? stored.ToLowerInvariant() : stored.ToUpperInvariant();
+                        var label = isShift ?
+                            stored.ToLowerInvariant() :
+                            stored.ToUpperInvariant();
                         btn.text = EditLabel(label);
                     }
                     catch { /* ignore per-button failures */ }
@@ -209,7 +215,8 @@ namespace MapMemo.Services
         /// <param name="dakutenMode">0=無効、1=濁点有効、2=半濁点有効</param>
         public void UpdateDakutenButtonLabel(int dakutenMode)
         {
-            if (Plugin.VerboseLogs) Plugin.Log?.Info($"InputKeyController.UpdateDakutenButtonLabel: dakutenMode={dakutenMode}");
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"InputKeyController.UpdateDakutenButtonLabel:"
+                                                    + $" dakutenMode={dakutenMode}");
             try
             {
                 foreach (var btn in keys)
@@ -217,18 +224,10 @@ namespace MapMemo.Services
                     var stored = btn.text.Trim().Replace("　", "");
 
                     // 一度濁点/半濁点を除去してから変換を行う
-                    stored = StringHelper.GetDakutenConverted(stored, false);
-                    stored = StringHelper.GetHandakutenConverted(stored, false);
+                    stored = StringHelper.ConvertDakutenHandakuten(stored, dakutenMode);
 
-                    if (dakutenMode == 1)
-                    {
-                        stored = StringHelper.GetDakutenConverted(stored, true);
-                    }
-                    else if (dakutenMode == 2)
-                    {
-                        stored = StringHelper.GetHandakutenConverted(stored, true);
-                    }
-                    if (Plugin.VerboseLogs) Plugin.Log?.Info($"InputKeyController.UpdateDakutenButtonLabel: changing button label to '{stored}'");
+                    if (Plugin.VerboseLogs) Plugin.Log?.Info($"InputKeyController.UpdateDakutenButtonLabel:"
+                        + $" changing button label to '{stored}'");
                     btn.text = EditLabel(stored);
                 }
 
