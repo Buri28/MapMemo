@@ -13,6 +13,7 @@ namespace MapMemo.Domain
     /// </summary>
     public static class MemoRepository
     {
+        /// <summary> メモ保存用のユーザーデータディレクトリパス。</summary>
         private static readonly string UserDataDir =
             Path.Combine(Environment.CurrentDirectory, "UserData", "MapMemo");
 

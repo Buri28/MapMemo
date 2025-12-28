@@ -3,8 +3,6 @@ using System.Collections.Generic;
 
 namespace Mapmemo.Models
 {
-
-
     /// <summary>
     /// キー割当のエントリを表すモデル。
     /// </summary>

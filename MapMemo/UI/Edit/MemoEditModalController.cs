@@ -13,10 +13,6 @@ using MapMemo.Utilities;
 using MapMemo.Services;
 using MapMemo.UI.Common;
 using MapMemo.Models;
-using System.Net;
-using System.Text;
-using UnityEngine.UI;
-using System.Collections.Generic;
 
 namespace MapMemo.UI.Edit
 {

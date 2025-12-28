@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using UnityEngine;
 using Mapmemo.Models;
 using MapMemo.Utilities;
+using System.Globalization;
 
 namespace MapMemo.Domain
 {
@@ -23,7 +24,21 @@ namespace MapMemo.Domain
         /// <summary>
         /// サポートされている絵文字のマップ（ラベルごとに絵文字リスト）。
         /// </summary>
-        public Dictionary<string, List<string>> supportedEmojiMap { get; private set; } = null;
+        public Dictionary<string, List<string>> SupportedEmojiMap { get; private set; } = null;
+
+        /// <summary>
+        /// 除外コードポイントの元データリスト（文字列）。
+        /// </summary>
+        private List<string> excludedRaw = new List<string>();
+        /// <summary>
+        /// 除外コードポイントのセット（整数）。 
+        /// </summary>
+        public HashSet<int> ExcludedCodePoints { get; private set; } = new HashSet<int>();
+
+        /// <summary>
+        /// 1キーあたりの最大絵文字数（範囲展開時の安全策）。
+        /// </summary>
+        private int MAX_EMOJI_PER_KEY = 2000;
 
         /// <summary>
         /// MonoBehaviour の初期化時に呼ばれ、シングルトン登録と DontDestroyOnLoad を実行します。
@@ -31,9 +46,9 @@ namespace MapMemo.Domain
         private void Awake()
         {
             if (Plugin.VerboseLogs) Plugin.Log?.Info("KeyManager Awake");
-            if (Instance != null)
+            if (Instance != null && Instance != this)
             {
-                Destroy(this);
+                Destroy(this.gameObject);
                 return;
             }
 
@@ -51,11 +66,11 @@ namespace MapMemo.Domain
 
             CopyEmbeddedIfMissing();
             LoadFromFile();
-            supportedEmojiMap = GetSupportedEmojiMap();
+            SupportedEmojiMap = GetSupportedEmojiMap();
 
             if (Plugin.VerboseLogs)
             {
-                WriteDebugLog("", supportedEmojiMap);
+                WriteDebugLog("", SupportedEmojiMap);
             }
             return this;
         }
@@ -80,8 +95,9 @@ namespace MapMemo.Domain
             }
             message += "\nEnd of Emoji List";
 
-            string path = Path.Combine(Application.persistentDataPath,
-            Path.Combine(Environment.CurrentDirectory, "UserData", "MapMemo", "_all_emoji_log.txt"));
+            var dir = Path.Combine(Application.persistentDataPath, "UserData", "MapMemo");
+            Directory.CreateDirectory(dir);
+            string path = Path.Combine(dir, "_all_emoji_log.txt");
             File.WriteAllText(path, message + Environment.NewLine);
         }
 
@@ -119,10 +135,6 @@ namespace MapMemo.Domain
                 Plugin.Log?.Error($"KeyManager: Failed to copy embedded resource: {ex}");
             }
         }
-
-        private List<string> excludedRaw = new List<string>();
-        public HashSet<int> ExcludedCodePoints { get; private set; } = new HashSet<int>();
-
         /// <summary>
         /// キー割当ファイルを読み込み、`Keys` と `ExcludedCodePoints` を初期化します。
         /// 破損時はバックアップおよびリカバリを試行します。
@@ -199,13 +211,16 @@ namespace MapMemo.Domain
         /// <param name="type">キータイプ（例: "Emoji", "Literal"）</param>
         public InputKeyEntry GetInputKeyEntryByKeyNo(int keyNo, string type)
         {
-            if (Plugin.VerboseLogs) Plugin.Log?.Info($"GetInputKeyEntryByKeyNo:"
-                                + $" keyNo={keyNo}, type={type} Keys.Count={Keys.Count}");
-            Keys.ForEach(k =>
+            if (Plugin.VerboseLogs)
             {
-                if (Plugin.VerboseLogs) Plugin.Log?.Info($"  Key Entry: "
-                    + $"keyNo={k.keyNo}, type={k.type}, label={k.label}");
-            });
+                Plugin.Log?.Info($"GetInputKeyEntryByKeyNo:"
+                                + $" keyNo={keyNo}, type={type} Keys.Count={Keys.Count}");
+                Keys.ForEach(k =>
+                {
+                    Plugin.Log?.Info($"  Key Entry: "
+                        + $"keyNo={k.keyNo}, type={k.type}, label={k.label}");
+                });
+            }
 
             return Keys.FirstOrDefault(k => k.keyNo == keyNo
                 && string.Equals(k.type, type, StringComparison.OrdinalIgnoreCase));
@@ -216,6 +231,7 @@ namespace MapMemo.Domain
         /// </summary>
         private Dictionary<string, List<string>> GetSupportedEmojiMap()
         {
+
             var dict = new Dictionary<string, List<string>>();
             foreach (var keyEntry in Keys)
             {
@@ -229,6 +245,14 @@ namespace MapMemo.Domain
                 {
                     int start = ParseHexOrDecimal(range.start);
                     int end = ParseHexOrDecimal(range.end);
+
+                    if (start <= 0 || end <= 0 || end < start) continue;
+                    // 異常に大きな範囲はスキップします
+                    if (end - start > MAX_EMOJI_PER_KEY)
+                    {
+                        Plugin.Log?.Warn($"KeyManager: Skipping huge emoji range {start:X}-{end:X}");
+                        continue;
+                    }
                     for (int cp = start; cp <= end; cp++)
                     {
                         if (IsEmojiSupported(cp))
@@ -255,16 +279,24 @@ namespace MapMemo.Domain
         {
             if (string.IsNullOrWhiteSpace(s)) return 0;
             s = s.Trim();
+            if (s.StartsWith("U+", StringComparison.OrdinalIgnoreCase))
+                s = s.Substring(2);
             // "0x1F600" のような 16 進表記や 10 進表記に対応します
             if (s.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
             {
                 var hex = s.Substring(2);
-                if (int.TryParse(
-                    hex, System.Globalization.NumberStyles.HexNumber,
-                    null, out int v)) return v;
+                if (int.TryParse(hex, NumberStyles.HexNumber,
+                    CultureInfo.InvariantCulture, out int v))
+                {
+                    return v <= 0x10FFFF ? v : 0;
+                }
                 return 0;
             }
-            if (int.TryParse(s, out int v2)) return v2;
+            if (int.TryParse(s, NumberStyles.Integer,
+                CultureInfo.InvariantCulture, out int v2))
+            {
+                return v2 <= 0x10FFFF ? v2 : 0;
+            }
             return 0;
         }
 
@@ -273,17 +305,10 @@ namespace MapMemo.Domain
         /// </summary>
         private bool IsEmojiSupported(int codePoint)
         {
-
-            // 可能であれば KeyManager の除外リスト（JSON）を優先し、無ければ組み込みのリストを利用します。
-            try
+            if (ExcludedCodePoints != null && ExcludedCodePoints.Count > 0)
             {
-                var km = InputKeyManager.Instance;
-                if (km != null && km.ExcludedCodePoints != null && km.ExcludedCodePoints.Count > 0)
-                {
-                    return !km.ExcludedCodePoints.Contains(codePoint);
-                }
+                return !ExcludedCodePoints.Contains(codePoint);
             }
-            catch { /* ignore and fallback */ }
             return true;
         }
 

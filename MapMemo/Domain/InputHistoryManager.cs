@@ -12,11 +12,14 @@ namespace MapMemo.Domain
     /// </summary>
     public class InputHistoryManager : MonoBehaviour
     {
+        /// <summary> 履歴ファイルのパス。</summary>
         private string historyFilePath;
-
+        /// <summary> シングルトンインスタンス。</summary> 
         public static InputHistoryManager Instance { get; private set; }
-        public List<KeyValuePair<string, string>> historyList { get; set; }
+        /// <summary> 入力履歴のリスト。</summary>
+        public List<KeyValuePair<string, string>> HistoryList { get; set; }
             = new List<KeyValuePair<string, string>>();
+
         /// <summary>
         /// MonoBehaviour の初期化時に呼ばれ、シングルトンの登録を行います。
         /// </summary>
@@ -68,7 +71,7 @@ namespace MapMemo.Domain
                                                     $"'{text}' (subText: '{subText}')");
 
             // 完全一致の重複を削除
-            historyList.RemoveAll(x =>
+            HistoryList.RemoveAll(x =>
                 string.Equals(
                     StringHelper.RemoveLineBreaks(x.Key),
                     subText,
@@ -78,10 +81,10 @@ namespace MapMemo.Domain
                     text,
                     StringComparison.Ordinal));
 
-            historyList.Add(new KeyValuePair<string, string>(subText, text));
-            while (historyList.Count > MemoSettingsManager.Instance.HistoryMaxCount)
+            HistoryList.Add(new KeyValuePair<string, string>(subText, text));
+            while (HistoryList.Count > MemoSettingsManager.Instance.HistoryMaxCount)
             {
-                historyList.RemoveAt(0);
+                HistoryList.RemoveAt(0);
             }
         }
 
@@ -92,11 +95,11 @@ namespace MapMemo.Domain
         {
             if (!File.Exists(historyFilePath))
             {
-                historyList = new List<KeyValuePair<string, string>>();
+                HistoryList = new List<KeyValuePair<string, string>>();
                 return;
             }
             var historyLines = File.ReadAllLines(historyFilePath).ToList();
-            historyList = historyLines
+            HistoryList = historyLines
                 .Select(line =>
                 {
                     var splitIndex = line.IndexOf(',');
@@ -111,7 +114,7 @@ namespace MapMemo.Domain
                 .Distinct()
                 .ToList();
 
-            Plugin.Log?.Info($"Input history loaded. {historyList.Count} entries.");
+            Plugin.Log?.Info($"Input history loaded. {HistoryList.Count} entries.");
         }
 
         /// <summary>
@@ -121,7 +124,7 @@ namespace MapMemo.Domain
         {
             if (File.Exists(historyFilePath))
                 File.Delete(historyFilePath);
-            historyList = new List<KeyValuePair<string, string>>();
+            HistoryList = new List<KeyValuePair<string, string>>();
         }
 
         /// <summary>
@@ -129,10 +132,10 @@ namespace MapMemo.Domain
         /// </summary>
         public void UpdateHistoryList(int count)
         {
-            if (historyList == null) historyList = new List<KeyValuePair<string, string>>();
-            while (historyList.Count > MemoSettingsManager.Instance.HistoryMaxCount)
+            if (HistoryList == null) HistoryList = new List<KeyValuePair<string, string>>();
+            while (HistoryList.Count > MemoSettingsManager.Instance.HistoryMaxCount)
             {
-                historyList.RemoveAt(0);
+                HistoryList.RemoveAt(0);
             }
         }
 
@@ -144,10 +147,10 @@ namespace MapMemo.Domain
             // ファイルに保存処理
             try
             {
-                if (string.IsNullOrEmpty(historyFilePath) || historyList == null) return;
-                File.WriteAllLines(historyFilePath, historyList.Select(
+                if (string.IsNullOrEmpty(historyFilePath) || HistoryList == null) return;
+                File.WriteAllLines(historyFilePath, HistoryList.Select(
                     kv => kv.Key != null ? $"{kv.Key},{kv.Value}" : kv.Value));
-                Plugin.Log?.Info($"Input history saved. {historyList.Count} entries.");
+                Plugin.Log?.Info($"Input history saved. {HistoryList.Count} entries.");
             }
             catch (Exception ex)
             {

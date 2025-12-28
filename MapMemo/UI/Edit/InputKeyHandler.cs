@@ -9,7 +9,6 @@ using MapMemo.Utilities;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Zenject;
 
 namespace MapMemo.Services
 {
@@ -18,8 +17,11 @@ namespace MapMemo.Services
     /// </summary>
     public class InputKeyHandler
     {
+        /// <summary>ClickableText 配列</summary>
         private ClickableText[] keys;
+        /// <summary>TextMeshProUGUI 配列</summary>
         private TextMeshProUGUI[] buttons;
+        /// <summary>MemoService インスタンス</summary>
         private MemoService memoService = MemoService.Instance;
 
         /// <summary>

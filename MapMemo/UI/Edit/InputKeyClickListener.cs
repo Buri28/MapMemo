@@ -1,7 +1,5 @@
 using System;
 using Mapmemo.Models;
-using MapMemo.Services;
-using MapMemo.Utilities;
 using UnityEngine;
 using UnityEngine.EventSystems;
 

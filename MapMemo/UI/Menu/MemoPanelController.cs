@@ -28,12 +28,13 @@ namespace MapMemo.UI.Menu
         /// ホストとなる GameObject（バインド対象）
         /// </summary>
         public GameObject HostGameObject { get; set; }
-        // 現在のレベルコンテキスト
+        /// <summary> 現在のレベルコンテキスト</summary>
         private LevelContext levelContext;
-        // ペンアイコンテキスト
+        /// <summary> ペンアイコンテキスト</summary>
         [UIComponent("pen-text")] private ClickableText penText = null;
-        // BSMLリソース名
+        /// <summary> HotReload 用リソース名</summary>
         public string ResourceName => "MapMemo.Resources.MemoPanel.bsml";
+        /// <summary> メモサービスのインスタンス。</summary>
         private MemoService memoService = MemoService.Instance;
 
         /// <summary>
@@ -111,6 +112,8 @@ namespace MapMemo.UI.Menu
         /// <summary>
         /// BSMLを解析してホストにアタッチする
         /// </summary>
+        /// <param name="bsml">BSML文字列</param>
+        /// <param name="host">ホストのGameObject</param>
         public void ParseBSML(string bsml, GameObject host)
         {
             if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanelController: "
@@ -227,6 +230,9 @@ namespace MapMemo.UI.Menu
         /// <summary>
         /// ツールチップ用のテキストを作成する
         /// </summary>
+        /// <param name="entry">メモエントリ</param>
+        /// <param name="max">最大文字数</param>
+        /// <returns>ツールチップ用のテキスト</returns>
         private static string MakeTooltipLine(MemoEntry entry, int max)
         {
             if (string.IsNullOrEmpty(entry.memo)) return "";

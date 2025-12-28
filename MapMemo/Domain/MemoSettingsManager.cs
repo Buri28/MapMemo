@@ -11,9 +11,12 @@ namespace MapMemo.Domain
     /// </summary>
     public class MemoSettingsManager : MonoBehaviour
     {
+        /// <summary> シングルトンインスタンス。</summary>
         public static MemoSettingsManager Instance { get; private set; }
+        /// <summary> 設定ファイルのパス。</summary>
         private static readonly string SettingsPath = Path.Combine(
             UnityGame.UserDataPath, "MapMemo", "#settings.json");
+        /// <summary> 設定エンティティ。</summary>
         public MemoSettingEntity settingsEntity { get; set; }
 
         /// <summary>

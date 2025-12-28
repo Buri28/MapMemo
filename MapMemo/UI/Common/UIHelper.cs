@@ -11,6 +11,7 @@ namespace MapMemo.UI.Common
     /// </summary>
     public class UIHelper : MonoBehaviour
     {
+        /// <summary> シングルトンインスタンス。</summary>
         public static UIHelper Instance { get; private set; }
 
         /// <summary>
