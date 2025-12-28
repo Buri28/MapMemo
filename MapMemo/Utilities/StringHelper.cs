@@ -235,6 +235,7 @@ namespace MapMemo.Utilities
         /// <returns></returns>
         public static string HiraganaToKatakana(string input)
         {
+            if (string.IsNullOrEmpty(input)) return "";
             return new string(input.Select(c =>
                 (c >= 'ぁ' && c <= 'ゖ') ? (char)(c + 0x60) : c
             ).ToArray());
@@ -246,6 +247,7 @@ namespace MapMemo.Utilities
         /// <returns></returns>
         public static string KatakanaToHiragana(string input)
         {
+            if (string.IsNullOrEmpty(input)) return "";
             return new string(input.Select(c =>
                 (c >= 'ァ' && c <= 'ヶ') ? (char)(c - 0x60) : c
             ).ToArray());

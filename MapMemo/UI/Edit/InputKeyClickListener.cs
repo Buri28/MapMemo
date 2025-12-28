@@ -47,18 +47,6 @@ namespace MapMemo.UI.Edit
                 {
                     txt = "";
                 }
-                // ひらがな・カタカナ変換を行う
-                txt = MemoEditModalController.Instance.isKanaMode ?
-                    InputKeyHandler.HiraganaToKatakana(txt) :
-                    InputKeyHandler.KatakanaToHiragana(txt);
-                // Shift 状態に応じて大文字・小文字を切り替える
-                txt = MemoEditModalController.Instance.isShift ?
-                    txt.ToLowerInvariant() :
-                    txt.ToUpperInvariant();
-
-                // 濁点・半濁点変換を行う
-                txt = StringHelper.ConvertDakutenHandakuten(
-                    txt, MemoEditModalController.Instance.dakutenMode);
 
                 if (string.IsNullOrEmpty(txt)) return;
                 if (Plugin.VerboseLogs) Plugin.Log?.Info($"KeyClickListener: "
