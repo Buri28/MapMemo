@@ -10,6 +10,7 @@ namespace MapMemo.Services
     /// </summary>
     public class SuggestionListHandler
     {
+        /// <summary> バインド対象のサジェストリストコンポーネント。</summary>
         private readonly CustomListTableData suggestionList;
 
         /// <summary>

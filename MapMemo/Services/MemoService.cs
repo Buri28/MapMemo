@@ -145,7 +145,7 @@ namespace MapMemo.Services
         /// <returns>一致する履歴エントリのリスト</returns>
         public List<KeyValuePair<string, string>> SearchHistory(string search)
         {
-            var history = InputHistoryManager.Instance.historyList;
+            var history = InputHistoryManager.Instance.HistoryList;
             int historyShowCount = GetHistoryShowCount();
 
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"SuggestionListController: "
@@ -198,7 +198,7 @@ namespace MapMemo.Services
         public List<KeyValuePair<string, List<string>>> SearchEmojis(string search)
         {
             // Dictionary<string, List<string>>
-            var supportedEmojis = InputKeyManager.Instance.supportedEmojiMap;
+            var supportedEmojis = InputKeyManager.Instance.SupportedEmojiMap;
 
             // 絞り込んで変換
             var matchedEmojis = supportedEmojis
@@ -257,7 +257,7 @@ namespace MapMemo.Services
         {
             if (string.IsNullOrWhiteSpace(input)) return false;
 
-            var supportedEmojis = InputKeyManager.Instance.supportedEmojiMap;
+            var supportedEmojis = InputKeyManager.Instance.SupportedEmojiMap;
             foreach (var emojiList in supportedEmojis.Values)
             {
                 foreach (var emoji in emojiList)

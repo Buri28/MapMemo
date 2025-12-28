@@ -16,11 +16,14 @@ namespace MapMemo.UI.Settings
     /// </summary>
     public class MapMemoSettingsController : MonoBehaviour, INotifyPropertyChanged
     {
+        /// <summary> プロパティ変更通知イベント。</summary>
         public event PropertyChangedEventHandler PropertyChanged;
+        /// <summary> 設定タブ追加済みフラグ。</summary>
         private static bool _tabAdded = false;
-
+        /// <summary> 履歴クリア完了メッセージ表示用の TextMeshProUGUI。</summary>
         [UIComponent("history-clear-message")]
         private TextMeshProUGUI historyClearMessage = null;
+        /// <summary> メモサービスのインスタンス。</summary>
         private MemoService memoService = MemoService.Instance;
 
         /// <summary>

@@ -141,7 +141,7 @@
     { "keyNo": 150, "type": "Literal", "label": "を", "char": "を" },
 
     { "keyNo": 151, "type": "Literal", "label": "ん", "char": "ん" },
-    { "keyNo": 152, "type": "Literal", "label": "", "char": "" },
+    { "keyNo": 152, "type": "Literal", "label": "！", "char": "！" },
     { "keyNo": 153, "type": "Literal", "label": "", "char": "" },
     { "keyNo": 154, "type": "Literal", "label": "", "char": "" },
     { "keyNo": 155, "type": "Literal", "label": "", "char": "" },
@@ -167,7 +167,7 @@
     { "keyNo": 171, "type": "Literal", "label": "ー", "char": "ー" },
     { "keyNo": 172, "type": "Literal", "label": "～", "char": "～" },
     { "keyNo": 173, "type": "Literal", "label": "。", "char": "。" },
-    { "keyNo": 174, "type": "Literal", "label": "", "char": "" },
+    { "keyNo": 174, "type": "Literal", "label": "、", "char": "、" },
     { "keyNo": 175, "type": "Literal", "label": "⛌", "char": "⛌" },
     
     { "keyNo": 1, "type": "Emoji", "label": "😀", "ranges": [ { "start": "0x1F600", "end": "0x1F613" } ] },
