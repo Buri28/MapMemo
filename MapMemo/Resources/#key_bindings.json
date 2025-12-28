@@ -141,7 +141,7 @@
     { "keyNo": 150, "type": "Literal", "label": "を", "char": "を" },
 
     { "keyNo": 151, "type": "Literal", "label": "ん", "char": "ん" },
-    { "keyNo": 152, "type": "Literal", "label": "！", "char": "！" },
+    { "keyNo": 152, "type": "Literal", "label": "", "char": "" },
     { "keyNo": 153, "type": "Literal", "label": "", "char": "" },
     { "keyNo": 154, "type": "Literal", "label": "", "char": "" },
     { "keyNo": 155, "type": "Literal", "label": "", "char": "" },
@@ -162,7 +162,7 @@
     { "keyNo": 167, "type": "Literal", "label": "ゅ", "char": "ゅ" },
     { "keyNo": 168, "type": "Literal", "label": "ょ", "char": "ょ" },
     { "keyNo": 169, "type": "Literal", "label": "っ", "char": "っ" },
-    { "keyNo": 170, "type": "Literal", "label": "", "char": "" },
+    { "keyNo": 170, "type": "Literal", "label": "！", "char": "！" },
 
     { "keyNo": 171, "type": "Literal", "label": "ー", "char": "ー" },
     { "keyNo": 172, "type": "Literal", "label": "～", "char": "～" },
