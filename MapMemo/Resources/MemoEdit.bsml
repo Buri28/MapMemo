@@ -1,5 +1,5 @@
 ﻿<!-- <modal id="modal" size-delta-x="140" size-delta-y="95" anchor-pos-y="25"> -->
-<modal id="modal" size-delta-x="140" size-delta-y="80" anchor-pos-y="25">
+<modal id="modal" size-delta-x="145" size-delta-y="80" anchor-pos-y="25">
   <vertical spacing="1.0" child-expand-width="true" child-force-expand-width="true" pref-width="138" pad="2" pad-left="5" align="TopCenter">
     <horizontal child-expand-width="true" pad-top="1" pref-height="5">
       <text text="Map Memo" align="Left" font-size="4.0" color="#00FFFF" />
@@ -23,7 +23,7 @@
           <tab-select tab-tag='keyboard-tabs' pad-top="1" anchor-pos-y='0' size-delta-y='10' size-delta-x='-10' child-expand-width='true'/>
         </vertical>
 
-      <vertical pref-height="40" >
+      <vertical pref-height="45" >
       <tab tags="keyboard-tabs" tab-name="A" child-align='TopCenter'>
         <!-- 英字キーボード -->
         <vertical spacing="0.5" child-force-expand-height="false" align="TopCenter" anchor-pos-y="0" anchor-pos-x="0">
@@ -38,7 +38,7 @@
               <button text="" pref-width="24" preferred-height="6" interactable="false" />
             </horizontal>
           </horizontal>
-          <horizontal spacing="0.5"> <!-- 16-->
+          <horizontal spacing="0.5" pad-top="1"> <!-- 16-->
             <clickable-text text="literal-1" pref-width="6" pref-height="5"/>
             <clickable-text text="literal-2" pref-width="6" pref-height="5"/>
             <clickable-text text="literal-3" pref-width="6" pref-height="5"/>
@@ -162,7 +162,7 @@
               <button text="" pref-width="15" preferred-height="6" interactable="false"/>
             </horizontal>
           </horizontal>
-          <horizontal spacing="0.5" pad-top="-1">
+          <horizontal spacing="0.5" pad-top="1">
             <!-- <vertical spacing="0.5">
               <clickable-text text="literal-176" pref-width="6" pref-height="5" />
               <clickable-text text="literal-177" pref-width="6" pref-height="5" />
@@ -384,7 +384,7 @@
     <!-- Save/Closeボタン（最下部） -->
    <horizontal spacing="1" pad-top="0" pref-width="108" child-expand-width="false" child-force-expand-width="false" align="TopCenter">  
       <horizontal child-expand-width="false" child-force-expand-width="false" pad-left="2" align="Left">
-          <button text="Clear" on-click="on-clear" pref-width="15" />
+          <button text="⚠Clear" on-click="on-clear" pref-width="13" />
       </horizontal>
     　<horizontal child-expand-width="true" child-force-expand-width="false" align="Center" pad-left="0" spacing="0" >
         <horizontal child-expand-width="false" child-force-expand-width="false" pad-left="14">

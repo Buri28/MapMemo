@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using BeatSaberMarkupLanguage.Components;
 using Mapmemo.Models;
+using MapMemo.Domain;
 using MapMemo.UI.Edit;
 using MapMemo.Utilities;
 using TMPro;
@@ -55,8 +56,7 @@ namespace MapMemo.Services
         /// クリック可能なテキストコンポーネントの見た目を初期化する
         /// </summary>
         /// <param name="modal"></param>
-        /// <param name="isShift"></param>
-        public void InitializeAppearance(bool isShift)
+        public void InitializeAppearance()
         {
             try
             {
@@ -155,6 +155,10 @@ namespace MapMemo.Services
                 var comps = keys;
                 if (Plugin.VerboseLogs) Plugin.Log?.Info("InputKeyController.UpdateAlphaButtonLabels: "
                     + comps.Count() + " ClickableText components found under modal");
+                // Entry 側のラベルと入力値を更新する
+                InputKeyManager.Instance.UpdateAlphaKeyEntries(isShift);
+
+                // ボタンラベルを更新する
                 foreach (var btn in comps)
                 {
                     try
@@ -165,8 +169,13 @@ namespace MapMemo.Services
                             stored.ToUpperInvariant();
                         btn.text = EditLabel(label);
                     }
-                    catch { /* ignore per-button failures */ }
+                    catch
+                    {
+                        Plugin.Log?.Warn($"InputKeyController.UpdateAlphaButtonLabels: "
+                            + $"failed to update button label for '{btn.text}'");
+                    }
                 }
+
             }
             catch (Exception ex)
             {
@@ -180,9 +189,10 @@ namespace MapMemo.Services
         /// <param name="isKanaMode">true=カナ（かな）モード</param>
         public void UpdateKanaModeButtonLabel(bool isKanaMode)
         {
-
             try
             {
+                // Entry 側のラベルと入力値も更新する
+                InputKeyManager.Instance.UpdateKanaKeyEntries(isKanaMode);
                 foreach (var btn in keys)
                 {
                     var stored = btn.text.Trim().Replace("　", "");
@@ -222,6 +232,9 @@ namespace MapMemo.Services
                 foreach (var btn in keys)
                 {
                     var stored = btn.text.Trim().Replace("　", "");
+
+                    // Entry 側のラベルと入力値も更新する
+                    InputKeyManager.Instance.UpdateDakutenKeyEntries(dakutenMode);
 
                     // 一度濁点/半濁点を除去してから変換を行う
                     stored = StringHelper.ConvertDakutenHandakuten(stored, dakutenMode);

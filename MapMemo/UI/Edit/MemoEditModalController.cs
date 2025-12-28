@@ -177,7 +177,7 @@ namespace MapMemo.UI.Edit
             memoService.LoadResources();
 
             // ボタンの見た目を整えるヘルパーを呼び出す
-            keyHandler.InitializeAppearance(isShift);
+            keyHandler.InitializeAppearance();
         }
 
         /// <summary>

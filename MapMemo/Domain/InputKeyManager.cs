@@ -5,6 +5,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using UnityEngine;
 using Mapmemo.Models;
+using MapMemo.Utilities;
 
 namespace MapMemo.Domain
 {
@@ -190,6 +191,7 @@ namespace MapMemo.Domain
             }
         }
 
+
         /// <summary>
         /// 指定した keyNo と type に一致する InputKeyEntry を返します。
         /// </summary>
@@ -283,6 +285,100 @@ namespace MapMemo.Domain
             }
             catch { /* ignore and fallback */ }
             return true;
+        }
+
+        /// <summary>
+        /// アルファベットキーエントリのラベルと文字を大文字/小文字に更新します。
+        /// </summary>
+        /// <param name="isShift"></param>
+        public void UpdateAlphaKeyEntries(bool isShift)
+        {
+            foreach (var keyEntry in Keys)
+            {
+                try
+                {
+                    var label = isShift ?
+                        keyEntry.label.ToLowerInvariant() :
+                        keyEntry.label.ToUpperInvariant();
+                    keyEntry.label = label;
+
+                    var charVal = isShift ?
+                        keyEntry.@char?.ToLowerInvariant() :
+                        keyEntry.@char?.ToUpperInvariant();
+                    keyEntry.@char = charVal;
+                }
+                catch
+                {
+                    Plugin.Log?.Warn($"InputKeyController.UpdateAlphaButtonLabels: "
+                        + $"failed to update KeyEntry label for "
+                        + $"label '{keyEntry.label}'"
+                        + $"@char '{keyEntry.@char}'"
+                        + $"keyNo '{keyEntry.keyNo}'"
+                        + $" type '{keyEntry.type}'");
+                }
+            }
+        }
+
+        /// <summary>
+        /// かなキーエントリのラベルと文字をひらがな/カタカナに更新します。
+        /// </summary>
+        /// <param name="isKanaMode"></param>
+        public void UpdateKanaKeyEntries(bool isKanaMode)
+        {
+            foreach (var keyEntry in Keys)
+            {
+                try
+                {
+                    var label = isKanaMode ?
+                        StringHelper.HiraganaToKatakana(keyEntry.label) :
+                        StringHelper.KatakanaToHiragana(keyEntry.label);
+                    keyEntry.label = label;
+
+                    var charVal = isKanaMode ?
+                        StringHelper.HiraganaToKatakana(keyEntry.@char) :
+                        StringHelper.KatakanaToHiragana(keyEntry.@char);
+                    keyEntry.@char = charVal;
+                }
+                catch
+                {
+                    Plugin.Log?.Warn($"InputKeyController.UpdateKanaButtonLabels: "
+                        + $"failed to update KeyEntry label for "
+                        + $"label '{keyEntry.label}'"
+                        + $"@char '{keyEntry.@char}'"
+                        + $"keyNo '{keyEntry.keyNo}'"
+                        + $" type '{keyEntry.type}'");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 濁点・半濁点付きキーエントリのラベルと文字を更新します。
+        /// </summary>
+        /// <param name="dakutenMode"></param>
+        public void UpdateDakutenKeyEntries(int dakutenMode)
+        {
+            foreach (var keyEntry in Keys)
+            {
+                try
+                {
+                    var label = StringHelper.ConvertDakutenHandakuten(
+                        keyEntry.label, dakutenMode);
+                    keyEntry.label = label;
+
+                    var charVal = StringHelper.ConvertDakutenHandakuten(
+                        keyEntry.@char, dakutenMode);
+                    keyEntry.@char = charVal;
+                }
+                catch
+                {
+                    Plugin.Log?.Warn($"InputKeyController.UpdateDakutenButtonLabels: "
+                        + $"failed to update KeyEntry label for "
+                        + $"label '{keyEntry.label}'"
+                        + $"@char '{keyEntry.@char}'"
+                        + $"keyNo '{keyEntry.keyNo}'"
+                        + $" type '{keyEntry.type}'");
+                }
+            }
         }
     }
 }
