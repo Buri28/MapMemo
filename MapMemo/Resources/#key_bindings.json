@@ -156,7 +156,7 @@
     { "keyNo": 162, "type": "Literal", "label": "ゖ", "char": "ゖ" },
     { "keyNo": 163, "type": "Literal", "label": "ゎ", "char": "ゎ" },
     { "keyNo": 164, "type": "Literal", "label": "", "char": "" },
-    { "keyNo": 165, "type": "Literal", "label": "", "char": "" },
+    { "keyNo": 165, "type": "Literal", "label": "？", "char": "？" },
 
     { "keyNo": 166, "type": "Literal", "label": "ゃ", "char": "ゃ" },
     { "keyNo": 167, "type": "Literal", "label": "ゅ", "char": "ゅ" },
