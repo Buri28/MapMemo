@@ -89,6 +89,12 @@ namespace MapMemo.Utilities
             {"ウ", "ヴ"},
         };
         /// <summary>
+        /// 逆濁点変換マップ
+        /// </summary>
+        private static readonly Dictionary<string, string> ReverseDakutenMap =
+            DakutenMap.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
+
+        /// <summary>
         /// 半濁点変換マップ
         /// </summary>
         private static readonly Dictionary<string, string> HandakutenMap = new Dictionary<string, string>
@@ -99,6 +105,11 @@ namespace MapMemo.Utilities
             {"ハ", "パ"}, {"ヒ", "ピ"}, {"フ", "プ"}, {"ヘ", "ペ"}, {"ホ", "ポ"},
         };
 
+        /// <summary>
+        /// 逆半濁点変換マップ
+        /// </summary>
+        private static readonly Dictionary<string, string> ReverseHandakutenMap =
+            HandakutenMap.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
         /// <summary>
         /// 濁点・半濁点変換を行います。
         /// </summary>
@@ -130,8 +141,6 @@ namespace MapMemo.Utilities
         {
             if (string.IsNullOrEmpty(lastChar)) return lastChar;
 
-            var reverseDakutenMap = DakutenMap.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
-
             if (isDakuten)
             {
                 if (DakutenMap.TryGetValue(lastChar, out var converted))
@@ -141,7 +150,7 @@ namespace MapMemo.Utilities
             }
             else
             {
-                if (reverseDakutenMap.TryGetValue(lastChar, out var reverted))
+                if (ReverseDakutenMap.TryGetValue(lastChar, out var reverted))
                 {
                     return reverted;
                 }
@@ -183,8 +192,6 @@ namespace MapMemo.Utilities
         {
             if (string.IsNullOrEmpty(lastChar)) return lastChar;
 
-            var reverseHandakutenMap = HandakutenMap.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
-
             if (isHandakuten)
             {
                 if (HandakutenMap.TryGetValue(lastChar, out var converted))
@@ -194,7 +201,7 @@ namespace MapMemo.Utilities
             }
             else
             {
-                if (reverseHandakutenMap.TryGetValue(lastChar, out var reverted))
+                if (ReverseHandakutenMap.TryGetValue(lastChar, out var reverted))
                 {
                     return reverted;
                 }
