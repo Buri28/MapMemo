@@ -41,7 +41,6 @@ Pluginsフォルダに「MapMemo.dll」を格納してBeatSaberを起動しま�
     英字、数字、記号が入力できます。  
     <img width="40%" height="40%" alt="image" src="https://github.com/user-attachments/assets/ef2d3ae8-71b4-4854-a961-d0e2a430a86f" />  
     配置は通常のキーボードに近づけていますが、アルファベット以外は異なります。  
-    (SHIFTキーを押してもアルファベット以外は変わらないため) 
 
   - 「あ/ア」タブ
     ひらがな、カタカナが入力できます。    
@@ -54,8 +53,8 @@ Pluginsフォルダに「MapMemo.dll」を格納してBeatSaberを起動しま�
 
 
 ### 設定画面  
-　入力履歴に関する設定を行います。　　
- ※入力候補に表示される際、入力履歴は辞書ファイルより上に新しい順に表示されます。  
+  入力履歴に関する設定を行います。  
+  ※画面の入力候補には、辞書ファイルの候補より上に入力履歴の候補が新しい順に表示されます。  
  <img width="40%" height="40%" alt="image" src="https://github.com/user-attachments/assets/18ff7af0-0474-4d3a-97f2-75ac0cd0356a" />
 
 | 項目       | 説明                     | 
