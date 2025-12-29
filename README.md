@@ -31,12 +31,13 @@ Pluginsフォルダに「MapMemo.dll」を格納してBeatSaberを起動しま�
 ### マップ選択画面
   ジャケットの右下のペンマークのアイコンを押すことでメモ編集画面が開きます。  
   <img width="30%" height="30%" alt="image" src="https://github.com/user-attachments/assets/44d48c05-91ae-4b53-be06-9dd8624034a6" />  
-  メモがある場合、ペンマークのアイコンが変わります。  
+  メモがある場合、ツールチップでメモの内容を確認できます。(ペンマークのアイコンが変わります)  
   <img width="30%" height="30%" alt="image" src="https://github.com/user-attachments/assets/9bb3369e-0828-48be-b19d-249a723b5acb" />
 
   
 ### メモ編集画面
-  メモを編集しSAVEボタンで保存します。
+  メモを編集し、SAVEボタンで保存します。  
+  ※メモは3行まで入力できますが、ツールチップの表示では改行はスペースになります。  
   - 「A」タブ  
     英字、数字、記号が入力できます。  
     <img width="40%" height="40%" alt="image" src="https://github.com/user-attachments/assets/ef2d3ae8-71b4-4854-a961-d0e2a430a86f" />  
