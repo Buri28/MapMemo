@@ -37,16 +37,16 @@ Pluginsフォルダに「MapMemo.dll」を格納してBeatSaberを起動しま�
   
 ### メモ編集画面
   メモを編集しSAVEボタンで保存します。
-  - 「A」タブ
+  - 「A」タブ  
     英字、数字、記号が入力できます。  
     <img width="40%" height="40%" alt="image" src="https://github.com/user-attachments/assets/ef2d3ae8-71b4-4854-a961-d0e2a430a86f" />  
     配置は通常のキーボードに近づけていますが、アルファベット以外は異なります。  
 
-  - 「あ/ア」タブ
+  - 「あ/ア」タブ  
     ひらがな、カタカナが入力できます。    
     <img width="40%" height="40%" alt="image" src="https://github.com/user-attachments/assets/92ac1525-42e9-4641-af82-1e50416c0530" />
     
-  - 「🙂」タブ
+  - 「🙂」タブ  
     絵文字が入力できます。  
     絵文字1字を入力すると入力候補に関連する絵文字が表示されます。  
     <img width="40%" height="40%" alt="image" src="https://github.com/user-attachments/assets/fa83e474-f3a1-486e-8464-261276546684" />
