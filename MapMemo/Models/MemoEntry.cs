@@ -21,6 +21,10 @@ namespace Mapmemo.Models
         /// 曲の作者
         /// </summary>
         public string songAuthor { get; set; }
+        /// <summary>
+        /// レベルの作者
+        /// </summary>
+        public string levelAuthor { get; set; }
 
         /// <summary>
         /// メモ内容

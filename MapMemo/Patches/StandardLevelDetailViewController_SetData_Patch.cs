@@ -20,9 +20,12 @@ namespace MapMemo.Patches
             var mapLevel = beatmapLevel as BeatmapLevel;
 
             LevelContext levelContext = new LevelContext(mapLevel);
-            if (Plugin.VerboseLogs) Plugin.Log?.Info($"SetData called with "
+            if (Plugin.VerboseLogs)
+            {
+                Plugin.Log?.Info($"SetData called with "
                     + $"level: {mapLevel.songName} by {mapLevel.songAuthorName}, ID: {mapLevel.levelID}");
-
+                levelContext.DebugLog();
+            }
             // 詳細画面のViewを取得
             var field = typeof(StandardLevelDetailViewController)
                 .GetField("_standardLevelDetailView", BindingFlags.NonPublic | BindingFlags.Instance);

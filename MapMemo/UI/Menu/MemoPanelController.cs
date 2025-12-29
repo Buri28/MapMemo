@@ -129,7 +129,8 @@ namespace MapMemo.UI.Menu
         {
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoPanel: "
                 + $"Edit click key='{levelContext.GetLevelId()}' "
-                + $"song='{levelContext.GetSongName()}' author='{levelContext.GetSongAuthor()}'");
+                + $"song='{levelContext.GetSongName()}' author='{levelContext.GetSongAuthor()}'"
+                + $" levelAuthor='{levelContext.GetLevelAuthor()}'");
             MemoEditModalController.Show(instance, levelContext);
         }
 
@@ -156,7 +157,8 @@ namespace MapMemo.UI.Menu
         {
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoPanel: "
                 + $"Refresh called for key='{levelContext.GetLevelId()}' "
-                + $"song='{levelContext.GetSongName()}' author='{levelContext.GetSongAuthor()}'");
+                + $"song='{levelContext.GetSongName()}' author='{levelContext.GetSongAuthor()}'"
+                + $" levelAuthor='{levelContext.GetLevelAuthor()}'");
             // 同期ロードを使って確実に現在の Key に紐づくデータを取得する
             var entry = memoService.LoadMemo(levelContext);
 

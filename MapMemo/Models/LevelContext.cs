@@ -1,6 +1,8 @@
 
 
 using System;
+using System.Collections;
+using System.Text;
 
 namespace MapMemo.Models
 {
@@ -58,6 +60,63 @@ namespace MapMemo.Models
             if (trimmed.Equals("unknown", StringComparison.OrdinalIgnoreCase)) return "unknown";
             if (trimmed.Equals("!Not Defined!", StringComparison.OrdinalIgnoreCase)) return "unknown";
             return trimmed;
+        }
+
+        /// <summary>
+        /// レベル作者名を取得します。
+        /// </summary>
+        /// <returns></returns> 
+        public string GetLevelAuthor()
+        {
+            if (mapLevel.allMappers != null && mapLevel.allMappers.Length > 0)
+            {
+                var joined = string.Join(",", mapLevel.allMappers);
+                return NormalizeUnknown(joined);
+            }
+
+            return "unknown";
+        }
+
+        // /// <summary>
+        // /// レベル作者名（ファイル名用）を取得します。
+        // /// </summary>
+        // public string GetLevelAuthorForFile()
+        // {
+        //     if (mapLevel.allMappers != null && mapLevel.allMappers.Length > 0)
+        //     {
+        //         var joined = string.Join("_", mapLevel.allMappers);
+        //         return NormalizeUnknown(joined);
+        //     }
+        //     return "unknown";
+        // }
+
+        public void DebugLog()
+        {
+            // ジャンプディスタンスとリアクションタイムをログに出力
+            Plugin.Log?.Info($"LevelContext: id='{GetLevelId()}' name='{GetSongName()}' author='{GetSongAuthor()}' levelAuthor='{GetLevelAuthor()}'");
+
+            var characteristics = mapLevel.GetCharacteristics();
+            foreach (var characteristic in characteristics)
+            {
+                var difficulties = mapLevel.GetDifficulties(characteristic);
+                foreach (var difficulty in difficulties)
+                {
+                    Plugin.Log?.Info($"Characteristic: {characteristic.serializedName}    Difficulty: {difficulty}");
+                    BeatmapBasicData basicData = mapLevel.GetDifficultyBeatmapData(characteristic, difficulty);
+                    float bpm = mapLevel.beatsPerMinute;
+                    float njs = basicData.noteJumpMovementSpeed;
+                    float offset = basicData.noteJumpStartBeatOffset;
+
+                    float secondsPerBeat = 60f / bpm;
+                    float halfJumpDuration = 4f + offset;
+                    if (halfJumpDuration < 0.25f) halfJumpDuration = 0.25f;
+                    float reactionTime = secondsPerBeat * halfJumpDuration;
+                    var jumpDistance = njs * (60f / bpm) * halfJumpDuration * 2f;
+                    Plugin.Log?.Info(
+                      $"BPM={bpm}, NJS={njs}, Offset={offset},"
+                      + $"ReactionTime={reactionTime * 1000:F2}ms, JumpDistance={jumpDistance:F2}m");
+                }
+            }
         }
     }
 }

@@ -20,9 +20,10 @@ namespace MapMemo.Patches
         {
             // viewはStandardLevelDetailViewを想定
             if (Plugin.VerboseLogs) Plugin.Log?.Info(
-                    $"SelectionHook: OnSongSelected " +
-                    $"parent='{view?.name}' key='{levelContext.GetLevelId()}' \n" +
-                    $"song='{levelContext.GetSongName()}' author='{levelContext.GetSongAuthor()}'");
+                    $"SelectionHook: OnSongSelected "
+                    + $"parent='{view?.name}' key='{levelContext.GetLevelId()}' \n"
+                    + $"song='{levelContext.GetSongName()}' author='{levelContext.GetSongAuthor()}'"
+                    + $" levelAuthor='{levelContext.GetLevelAuthor()}'");
             if (view == null) return;
 
             bool isInstance = MemoPanelController.isInstance();
