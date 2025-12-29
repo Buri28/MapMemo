@@ -78,7 +78,11 @@ Pluginsフォルダに「MapMemo.dll」を格納してBeatSaberを起動しま�
      ※比較的新しい絵文字は使用できせまん。(ゲーム画面で?と表示されます)
    - デフォルトで表示される全絵文字一覧はこちら  
      [全絵文字リスト(v1.0.0)](docs/all_emoji_list_v1.0.0.txt)  
-     ※ゲーム画面では文字コードが異なるため表示は異なります。  
+     ※ゲーム画面では文字コードが異なるため表示は異なります。
+
+## 参考文献
+入力候補に表示される辞書ファイルの作成にあたり  
+hibitさんの[ビーセイゆるふわ用語集](https://docs.google.com/document/d/1Zl8jh0djB80o3tbTmGR1MF9gV9pkYPfxqTC4IuRQmd0/edit?tab=t.0#heading=h.i3l4hzm490vv)を参考にさせていただきました🙇‍♂️
 
 　　 
 
