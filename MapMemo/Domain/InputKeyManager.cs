@@ -215,11 +215,11 @@ namespace MapMemo.Domain
             {
                 Plugin.Log?.Info($"GetInputKeyEntryByKeyNo:"
                                 + $" keyNo={keyNo}, type={type} Keys.Count={Keys.Count}");
-                Keys.ForEach(k =>
-                {
-                    Plugin.Log?.Info($"  Key Entry: "
-                        + $"keyNo={k.keyNo}, type={k.type}, label={k.label}");
-                });
+                // Keys.ForEach(k =>
+                // {
+                //     Plugin.Log?.Info($"  Key Entry: "
+                //         + $"keyNo={k.keyNo}, type={k.type}, label={k.label}");
+                // });
             }
 
             return Keys.FirstOrDefault(k => k.keyNo == keyNo

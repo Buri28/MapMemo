@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Mapmemo.Models;
+using MapMemo.Models;
 using Newtonsoft.Json;
 
 namespace MapMemo.Domain
@@ -39,9 +40,9 @@ namespace MapMemo.Domain
         }
 
         /// <summary>
-        /// key、songName、songAuthor からファイル名を構築します。
+        /// key、songName、levelAuthor からファイル名を構築します。
         /// </summary>
-        public static string BuildFileName(string key, string songName, string songAuthor)
+        public static string BuildFileName(string key, string songName, string levelAuthor)
         {
             // 空やnullを許容し、フォールバック名を用いる
             var normalizedKey = NormalizeUnknown(key);
@@ -52,8 +53,9 @@ namespace MapMemo.Domain
             }
             string effectiveKey = SanitizeFileSegment(normalizedKey);
             string sanitizedName = SanitizeFileSegment(NormalizeUnknown(songName));
-            string sanitizedAuthor = SanitizeFileSegment(NormalizeUnknown(songAuthor));
-            return Path.Combine(UserDataDir, $"{effectiveKey}({sanitizedName} - {sanitizedAuthor}).json");
+            string sanitizedLevelAuthor = SanitizeFileSegment(NormalizeUnknown(levelAuthor));
+            return Path.Combine(UserDataDir,
+                $"{effectiveKey}({sanitizedName} - {sanitizedLevelAuthor}).json");
         }
 
         /// <summary>
@@ -72,10 +74,15 @@ namespace MapMemo.Domain
         /// <summary>
         /// 同期的にメモを読み込みます。UI スレッドでの同期表示に使用します。
         /// </summary>
-        public static MemoEntry Load(string key, string songName, string songAuthor)
+        public static MemoEntry Load(LevelContext levelContext)
         {
+            var key = levelContext.GetLevelId();
+
             EnsureDir();
-            string path = BuildFileName(key, songName, songAuthor);
+            FileInfo existFileInfo = GetMatchKeyFile(key);
+            if (existFileInfo == null) return null;
+            string path = existFileInfo.FullName;
+
             if (!File.Exists(path)) return null;
             try
             {
@@ -83,14 +90,30 @@ namespace MapMemo.Domain
                 var entry = JsonConvert.DeserializeObject<MemoEntry>(json);
                 if (entry == null) return null;
                 entry.key = entry.key ?? key;
-                entry.songName = entry.songName ?? songName;
-                entry.songAuthor = entry.songAuthor ?? songAuthor;
+                entry.songName = entry.songName ?? levelContext.GetSongName();
+                entry.songAuthor = entry.songAuthor ?? levelContext.GetSongAuthor();
+                entry.levelAuthor = entry.levelAuthor ?? levelContext.GetLevelAuthor();
                 return entry;
             }
             catch
             {
                 return null;
             }
+        }
+        /// <summary>
+        /// 指定されたキーにマッチするメモファイルを取得します。
+        /// </summary>
+        /// <param name="key">メモのキー（LevelId）</param>
+        public static FileInfo GetMatchKeyFile(string key)
+        {
+            EnsureDir();
+            var prefix = SanitizeFileSegment(key.Substring("custom_level_".Length));
+
+            var files = Directory.GetFiles(UserDataDir, $"{prefix}(*.json");
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoRepository.GetMatchKeyFile: "
+                + $"Searching for keyPrefix='{prefix}' found {files.Length} files");
+            if (files.Length == 0) return null;
+            return new FileInfo(files[0]);
         }
 
         /// <summary>
@@ -99,37 +122,49 @@ namespace MapMemo.Domain
         public static async Task SaveAsync(MemoEntry entry)
         {
             EnsureDir();
-            // 空フィールドにフォールバック
-            string path = BuildFileName(entry.key ?? "unknown",
-                                        entry.songName ?? "unknown",
-                                        entry.songAuthor ?? "unknown");
+            DeleteExistingMemoFile(entry);
+            // 既存ファイルがあれば削除（キー変更や曲名・作者名変更に対応）
             // メモが空文字（0文字）の場合はファイルを削除して終了
             if (string.IsNullOrEmpty(entry.memo))
             {
-                try
-                {
-                    if (File.Exists(path))
-                    {
-                        File.Delete(path);
-                        if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoRepository.SaveAsync: "
-                            + $"Deleted file for empty memo path='{path}' key='{entry.key}'");
-                    }
-                }
-                catch (Exception e)
-                {
-                    Plugin.Log?.Warn($"MemoRepository.SaveAsync: "
-                                    + $"Failed to delete file '{path}': {e.Message}");
-                }
                 return;
             }
+
+            string path = BuildFileName(entry.key ?? "unknown",
+                            entry.songName ?? "unknown",
+                            entry.levelAuthor ?? "unknown");
             entry.updatedAt = DateTime.UtcNow;
             var json = JsonConvert.SerializeObject(entry, Formatting.Indented);
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoRepository.SaveAsync: "
                                             + $"path='{path}' key='{entry.key}' "
-                                            + $"song='{entry.songName}' author='{entry.songAuthor}'");
+                                            + $"song='{entry.songName}' author='{entry.songAuthor}'"
+                                            + $" levelAuthor='{entry.levelAuthor}'"
+                                            + $" len={entry.memo.Length}");
             using (var sw = new StreamWriter(path, false, Encoding.UTF8))
             {
                 await sw.WriteAsync(json);
+            }
+        }
+        /// <summary>
+        /// 既存のメモファイルを削除します（キー変更や曲名・作者名変更に対応）。
+        /// </summary> 
+        private static void DeleteExistingMemoFile(MemoEntry entry)
+        {
+            FileInfo existFileInfo = GetMatchKeyFile(entry.key);
+            if (existFileInfo != null)
+            {
+                try
+                {
+                    File.Delete(existFileInfo.FullName);
+                    if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoRepository.SaveAsync: "
+                        + $"Deleted old file due to key/name/author change "
+                        + $"path='{existFileInfo.FullName}' key='{entry.key}'");
+                }
+                catch (Exception e)
+                {
+                    Plugin.Log?.Warn($"MemoRepository.SaveAsync: "
+                                    + $"Failed to delete old file '{existFileInfo.FullName}': {e.Message}");
+                }
             }
         }
     }

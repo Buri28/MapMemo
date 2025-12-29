@@ -40,10 +40,7 @@ namespace MapMemo.Services
         public MemoEntry LoadMemo(LevelContext levelContext)
         {
             if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoService.LoadMemo: loading memo for level");
-            var key = levelContext.GetLevelId();
-            var songName = levelContext.GetSongName();
-            var songAuthor = levelContext.GetSongAuthor();
-            var existingMemoInfo = MemoRepository.Load(key, songName, songAuthor);
+            var existingMemoInfo = MemoRepository.Load(levelContext);
             return existingMemoInfo;
         }
 
@@ -59,11 +56,13 @@ namespace MapMemo.Services
                 key = levelContext.GetLevelId(),
                 songName = levelContext.GetSongName(),
                 songAuthor = levelContext.GetSongAuthor(),
+                levelAuthor = levelContext.GetLevelAuthor(),
                 memo = text
             };
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnSave: "
                 + $"key='{entry.key}' song='{entry.songName}' "
-                + $"author='{entry.songAuthor}' len={text.Length}");
+                + $"author='{entry.songAuthor}' len={text.Length}"
+                + $" levelAuthor='{entry.levelAuthor}'");
 
             // 非同期で保存
             await MemoRepository.SaveAsync(entry);
@@ -323,7 +322,7 @@ namespace MapMemo.Services
                     weightedRate = StringHelper.IsHalfWidthElement(elem) ? 0.5 : 1.0;
                 }
 
-                if (Plugin.VerboseLogs) Plugin.Log?.Info($"GetWeightedCutString: elem='{elem}' weightedRate={weightedRate}");
+                // if (Plugin.VerboseLogs) Plugin.Log?.Info($"GetWeightedCutString: elem='{elem}' weightedRate={weightedRate}");
                 length += weightedRate;
                 if (length > maxLength)
                 {
