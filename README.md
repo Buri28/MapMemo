@@ -55,7 +55,7 @@ Pluginsフォルダに「MapMemo.dll」を格納してBeatSaberを起動しま�
 
 ### 設定画面  
   入力履歴に関する設定を行います。  
-  ※画面の入力候補には、辞書ファイルの候補より上に入力履歴の候補が新しい順に表示されます。  
+  ※メモ編集画面の入力候補には、辞書ファイルの候補より上に入力履歴の候補が新しい順に表示されます。  
  <img width="40%" height="40%" alt="image" src="https://github.com/user-attachments/assets/18ff7af0-0474-4d3a-97f2-75ac0cd0356a" />
 
 | 項目       | 説明                     | 
