@@ -36,12 +36,12 @@ Pluginsフォルダに「MapMemo.dll」を格納してBeatSaberを起動しま�
 
   
 ### メモ編集画面
-  メモを編集し、SAVEボタンで保存します。  
+  メモを編集し、SAVEボタンで保存します。
+  ※SAVEボタンで画面は閉じない仕様のためCLOSEボタンで画面を閉じます。    
   ※メモは3行まで入力できますが、ツールチップの表示では改行はスペースになります。  
   - 「A」タブ  
     英字、数字、記号が入力できます。  
-    <img width="40%" height="40%" alt="image" src="https://github.com/user-attachments/assets/ef2d3ae8-71b4-4854-a961-d0e2a430a86f" />  
-    配置は通常のキーボードに近づけていますが、アルファベット以外は異なります。  
+    <img width="40%" height="40%" alt="image" src="https://github.com/user-attachments/assets/ef2d3ae8-71b4-4854-a961-d0e2a430a86f" />   
 
   - 「あ/ア」タブ  
     ひらがな、カタカナが入力できます。    
@@ -70,6 +70,7 @@ Pluginsフォルダに「MapMemo.dll」を格納してBeatSaberを起動しま�
   「<BeatSaber>\UserData\MapMemo」フォルダの「#dictionary.txt」を編集することで入力候補に表示される単語を追加/変更できます。    
 ### キーバインディングをカスタマイズ
  「<BeatSaber>\UserData\MapMemo」フォルダの「#key_bindings.json」を編集することでキーバインドを変更できます。  
+ (文字や絵文字の追加も可能です)    
  - 「A」タブのキーのバインド
    - keyNo:1～72 (type:Literal)  
      並び順:左上から右    
