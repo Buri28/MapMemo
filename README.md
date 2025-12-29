@@ -7,8 +7,12 @@
 マップの特徴や課題を残して、再度プレイする時などに確認ができます。すぐ忘れてしまう人にお勧めです。  
 <img width="50%" height="50%" alt="image" src="https://github.com/user-attachments/assets/fc584cb4-d1c3-4101-824f-2120c3876856" />  
 更新日時が表示されるため、メモを残した日時も確認できます。   
-<img width="50%" height="50%" alt="image" src="https://github.com/user-attachments/assets/e2fbc172-2857-46a4-b3aa-e7739a9eb732" />  
 
+<img width="50%" height="50%" alt="image" src="https://github.com/user-attachments/assets/e2fbc172-2857-46a4-b3aa-e7739a9eb732" />   
+
+辞書ファイルや入力履歴から入力候補が表示されます。  
+
+<!-- 
 ## 特徴
 | 機能       | 概要                     | 
 |------------|--------------------------|
@@ -18,6 +22,7 @@
 | 入力履歴の設定 | MODSの「MAP MEMO」タブから入力履歴に関する設定が変更できます。        | 
 | 絵文字の入力 | 絵文字のタブから絵文字のキーを押すことで、さらに候補となる絵文字が表示されます。        |
 | キーバインディング | キーバインディング用の設定ファイルにより、表示されるキーの配置を変更できます。<br>※絵文字はキーだけでなく表示される候補の設定も可能です。        |
+-->
 
 ## インストール  
 Pluginsフォルダに「MapMemo.dll」を格納してBeatSaberを起動します。
@@ -80,7 +85,7 @@ Pluginsフォルダに「MapMemo.dll」を格納してBeatSaberを起動しま�
      [全絵文字リスト(v1.0.0)](docs/all_emoji_list_v1.0.0.txt)  
      ※ゲーム画面では文字コードが異なるため表示は異なります。
 
-## 参考文献
+## 謝辞・参考文献
 入力候補に表示される辞書ファイルの作成にあたり  
 hibitさんの[ビーセイゆるふわ用語集](https://docs.google.com/document/d/1Zl8jh0djB80o3tbTmGR1MF9gV9pkYPfxqTC4IuRQmd0/edit?tab=t.0#heading=h.i3l4hzm490vv)を参考にさせていただきました🙇‍♂️
 
