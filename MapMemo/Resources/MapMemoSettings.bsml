@@ -18,7 +18,7 @@
                             on-change="on-history-show-count-changed"
                             formatter="FormatInt"  />
         <vertical spacing="0" align="TopCenter">
-            <button text="Clear History" on-click="on-clear-history" pref-width="40" />
+            <button text="CLEAR HISTORY" on-click="on-clear-history" pref-width="40" />
             <text id="history-clear-message" text="" active="false"/>
         </vertical>
     </vertical>

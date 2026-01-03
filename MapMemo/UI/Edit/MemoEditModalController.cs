@@ -13,6 +13,11 @@ using MapMemo.Utilities;
 using MapMemo.Services;
 using MapMemo.UI.Common;
 using MapMemo.Models;
+using MapMemo.Domain;
+using System.Collections.Generic;
+using UnityEngine.UI;
+using System.Collections;
+using Mapmemo.Models;
 
 namespace MapMemo.UI.Edit
 {
@@ -36,6 +41,13 @@ namespace MapMemo.UI.Edit
         [UIComponent("modal")] private ModalView modal = null;
         // メモ編集用テキストコンポーネント
         [UIComponent("memoText")] public TextMeshProUGUI memoText;
+        // BSRコード表示コンポーネント
+        [UIComponent("bsrCode")] private TextMeshProUGUI bsrCodeText = null;
+
+        [UIComponent("description")] private TextMeshProUGUI descriptionText = null;
+        [UIComponent("lastPublishedAt")] private TextMeshProUGUI lastPublishedAtText = null;
+        [UIComponent("levelAuthor")] private TextMeshProUGUI levelAuthorText = null;
+        [UIComponent("score")] private TextMeshProUGUI scoreText = null;
         // 確定済みテキスト
         private string confirmedText = "";
         // 未確定テキスト
@@ -50,12 +62,24 @@ namespace MapMemo.UI.Edit
         private InputKeyHandler keyHandler = null;
         // レベルコンテキスト(マップ情報)
         private LevelContext levelContext;
+
+        private BeatSaverMap beatSaverMap;
+
         // メッセージ表示コンポーネント
         [UIComponent("message")]
         private TextMeshProUGUI message = null;
 
+        [UIComponent("memo-scroll")]
+        private ScrollView memoScrollView = null;
+
+        [UIComponent("description-scroll")]
+        private ScrollView descriptionScrollView = null;
+
+        [UIComponent("dataTimeStamp")]
+        private TextMeshProUGUI dataTimeStampText = null;
+
         // 最大行数
-        private static int MAX_LINES = 3;
+        private static int MAX_LINES = 6;
         // 全体の最大加重文字数
         // private static int MAX_TOTAL_WEIGHTED_LENGTH = 87;
         // メモサービス
@@ -75,6 +99,9 @@ namespace MapMemo.UI.Edit
             // モーダルのインスタンスを取得する
             var modalCtrl = GetInstance(parent, levelContext);
             modalCtrl.Show();
+
+            modalCtrl.UpdateDescriptionScrollView();
+            modalCtrl.UpdateMemoScrollView();
         }
 
         /// <summary>
@@ -189,18 +216,74 @@ namespace MapMemo.UI.Edit
             this.lastUpdated.text = existingMemoInfo != null ?
                 "Updated:" + this.memoService.FormatLocal(existingMemoInfo.updatedAt) : "";
             this.levelContext = levelContext;
+            // BeatSaver情報を表示
+            if (bsrCodeText != null)
+            {
+                var hash = levelContext.GetLevelHash();
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.InitializeParameters: "
+                    + $"Fetching BeatSaver map info for hash '{hash}'");
 
+                var beatSaverMap = BeatSaverManager.Instance.TryGetCache(hash);
+                descriptionText.text = "Loading...";
+                if (beatSaverMap != null)
+                {
+                    // キャッシュヒット時：即座にUIに反映
+                    SetBeatSaverData(beatSaverMap);
+
+                    if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.InitializeParameters: "
+                        + $"Using cached BeatSaver map info: id='{beatSaverMap.id}' for hash '{hash}'");
+                }
+                else
+                {
+                    BeatSaverManager.Instance.TryRequestAsync(hash, map =>
+                    {
+                        // リクエスト成功時：UIに反映
+                        SetBeatSaverData(map);
+                        if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.InitializeParameters: "
+                        + $"Using cached BeatSaver map info: id='{map.id}' for hash '{hash}'");
+                        UpdateDescriptionScrollView();
+                    },
+                    error =>
+                    {
+                        // エラー時：エラーメッセージを表示
+                        bsrCodeText.text = "N/A";
+                        descriptionText.text = "N/A";
+                        UpdateDescriptionScrollView();
+                        Plugin.Log?.Warn("BeatSaver取得失敗: " + error);
+                    });
+                }
+            }
             // メモ内容を初期化
             if (this.memoText != null)
             {
                 this.memoText.richText = true;
                 this.memoText.enableWordWrapping = true;
+
                 this.confirmedText = memo;
                 this.pendingText = "";
                 this.UpdateMemoText();
+                UpdateMemoScrollView();
             }
             // サジェストリストを初期化
             this.suggestionHandler.Clear();
+        }
+
+        private void SetBeatSaverData(Mapmemo.Models.BeatSaverMap beatSaverMap)
+        {
+            this.beatSaverMap = beatSaverMap;
+
+            bsrCodeText.text = "BSR：" + beatSaverMap.id;
+            descriptionText.enableWordWrapping = true;
+            descriptionText.text = beatSaverMap.description;
+            lastPublishedAtText.text = "Published date：" + beatSaverMap.lastPublishedAt.ToLocalTime().ToString("yyyy-MM-dd");
+            levelAuthorText.text = "Author：" + levelContext.GetLevelAuthor();
+
+            var score = beatSaverMap.stats.score.ToString("P2");
+            var upVotes = beatSaverMap.stats.upvotes.ToString("N0");
+            var downVotes = beatSaverMap.stats.downvotes.ToString("N0");
+
+            scoreText.text = $"Rating：{score} (⬆{upVotes} / ⬇{downVotes})";
+            dataTimeStampText.text = $"({beatSaverMap.DataTimeStamp.ToLocalTime().ToString("yyyy-M  M-dd HH:mm:ss")})";
         }
 
         /// <summary>
@@ -293,8 +376,9 @@ namespace MapMemo.UI.Edit
             try
             {
                 var text = confirmedText + pendingText;
+                var bsrCode = beatSaverMap != null ? beatSaverMap.id : "";
                 // メモを保存
-                await memoService.SaveMemoAsync(levelContext, text);
+                await memoService.SaveMemoAsync(levelContext, text, bsrCode);
                 // 最終更新日時の表示を更新
                 lastUpdated.text = memoService.FormatLocal(DateTime.UtcNow);
                 // 親パネルの反映
@@ -391,6 +475,7 @@ namespace MapMemo.UI.Edit
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.Append: " +
                                     $"preferredWidth={preferredWidth} objectWidth={objectWidth} ");
 
+            // 行数制限を廃止
             if (UIHelper.Instance.IsOverMaxLine(
                 memoText, MAX_LINES, s))
             {
@@ -647,6 +732,48 @@ namespace MapMemo.UI.Edit
             UpdateMemoText();
             UpdateSuggestions();
         }
+        [UIAction("on-update-data")]
+        private void OnUpdateData()
+        {
+            var hash = levelContext.GetLevelHash();
 
+            BeatSaverManager.Instance.TryRequestAsync(hash, map =>
+            {
+                // リクエスト成功時：UIに反映
+                SetBeatSaverData(map);
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.InitializeParameters: "
+                + $"Using cached BeatSaver map info: id='{map.id}' for hash '{hash}'");
+            },
+            error =>
+            {
+                // エラー時：エラーメッセージを表示
+                bsrCodeText.text = "N/A";
+                Plugin.Log?.Warn("BeatSaver取得失敗: " + error);
+            });
+        }
+
+        public void UpdateDescriptionScrollView()
+        {
+            // 2. スクロールビューの状態を更新
+            if (descriptionScrollView != null)
+            {
+                if (Plugin.VerboseLogs) Plugin.Log?.Info("Updating description scroll view");
+                LayoutRebuilder.ForceRebuildLayoutImmediate(descriptionText.rectTransform.parent as RectTransform);
+                // 内容のサイズ変更を反映させる（これがないとスクロールバーが古いままになる）
+                descriptionScrollView.UpdateContentSize();
+            }
+        }
+
+        public void UpdateMemoScrollView()
+        {
+            // 2. スクロールビューの状態を更新
+            if (memoScrollView != null)
+            {
+                if (Plugin.VerboseLogs) Plugin.Log?.Info("Updating memo scroll view");
+                LayoutRebuilder.ForceRebuildLayoutImmediate(memoText.rectTransform.parent as RectTransform);
+                // 内容のサイズ変更を反映させる（これがないとスクロールバーが古いままになる）
+                memoScrollView.UpdateContentSize();
+            }
+        }
     }
 }

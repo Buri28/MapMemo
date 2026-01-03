@@ -35,5 +35,9 @@ namespace Mapmemo.Models
         /// 更新日時（UTC）
         /// </summary>
         public DateTime updatedAt { get; set; } // UTC（協定世界時）
+
+        public string bsrCode { get; set; }
+
+        public string beatSaverUrl { get => $"https://beatsaver.com/maps/{bsrCode}"; }
     }
 }

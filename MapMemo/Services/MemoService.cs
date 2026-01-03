@@ -31,6 +31,10 @@ namespace MapMemo.Services
             InputHistoryManager.Instance.LoadHistory(Path.Combine("UserData", "MapMemo"));
             // キーバインド設定を読み込む (UserData に resource をコピーしてからロード)
             InputKeyManager.Instance.Load(Path.Combine("UserData", "MapMemo"));
+            // bsr情報を読み込む
+            // BsrManager.Instance.LoadBsrInfo();
+            BeatSaverManager.Instance.LoadCache();
+
         }
 
         /// <summary>
@@ -49,7 +53,7 @@ namespace MapMemo.Services
         /// </summary>
         /// <param name="levelContext">レベルコンテキスト</param>
         /// <param name="text">保存するメモのテキスト</param>
-        public async Task SaveMemoAsync(LevelContext levelContext, string text)
+        public async Task SaveMemoAsync(LevelContext levelContext, string text, string bsrCode = null)
         {
             var entry = new MemoEntry
             {
@@ -57,6 +61,7 @@ namespace MapMemo.Services
                 songName = levelContext.GetSongName(),
                 songAuthor = levelContext.GetSongAuthor(),
                 levelAuthor = levelContext.GetLevelAuthor(),
+                bsrCode = bsrCode,
                 memo = text
             };
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnSave: "

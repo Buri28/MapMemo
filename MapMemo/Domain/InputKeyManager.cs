@@ -213,8 +213,8 @@ namespace MapMemo.Domain
         {
             if (Plugin.VerboseLogs)
             {
-                Plugin.Log?.Info($"GetInputKeyEntryByKeyNo:"
-                                + $" keyNo={keyNo}, type={type} Keys.Count={Keys.Count}");
+                // Plugin.Log?.Info($"GetInputKeyEntryByKeyNo:"
+                //                 + $" keyNo={keyNo}, type={type} Keys.Count={Keys.Count}");
                 // Keys.ForEach(k =>
                 // {
                 //     Plugin.Log?.Info($"  Key Entry: "

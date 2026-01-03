@@ -1,29 +1,36 @@
 ﻿<!-- <modal id="modal" size-delta-x="140" size-delta-y="95" anchor-pos-y="25"> -->
-<modal id="modal" size-delta-x="145" size-delta-y="80" anchor-pos-y="25">
-  <vertical spacing="1.0" child-expand-width="true" child-force-expand-width="true" pref-width="138" pad="2" pad-left="5" align="TopCenter">
+<modal id="modal" size-delta-x="145" size-delta-y="92.5" anchor-pos-y="25">
+   <vertical spacing="1.0" pref-width="138" pad="2" pad-left="5" align="TopCenter">      
     <horizontal child-expand-width="true" pad-top="1" pref-height="5">
       <text text="Map Memo" align="Left" font-size="4.0" color="#00FFFF" />
+      <text id="bsrCode" text="" align="Left" font-size="3.5" color="#00FFFF" />
       <!-- 更新日時をメモ表示エリアの上に表示 -->
       <text id ="last-updated" text="" font-size="3.5" color="#FFFF00" align="Right" />
     </horizontal> 
-    <horizontal spacing="7" child-expand-width="true" child-force-expand-width="true" align="TopLeft">
-    <vertical spacing="0.5" pad="0" pref-height="20" child-expand-width="true"  align="TopLeft" >
-        <vertical pref-height="15" pad-left="2" pad-right="7" child-expand-width="true" child-force-expand-width="true" align="TopLeft" pref-width="108" >
-          <!-- text="~memo" -->
+    <horizontal spacing="7" align="TopLeft" pad-top="-3">
+    <vertical spacing="0.5" pad="0" pref-height="85" align="TopLeft" pref-width="108">
+    <!-- <horizontal spacing="7" child-expand-width="true" child-force-expand-width="true" align="TopLeft">
+    <vertical spacing="0.5" pad="0" pref-height="40" child-expand-width="true"  align="TopLeft" pref-width="108"> -->
+    <!-- <vertical spacing="0.5" pad-top="0" align="TopLeft" pref-width="108"> -->
+      <!-- <vertical pref-height="15" pad-left="2" pad-right="7" child-expand-width="true" child-force-expand-width="true" align="TopLeft" pref-width="108" > -->
+      <!-- メモ表示エリア -->
+      <vertical pref-height="32.5" pad-top="0" pad-left="0" pad-right="0" align="TopLeft" pref-width="103" >
+        <scroll-view id="memo-scroll">
+          <vertical vertical-fit="PreferredSize" pref-width="93">
           <text id="memoText" 
-            text=""
-            enable-word-wrapping="true" 
-            font-size="4"
-            rich-text="true" 
-            align="Left"
-            anchor-pos-x="0"
-            force-expand-width="true" />
-        </vertical>
-        <vertical pref-height="10">
-          <tab-select tab-tag='keyboard-tabs' pad-top="1" anchor-pos-y='0' size-delta-y='10' size-delta-x='-10' child-expand-width='true'/>
-        </vertical>
+                  text="" 
+                  font-size="4"
+                  align="TopLeft"
+                  word-wrap="true"/>
+          </vertical>
+        </scroll-view>
+      </vertical>
+      <!-- キーボードタブ選択 -->
+      <vertical pref-height="10">
+        <tab-select tab-tag='keyboard-tabs' pad-top="1" anchor-pos-y='0' size-delta-y='10' size-delta-x='-10' child-expand-width='true'/>
+      </vertical>
 
-      <vertical pref-height="45" >
+      <vertical pref-height="47.5" >
       <tab tags="keyboard-tabs" tab-name="A" child-align='TopCenter'>
         <!-- 英字キーボード -->
         <vertical spacing="0.5" child-force-expand-height="false" align="TopCenter" anchor-pos-y="0" anchor-pos-x="0">
@@ -378,15 +385,39 @@
             <clickable-text text="emoji-76" pref-width="4" pref-height="5"/>
             <clickable-text text="emoji-77" pref-width="15" pref-height="5"/>
           </horizontal> -->
+        </vertical >
+      </tab>
+      <tab tags="keyboard-tabs" tab-name="🛈"  child-align='TopLeft'>
+        <vertical spacing="1" pad-top="0" align="TopLeft" pref-width="108">
+          <horizontal spacing="0" child-align="UpperLeft">
+            <button text="UPDATE DATA" on-click="on-update-data" pref-width="25" preferred-height="6" align="Left"/>
+            <text id="dataTimeStamp" text="" align="Left" font-size="3.5" pad-left="-50" color="#FFFFFF" /> 
+            <button text="" pref-width="40" interactable="false" />
+          </horizontal>
+          <scroll-view id="description-scroll" pref-height="55" pref-width="103" show-scrollbar="true">
+            <vertical vertical-fit="PreferredSize" pref-width="98">
+              <text id="description" 
+                    text="" 
+                    font-size="3.5" 
+                    color="#E0FFFF" 
+                    word-wrap="true" 
+                    align="TopLeft" />
+            </vertical>
+          </scroll-view>
+          <horizontal spacing="0" child-align="LowerLeft">
+            <text id="levelAuthor" text="" align="Left" font-size="3.5" color="#FFFF00" />
+            <text id="lastPublishedAt" text="" align="Left" font-size="3.5" pad-left="-2" color="#FFFF00" />
+            <text id="score" text="" align="Left" font-size="3.5" pad-left="-2" color="#FFFF00" />
+          </horizontal>
         </vertical>
       </tab>
     </vertical>
     <!-- Save/Closeボタン（最下部） -->
-   <horizontal spacing="1" pad-top="0" pref-width="108" child-expand-width="false" child-force-expand-width="false" align="TopCenter">  
+   <horizontal spacing="1" pad-top="2" pref-width="108" child-expand-width="false" child-force-expand-width="false" align="TopCenter">  
       <horizontal child-expand-width="false" child-force-expand-width="false" pad-left="2" align="Left">
           <button text="⚠Clear" on-click="on-clear" pref-width="13" />
       </horizontal>
-    　<horizontal child-expand-width="true" child-force-expand-width="false" align="Center" pad-left="0" spacing="0" >
+      <horizontal child-expand-width="true" child-force-expand-width="false" align="Center" pad-left="0" spacing="0" >
         <horizontal child-expand-width="false" child-force-expand-width="false" pad-left="14">
           <button text="Save" on-click="on-save" pref-width="20" />
         </horizontal>
@@ -398,7 +429,7 @@
       <text id="message" text="" active="false"/>
   </vertical>
   
-  <vertical pref-width="30" pad-left="-6" align="TopRight">
+  <vertical pref-width="30" pad-left="-4" align="TopRight">
     <text text="　　　┌───────────────┐" font-size="2" align="Center" />
     <list id="suggestion-list"
       pref-width="30"
