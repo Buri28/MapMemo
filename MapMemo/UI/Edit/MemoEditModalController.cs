@@ -276,7 +276,7 @@ namespace MapMemo.UI.Edit
             descriptionText.enableWordWrapping = true;
             descriptionText.text = beatSaverMap.description;
             lastPublishedAtText.text = "Published date：" + beatSaverMap.lastPublishedAt.ToLocalTime().ToString("yyyy-MM-dd");
-            levelAuthorText.text = "Author：" + levelContext.GetLevelAuthor();
+            levelAuthorText.text = "Mappers：" + levelContext.GetLevelAuthor();
 
             var score = beatSaverMap.stats.score.ToString("P2");
             var upVotes = beatSaverMap.stats.upvotes.ToString("N0");
