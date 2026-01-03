@@ -114,9 +114,9 @@ namespace MapMemo.Services
                 entry = FindForClickableTextEntry(ct);
                 if (entry == null)
                 {
-                    Plugin.Log?.Info($"ApplyKeyBindings: "
-                        + $"no KeyEntry found for ClickableText '{ct.gameObject.name}' "
-                        + $"with text '{ct.text}'");
+                    // Plugin.Log?.Info($"ApplyKeyBindings: "
+                    //     + $"no KeyEntry found for ClickableText '{ct.gameObject.name}' "
+                    //     + $"with text '{ct.text}'");
                     ct.text = "";
                     return;
                 }
@@ -132,9 +132,9 @@ namespace MapMemo.Services
                 {
                     // リテラル文字の場合のラベル設定
                     var label = entry.label ?? entry.@char ?? "";
-                    if (Plugin.VerboseLogs) Plugin.Log?.Info($"ApplyKeyBindings: "
-                        + $"setting Literal label '{label}' for ClickableText "
-                        + $"'{ct.gameObject.name}'");
+                    // if (Plugin.VerboseLogs) Plugin.Log?.Info($"ApplyKeyBindings: "
+                    //     + $"setting Literal label '{label}' for ClickableText "
+                    //     + $"'{ct.gameObject.name}'");
                     ct.text = EditLabel(label);
                 }
                 // すでに登録されているリスナーに KeyEntry をセット

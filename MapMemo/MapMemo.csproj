@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>disable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -84,11 +84,11 @@
       <HintPath>$(BeatSaberManagedPath)\Zenject.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <!-- <Reference Include="Zenject-usage">
+    <Reference Include="Zenject-usage">
       <HintPath>$(BeatSaberManagedPath)\Zenject-usage.dll</HintPath>
       <Private>False</Private>
       <SpecificVersion>False</SpecificVersion>
-    </Reference> -->
+    </Reference>
 
     <!-- SiraUtil / BSML / BS Utils（BepInEx/Plugins などの配置に応じて修正） -->
     <Reference Include="SiraUtil">
@@ -101,6 +101,22 @@
     </Reference>
     <Reference Include="BS_Utils">
       <HintPath>$(BeatSaberPluginsPath)\BS_Utils.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="GameplayCore">
+      <HintPath>$(BeatSaberManagedPath)\GameplayCore.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="BGLib.AppFlow">
+      <HintPath>$(BeatSaberManagedPath)\BGLib.AppFlow.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="BGLib.UnityExtension">
+      <HintPath>$(BeatSaberManagedPath)\BGLib.UnityExtension.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+        <Reference Include="UnityEngine.UnityWebRequestModule">
+      <HintPath>$(BeatSaberManagedPath)\UnityEngine.UnityWebRequestModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>

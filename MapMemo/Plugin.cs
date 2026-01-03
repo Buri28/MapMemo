@@ -13,7 +13,7 @@ namespace MapMemo
     {
         internal static Logger Log;
         // ログ出力の詳細化フラグ（デバッグ時のみ true にする）
-        public static bool VerboseLogs = false;
+        public static bool VerboseLogs = true;
 
         [Init]
         /// <summary>

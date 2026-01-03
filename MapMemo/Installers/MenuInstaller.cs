@@ -27,8 +27,13 @@ namespace MapMemo.Installers
             go.AddComponent<DictionaryManager>();
             go.AddComponent<InputKeyManager>();
             go.AddComponent<MemoSettingsManager>();
+            go.AddComponent<BeatSaverManager>();
+
+            ///Container.InstantiateComponent<ResultManager>(go);
+            Container.BindInterfacesAndSelfTo<ResultListener>().AsSingle();
             // UI ヘルパーコンポーネントのバインディング
             go.AddComponent<UIHelper>();
+
 
             // 設定画面コントローラーのバインディング
             var settingsController =

@@ -42,7 +42,7 @@ namespace MapMemo.Domain
         /// <summary>
         /// key、songName、levelAuthor からファイル名を構築します。
         /// </summary>
-        public static string BuildFileName(string key, string songName, string levelAuthor)
+        public static string BuildFileName(string key, string songName, string levelAuthor, string bsrCode = null)
         {
             // 空やnullを許容し、フォールバック名を用いる
             var normalizedKey = NormalizeUnknown(key);
@@ -54,6 +54,11 @@ namespace MapMemo.Domain
             string effectiveKey = SanitizeFileSegment(normalizedKey);
             string sanitizedName = SanitizeFileSegment(NormalizeUnknown(songName));
             string sanitizedLevelAuthor = SanitizeFileSegment(NormalizeUnknown(levelAuthor));
+            if (!string.IsNullOrEmpty(bsrCode))
+            {
+                sanitizedLevelAuthor += $" [{SanitizeFileSegment(bsrCode)}]";
+            }
+
             return Path.Combine(UserDataDir,
                 $"{effectiveKey}({sanitizedName} - {sanitizedLevelAuthor}).json");
         }
@@ -132,7 +137,8 @@ namespace MapMemo.Domain
 
             string path = BuildFileName(entry.key ?? "unknown",
                             entry.songName ?? "unknown",
-                            entry.levelAuthor ?? "unknown");
+                            entry.levelAuthor ?? "unknown",
+                            entry.bsrCode ?? "unknown");
             entry.updatedAt = DateTime.UtcNow;
             var json = JsonConvert.SerializeObject(entry, Formatting.Indented);
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoRepository.SaveAsync: "
