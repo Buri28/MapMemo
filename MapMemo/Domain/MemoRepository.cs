@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Mapmemo.Models;
 using MapMemo.Models;
+using MapMemo.Utilities;
 using Newtonsoft.Json;
 
 namespace MapMemo.Domain
@@ -16,7 +17,7 @@ namespace MapMemo.Domain
     {
         /// <summary> メモ保存用のユーザーデータディレクトリパス。</summary>
         private static readonly string UserDataDir =
-            Path.Combine(Environment.CurrentDirectory, "UserData", "MapMemo");
+            BeatSaberUtils.GetBeatSaberUserDataPath("MapMemo");
 
         /// <summary>
         /// メモ保存用ディレクトリを作成します。
@@ -42,15 +43,11 @@ namespace MapMemo.Domain
         /// <summary>
         /// key、songName、levelAuthor からファイル名を構築します。
         /// </summary>
-        public static string BuildFileName(string key, string songName, string levelAuthor, string bsrCode = null)
+        public static string BuildFileName(string hash, string songName, string levelAuthor, string bsrCode = null)
         {
             // 空やnullを許容し、フォールバック名を用いる
-            var normalizedKey = NormalizeUnknown(key);
-            // Beat Saberのカスタム譜面はlevelIDが"custom_level_<HASH>"なので、表示/ファイル名では接頭辞を省く
-            if (normalizedKey.StartsWith("custom_level_", StringComparison.OrdinalIgnoreCase))
-            {
-                normalizedKey = normalizedKey.Substring("custom_level_".Length);
-            }
+            var normalizedKey = hash;
+
             string effectiveKey = SanitizeFileSegment(normalizedKey);
             string sanitizedName = SanitizeFileSegment(NormalizeUnknown(songName));
             string sanitizedLevelAuthor = SanitizeFileSegment(NormalizeUnknown(levelAuthor));
@@ -84,7 +81,7 @@ namespace MapMemo.Domain
             var key = levelContext.GetLevelId();
 
             EnsureDir();
-            FileInfo existFileInfo = GetMatchKeyFile(key);
+            FileInfo existFileInfo = GetMatchKeyFile(levelContext.GetLevelHash());
             if (existFileInfo == null) return null;
             string path = existFileInfo.FullName;
 
@@ -109,10 +106,10 @@ namespace MapMemo.Domain
         /// 指定されたキーにマッチするメモファイルを取得します。
         /// </summary>
         /// <param name="key">メモのキー（LevelId）</param>
-        public static FileInfo GetMatchKeyFile(string key)
+        public static FileInfo GetMatchKeyFile(string hash)
         {
             EnsureDir();
-            var prefix = SanitizeFileSegment(key.Substring("custom_level_".Length));
+            var prefix = hash;
 
             var files = Directory.GetFiles(UserDataDir, $"{prefix}(*.json");
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoRepository.GetMatchKeyFile: "
@@ -135,7 +132,7 @@ namespace MapMemo.Domain
                 return;
             }
 
-            string path = BuildFileName(entry.key ?? "unknown",
+            string path = BuildFileName(entry.GetLevelHash() ?? "unknown",
                             entry.songName ?? "unknown",
                             entry.levelAuthor ?? "unknown",
                             entry.bsrCode ?? "unknown");
@@ -151,12 +148,13 @@ namespace MapMemo.Domain
                 await sw.WriteAsync(json);
             }
         }
+
         /// <summary>
         /// 既存のメモファイルを削除します（キー変更や曲名・作者名変更に対応）。
         /// </summary> 
         private static void DeleteExistingMemoFile(MemoEntry entry)
         {
-            FileInfo existFileInfo = GetMatchKeyFile(entry.key);
+            FileInfo existFileInfo = GetMatchKeyFile(entry.GetLevelHash());
             if (existFileInfo != null)
             {
                 try
@@ -164,7 +162,7 @@ namespace MapMemo.Domain
                     File.Delete(existFileInfo.FullName);
                     if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoRepository.SaveAsync: "
                         + $"Deleted old file due to key/name/author change "
-                        + $"path='{existFileInfo.FullName}' key='{entry.key}'");
+                        + $"path='{existFileInfo.FullName}' hash='{entry.GetLevelHash()}'");
                 }
                 catch (Exception e)
                 {

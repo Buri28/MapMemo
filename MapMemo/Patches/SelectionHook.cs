@@ -26,8 +26,6 @@ namespace MapMemo.Patches
                     + $" levelAuthor='{levelContext.GetLevelAuthor()}'");
             if (view == null) return;
 
-            bool isInstance = MemoPanelController.isInstance();
-
             var ctrl = MemoPanelController.GetInstance(view, levelContext);
             await ctrl.Refresh();
         }

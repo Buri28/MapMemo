@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,7 +7,7 @@ namespace MapMemo.Utilities
     /// <summary>
     /// 文字列操作に関するユーティリティメソッドを提供します
     /// </summary>
-    public static class StringHelper
+    public static class StringUtils
     {
         // /// <summary>
         // /// 文字要素が ASCII アルファベットか判定します。
@@ -118,16 +119,16 @@ namespace MapMemo.Utilities
         /// <returns>変換後の文字（変換不可の場合は元の文字）</returns>
         public static string ConvertDakutenHandakuten(string lastChar, int dakutenMode)
         {
-            var stored = StringHelper.ConvertDakuten(lastChar, false);
-            stored = StringHelper.ConvertHandakuten(stored, false);
+            var stored = StringUtils.ConvertDakuten(lastChar, false);
+            stored = StringUtils.ConvertHandakuten(stored, false);
 
             if (dakutenMode == 1)
             {
-                stored = StringHelper.ConvertDakuten(stored, true);
+                stored = StringUtils.ConvertDakuten(stored, true);
             }
             else if (dakutenMode == 2)
             {
-                stored = StringHelper.ConvertHandakuten(stored, true);
+                stored = StringUtils.ConvertHandakuten(stored, true);
             }
             return stored;
         }
@@ -171,7 +172,7 @@ namespace MapMemo.Utilities
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"StringHelper.IsDakutenConvertible: "
                     + $"lastChar='{lastChar}'");
             // 半濁点がついている場合は外してから判定
-            var lastCharConverted = StringHelper.ConvertHandakuten(lastChar, false);
+            var lastCharConverted = StringUtils.ConvertHandakuten(lastChar, false);
             // 濁点変換可能か判定
             if (DakutenMap.TryGetValue(lastCharConverted, out var converted))
             {
@@ -220,7 +221,7 @@ namespace MapMemo.Utilities
             newChar = "";
             if (string.IsNullOrEmpty(lastChar)) return false;
             // 濁点がついている場合は外してから判定
-            var lastCharConverted = StringHelper.ConvertDakuten(lastChar, false);
+            var lastCharConverted = StringUtils.ConvertDakuten(lastChar, false);
             // 半濁点変換可能か判定
             if (HandakutenMap.TryGetValue(lastCharConverted, out var converted))
             {
@@ -242,6 +243,28 @@ namespace MapMemo.Utilities
             ).ToArray());
         }
         /// <summary>
+        /// 文字がひらがなかどうかを判定します。
+        /// </summary>
+        /// <param name="lastChar"></param>
+        /// <param name="newChar"></param>
+        /// <returns></returns>
+        public static bool IsHiragana(string lastChar, out string newChar)
+        {
+            newChar = "";
+            if (string.IsNullOrEmpty(lastChar)) return false;
+            if (lastChar.Length == 1)
+            {
+                var c = lastChar[0];
+                if (c >= 'ぁ' && c <= 'ゖ')
+                {
+                    newChar = HiraganaToKatakana(c.ToString());
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
         /// カタカナをひらがなに変換する
         /// </summary>
         /// <param name="input"></param>
@@ -252,6 +275,28 @@ namespace MapMemo.Utilities
             return new string(input.Select(c =>
                 (c >= 'ァ' && c <= 'ヶ') ? (char)(c - 0x60) : c
             ).ToArray());
+        }
+
+        /// <summary>
+        /// 文字がカタカナかどうかを判定します。
+        /// </summary>
+        /// <param name="lastChar"></param>
+        /// <param name="newChar"></param>
+        /// <returns></returns>
+        public static bool IsKatakana(string lastChar, out string newChar)
+        {
+            newChar = "";
+            if (string.IsNullOrEmpty(lastChar)) return false;
+            if (lastChar.Length == 1)
+            {
+                var c = lastChar[0];
+                if (c >= 'ァ' && c <= 'ヶ')
+                {
+                    newChar = KatakanaToHiragana(c.ToString());
+                    return true;
+                }
+            }
+            return false;
         }
         /// <summary>
         /// 文字が大文字アルファベットかどうかを判定します。
@@ -290,6 +335,9 @@ namespace MapMemo.Utilities
             }
             return false;
         }
+
+
+
 
 
         // /// <summary>

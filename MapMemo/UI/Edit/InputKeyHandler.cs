@@ -200,8 +200,8 @@ namespace MapMemo.Services
                     var stored = btn.text.Trim().Replace("　", "");
 
                     var labelConverted = isKanaMode ?
-                        StringHelper.HiraganaToKatakana(stored) :
-                        StringHelper.KatakanaToHiragana(stored);
+                        StringUtils.HiraganaToKatakana(stored) :
+                        StringUtils.KatakanaToHiragana(stored);
                     // Plugin.Log?.Info($"InputKeyController.UpdateKanaModeButtonLabel: changing button label from '{stored}' to '{labelConverted}'");
                     btn.text = EditLabel(labelConverted);
                 }
@@ -239,7 +239,7 @@ namespace MapMemo.Services
                     InputKeyManager.Instance.UpdateDakutenKeyEntries(dakutenMode);
 
                     // 一度濁点/半濁点を除去してから変換を行う
-                    stored = StringHelper.ConvertDakutenHandakuten(stored, dakutenMode);
+                    stored = StringUtils.ConvertDakutenHandakuten(stored, dakutenMode);
 
                     if (Plugin.VerboseLogs) Plugin.Log?.Info($"InputKeyController.UpdateDakutenButtonLabel:"
                         + $" changing button label to '{stored}'");
@@ -306,7 +306,7 @@ namespace MapMemo.Services
         /// <returns></returns>
         public static string HiraganaToKatakana(string txt)
         {
-            return StringHelper.HiraganaToKatakana(txt);
+            return StringUtils.HiraganaToKatakana(txt);
         }
 
         /// <summary>
@@ -316,7 +316,7 @@ namespace MapMemo.Services
         /// <returns></returns>
         public static string KatakanaToHiragana(string txt)
         {
-            return StringHelper.KatakanaToHiragana(txt);
+            return StringUtils.KatakanaToHiragana(txt);
         }
     }
 }

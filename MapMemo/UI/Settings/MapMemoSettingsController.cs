@@ -5,6 +5,7 @@ using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.GameplaySetup;
 using MapMemo.Services;
 using MapMemo.UI.Common;
+using MapMemo.UI.Menu;
 using TMPro;
 using UnityEngine;
 
@@ -25,6 +26,14 @@ namespace MapMemo.UI.Settings
         private TextMeshProUGUI historyClearMessage = null;
         /// <summary> メモサービスのインスタンス。</summary>
         private MemoService memoService = MemoService.Instance;
+
+        /// <summary>
+        /// MonoBehaviour の初期化時に呼ばれます。
+        /// </summary>
+        private void Awake()
+        {
+            if (Plugin.VerboseLogs) Plugin.Log?.Info("MapMemoSettingsViewController Awake");
+        }
 
         /// <summary>
         /// プロパティ変更を通知します。
@@ -90,6 +99,53 @@ namespace MapMemo.UI.Settings
                 NotifyPropertyChanged();
             }
         }
+        /// <summary>
+        /// ツールチップに BSR を表示するか（設定）。UI の変更はここで保存されます。
+        /// </summary>
+        [UIValue("tooltipShowBsr")]
+        public bool TooltipShowBsr
+        {
+            get => memoService.GetTooltipShowBsr();
+            set
+            {
+                Plugin.Log?.Info($"tooltipShowBsr: {value}");
+                if (memoService.GetTooltipShowBsr() == value) return;
+                memoService.SaveTooltipShowBsr(value);
+                NotifyPropertyChanged();
+                MemoPanelController.instance.Refresh();
+            }
+        }
+        /// <summary>
+        /// ツールチップに Rating を表示するか（設定）。UI の変更はここで保存されます。
+        /// </summary>
+        [UIValue("tooltipShowRating")]
+        public bool TooltipShowRating
+        {
+            get => memoService.GetTooltipShowRating();
+            set
+            {
+                Plugin.Log?.Info($"tooltipShowRating: {value}");
+                if (memoService.GetTooltipShowRating() == value) return;
+                memoService.SaveTooltipShowRating(value);
+                NotifyPropertyChanged();
+                MemoPanelController.instance.Refresh();
+            }
+        }
+        /// <summary>
+        /// プレイ後に空のメモを自動作成するか（設定）。UI の変更はここで保存されます。
+        /// </summary>
+        [UIValue("autoCreateEmptyMemo")]
+        public bool AutoCreateEmptyMemo
+        {
+            get => memoService.GetAutoCreateEmptyMemo();
+            set
+            {
+                Plugin.Log?.Info($"autoCreateEmptyMemo: {value}");
+                if (memoService.GetAutoCreateEmptyMemo() == value) return;
+                memoService.SaveAutoCreateEmptyMemo(value);
+                NotifyPropertyChanged();
+            }
+        }
 
         /// <summary>
         /// 設定画面から履歴をクリアするアクション。
@@ -120,6 +176,36 @@ namespace MapMemo.UI.Settings
         {
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"OnHistoryShowCountChange: {value}");
             HistoryShowCount = (int)value;
+        }
+
+        /// <summary>
+        /// 設定 UI でツールチップに BSR を表示するかが変更されたときに呼ばれます。
+        /// </summary>
+        [UIAction("on-tooltip-show-bsr-changed")]
+        private void OnTooltipShowBsrChanged(bool value)
+        {
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"OnTooltipShowBsrChanged: {value}");
+            TooltipShowBsr = value;
+        }
+
+        /// <summary>
+        /// 設定 UI でツールチップに Rating を表示するかが変更されたときに呼ばれます。
+        /// </summary>
+        [UIAction("on-tooltip-show-rating-changed")]
+        private void OnTooltipShowRatingChanged(bool value)
+        {
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"OnTooltipShowRatingChanged: {value}");
+            TooltipShowRating = value;
+        }
+
+        /// <summary>
+        /// 設定 UI でプレイ後に空のメモを作成するかが変更されたときに呼ばれます。
+        /// </summary>
+        [UIAction("on-auto-create-empty-memo-changed")]
+        private void OnAutoCreateEmptyMemoChanged(bool value)
+        {
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"OnAutoCreateEmptyMemoChanged: {value}");
+            AutoCreateEmptyMemo = value;
         }
     }
 }

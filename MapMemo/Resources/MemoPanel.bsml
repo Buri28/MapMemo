@@ -7,6 +7,7 @@
       align="TopLeft"
       preferred-width='20'
       on-click="on-edit-click"
-      hover-hint=""/>
+      hover-hint=""
+      rich-text="true"/>
   </horizontal>
 </vertical>

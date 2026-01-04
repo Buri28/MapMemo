@@ -28,20 +28,20 @@ namespace Mapmemo.Networking
             }
 
             string url = BaseUrl + levelHash;
-            UnityEngine.Debug.Log("BeatSaverClient: Requesting URL: " + url);
+            // UnityEngine.Debug.Log("BeatSaverClient: Requesting URL: " + url);
             UnityWebRequest www = UnityWebRequest.Get(url);
             yield return www.SendWebRequest();
-            UnityEngine.Debug.Log("BeatSaverClient: Received response from URL: " + url);
+            // UnityEngine.Debug.Log("BeatSaverClient: Received response from URL: " + url);
             if (www.result == UnityWebRequest.Result.Success)
             {
                 string json = www.downloadHandler.text;
-                UnityEngine.Debug.Log("BeatSaverClient: Received response from URL: " + json);
+                // UnityEngine.Debug.Log("BeatSaverClient: Received response from URL: " + json);
                 BeatSaverMap map = JsonConvert.DeserializeObject<BeatSaverMap>(json);
                 onSuccess?.Invoke(map, url);
             }
             else
             {
-                UnityEngine.Debug.Log("BeatSaverClient: error: " + www.error);
+                // UnityEngine.Debug.Log("BeatSaverClient: error: " + www.error);
                 onError?.Invoke(www.error);
             }
         }

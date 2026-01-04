@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq.Expressions;
 using Mapmemo.Models;
 using Mapmemo.Networking;
+using MapMemo.Utilities;
 using Newtonsoft.Json;
 using UnityEngine;
 
@@ -13,8 +15,9 @@ namespace MapMemo.Domain
         public static BeatSaverManager Instance { get; private set; }
 
         private readonly string _cachePath = Path.Combine(
-            Path.Combine(Environment.CurrentDirectory, "UserData", "MapMemo"), "#BeatSaverCache.json");
-        private Dictionary<string, BeatSaverMap> _cache;
+            BeatSaberUtils.GetBeatSaberUserDataPath("MapMemo"),
+            "#beatsaver_cache.json");
+        private Dictionary<string, BeatSaverMap> _cache = null;
 
         private void Awake()
         {
