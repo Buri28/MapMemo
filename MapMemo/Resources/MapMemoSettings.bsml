@@ -1,5 +1,27 @@
 <bg>
     <vertical spacing="2" align="TopCenter" pad="2">
+        <label>Tooltip Settings</label>
+        <!-- ツールチップにbsrを表示するか -->
+        <toggle-setting id="tooltip-show-bsr" 
+                        text="Show BSR in Tooltip" 
+                        value='tooltipShowBsr' 
+                        on-change="on-tooltip-show-bsr-changed"
+                        apply-on-change='true' />
+        <!-- ツールチップにRatingを表示するか -->
+        <toggle-setting id="tooltip-show-rating" 
+                        text="Show Rating in Tooltip" 
+                        value='tooltipShowRating' 
+                        on-change="on-tooltip-show-rating-changed"
+                        apply-on-change='true' />
+        <!-- プレイ後に空のメモを作成するか -->
+        <toggle-setting id="auto-create-empty-memo" 
+                        text="Auto Create Empty Memo After Play" 
+                        value='autoCreateEmptyMemo' 
+                        on-change="on-auto-create-empty-memo-changed"
+                        apply-on-change='true' />
+        
+        <!-- ヒストリーの最大件数 -->
+        <label>History Settings</label>
         <increment-setting id="history-max-count" 
                             text="Max History Count" 
                             value='historyMaxCount' 

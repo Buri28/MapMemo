@@ -59,10 +59,10 @@ namespace MapMemo.Domain
         /// <summary>
         /// ユーザーデータディレクトリからキー割当ファイルを読み込みます（ファイルが無ければ埋め込みリソースをコピーします）。
         /// </summary>
-        public InputKeyManager Load(string userDataDir)
+        public InputKeyManager Load()
         {
-            Directory.CreateDirectory(userDataDir);
-            bindingsFilePath = Path.Combine(userDataDir, "#key_bindings.json");
+            Directory.CreateDirectory(BeatSaberUtils.GetBeatSaberUserDataPath("MapMemo"));
+            bindingsFilePath = Path.Combine(BeatSaberUtils.GetBeatSaberUserDataPath("MapMemo"), "#key_bindings.json");
 
             CopyEmbeddedIfMissing();
             LoadFromFile();
@@ -95,7 +95,7 @@ namespace MapMemo.Domain
             }
             message += "\nEnd of Emoji List";
 
-            var dir = Path.Combine(Application.persistentDataPath, "UserData", "MapMemo");
+            var dir = BeatSaberUtils.GetBeatSaberUserDataPath("MapMemo");
             Directory.CreateDirectory(dir);
             string path = Path.Combine(dir, "_all_emoji_log.txt");
             File.WriteAllText(path, message + Environment.NewLine);
@@ -355,13 +355,13 @@ namespace MapMemo.Domain
                 try
                 {
                     var label = isKanaMode ?
-                        StringHelper.HiraganaToKatakana(keyEntry.label) :
-                        StringHelper.KatakanaToHiragana(keyEntry.label);
+                        StringUtils.HiraganaToKatakana(keyEntry.label) :
+                        StringUtils.KatakanaToHiragana(keyEntry.label);
                     keyEntry.label = label;
 
                     var charVal = isKanaMode ?
-                        StringHelper.HiraganaToKatakana(keyEntry.@char) :
-                        StringHelper.KatakanaToHiragana(keyEntry.@char);
+                        StringUtils.HiraganaToKatakana(keyEntry.@char) :
+                        StringUtils.KatakanaToHiragana(keyEntry.@char);
                     keyEntry.@char = charVal;
                 }
                 catch
@@ -386,11 +386,11 @@ namespace MapMemo.Domain
             {
                 try
                 {
-                    var label = StringHelper.ConvertDakutenHandakuten(
+                    var label = StringUtils.ConvertDakutenHandakuten(
                         keyEntry.label, dakutenMode);
                     keyEntry.label = label;
 
-                    var charVal = StringHelper.ConvertDakutenHandakuten(
+                    var charVal = StringUtils.ConvertDakutenHandakuten(
                         keyEntry.@char, dakutenMode);
                     keyEntry.@char = charVal;
                 }

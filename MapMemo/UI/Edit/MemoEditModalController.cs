@@ -79,7 +79,7 @@ namespace MapMemo.UI.Edit
         private TextMeshProUGUI dataTimeStampText = null;
 
         // 最大行数
-        private static int MAX_LINES = 6;
+        private static int MAX_LINES = 5;
         // 全体の最大加重文字数
         // private static int MAX_TOTAL_WEIGHTED_LENGTH = 87;
         // メモサービス
@@ -197,7 +197,7 @@ namespace MapMemo.UI.Edit
                     "MapMemo.Resources.MemoEdit.bsml"),
                     parent.HostGameObject);
             // リソースのロード
-            memoService.LoadResources();
+            // memoService.LoadResources();
 
             // ボタンの見た目を整えるヘルパーを呼び出す
             keyHandler.InitializeAppearance();
@@ -224,7 +224,8 @@ namespace MapMemo.UI.Edit
                     + $"Fetching BeatSaver map info for hash '{hash}'");
 
                 var beatSaverMap = BeatSaverManager.Instance.TryGetCache(hash);
-                descriptionText.text = "Loading...";
+                // BeatSaber情報タブを初期化
+                InitBeatSaverData();
                 if (beatSaverMap != null)
                 {
                     // キャッシュヒット時：即座にUIに反映
@@ -235,13 +236,15 @@ namespace MapMemo.UI.Edit
                 }
                 else
                 {
-                    BeatSaverManager.Instance.TryRequestAsync(hash, map =>
+                    memoService.UpdateBeatSaverDataAsync(hash, map =>
                     {
                         // リクエスト成功時：UIに反映
                         SetBeatSaverData(map);
                         if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.InitializeParameters: "
                         + $"Using cached BeatSaver map info: id='{map.id}' for hash '{hash}'");
                         UpdateDescriptionScrollView();
+                        // 親パネルの更新
+                        MemoPanelController.instance.Refresh();
                     },
                     error =>
                     {
@@ -249,7 +252,7 @@ namespace MapMemo.UI.Edit
                         bsrCodeText.text = "N/A";
                         descriptionText.text = "N/A";
                         UpdateDescriptionScrollView();
-                        Plugin.Log?.Warn("BeatSaver取得失敗: " + error);
+                        Plugin.Log?.Warn("Failed to fetch BeatSaver data: " + error);
                     });
                 }
             }
@@ -268,21 +271,42 @@ namespace MapMemo.UI.Edit
             this.suggestionHandler.Clear();
         }
 
+        /// <summary>
+        /// BeatSaverデータ表示コンポーネントを初期化します。
+        /// </summary>
+        private void InitBeatSaverData()
+        {
+            bsrCodeText.text = "BSR：";
+            descriptionText.text = "Loading...";
+            lastPublishedAtText.text = "Published date：";
+            levelAuthorText.text = "Mappers：";
+            scoreText.text = "Rating：";
+        }
+
+        /// <summary>
+        /// BeatSaverデータをUIコンポーネントに設定します。
+        /// </summary>
+        /// <param name="beatSaverMap"></param>
         private void SetBeatSaverData(Mapmemo.Models.BeatSaverMap beatSaverMap)
         {
             this.beatSaverMap = beatSaverMap;
+            var score = beatSaverMap.stats.score.ToString("P2");
+            var upVotes = beatSaverMap.stats.upvotes.ToString("N0");
+            var downVotes = beatSaverMap.stats.downvotes.ToString("N0");
+            var published = beatSaverMap.lastPublishedAt.ToLocalTime().ToString("yyyy-MM-dd");
+            var mappers = levelContext.GetLevelAuthor();
+
+            // スコアに応じてグラデーションする
+            var iScore = beatSaverMap.stats.score;
+            string gradientColor = UIHelper.Instance.GetMultiGradientColor((int)(iScore * 100));
 
             bsrCodeText.text = "BSR：" + beatSaverMap.id;
             descriptionText.enableWordWrapping = true;
             descriptionText.text = beatSaverMap.description;
-            lastPublishedAtText.text = "Published date：" + beatSaverMap.lastPublishedAt.ToLocalTime().ToString("yyyy-MM-dd");
-            levelAuthorText.text = "Mappers：" + levelContext.GetLevelAuthor();
+            lastPublishedAtText.text = $"<color={gradientColor}>Published date：{published}</color>";
+            levelAuthorText.text = $"<color={gradientColor}>Mappers：{mappers}</color>";
 
-            var score = beatSaverMap.stats.score.ToString("P2");
-            var upVotes = beatSaverMap.stats.upvotes.ToString("N0");
-            var downVotes = beatSaverMap.stats.downvotes.ToString("N0");
-
-            scoreText.text = $"Rating：{score} (⬆{upVotes} / ⬇{downVotes})";
+            scoreText.text = $"<color={gradientColor}>Rating：{score} (<color=#00FF00>⬆{upVotes}</color> / <color=#FF0000>⬇{downVotes}</color>)</color>";
             dataTimeStampText.text = $"({beatSaverMap.DataTimeStamp.ToLocalTime().ToString("yyyy-M  M-dd HH:mm:ss")})";
         }
 
@@ -483,7 +507,7 @@ namespace MapMemo.UI.Edit
             }
 
             // 未確定文字列に追加
-            this.pendingText += StringHelper.EscapeBsmlTag(s);
+            this.pendingText += StringUtils.EscapeBsmlTag(s);
 
             // サジェストリストを更新
             if (isSuggestUpdate)
@@ -613,6 +637,50 @@ namespace MapMemo.UI.Edit
             keyHandler.UpdateDakutenButtonLabel(dakutenMode);
         }
 
+        /// <summary>
+        /// ひらがな変換ボタン押下時の処理
+        /// 最後の1文字をカタカナからひらがなに変換しサジェストリストを更新します。
+        /// </summary>
+        [UIAction("on-char-kana")]
+        private void OnCharKana()
+        {
+            // 最後の1文字をカタカナからひらがなに変換しサジェストリストを更新
+            if (pendingText.Length == 0) return;
+            var lastChar = pendingText.LastOrDefault().ToString();
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnCharKana: "
+                                + $"lastChar='{lastChar}'");
+            if (StringUtils.IsKatakana(lastChar, out string newChar))
+            {
+                // 最後の文字をひらがなに置き換える
+                pendingText = pendingText.Substring(0, pendingText.Length - 1) + newChar;
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnCharKana: "
+                                + $"pendingText='{pendingText}'");
+                UpdateMemoText();
+                UpdateSuggestions();
+            }
+        }
+        /// <summary>
+        /// カタカナ変換ボタン押下時の処理
+        /// 最後の1文字をひらがなからカタカナに変換しサジェストリストを更新します。
+        /// </summary>
+        [UIAction("on-char-katakana")]
+        private void OnCharKatakana()
+        {
+            // 最後の1文字をひらがなからカタカナに変換しサジェストリストを更新
+            if (pendingText.Length == 0) return;
+            var lastChar = pendingText.LastOrDefault().ToString();
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnCharKatakana: "
+                                + $"lastChar='{lastChar}'");
+            if (StringUtils.IsHiragana(lastChar, out string newChar))
+            {
+                // 最後の文字をカタカナに置き換える
+                pendingText = pendingText.Substring(0, pendingText.Length - 1) + newChar;
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnCharKatakana: "
+                                + $"pendingText='{pendingText}'");
+                UpdateMemoText();
+                UpdateSuggestions();
+            }
+        }
 
         [UIAction("on-char-dakuten")]
         private void OnCharDakuten()
@@ -624,7 +692,7 @@ namespace MapMemo.UI.Edit
 
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnCharDakuten: "
                                 + $"lastChar='{lastChar}' isKanaMode={isKanaMode}");
-            if (StringHelper.IsDakutenConvertible(lastChar, out string newChar))
+            if (StringUtils.IsDakutenConvertible(lastChar, out string newChar))
             {
                 // 最後の文字を濁点文字に置き換える
                 pendingText = pendingText.Substring(0, pendingText.Length - 1) + newChar;
@@ -644,7 +712,7 @@ namespace MapMemo.UI.Edit
             var lastChar = pendingText.LastOrDefault().ToString();
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnCharHandakuten: "
                                 + $"lastChar='{lastChar}' isKanaMode={isKanaMode}");
-            if (StringHelper.IsHandakutenConvertible(lastChar, out string newChar))
+            if (StringUtils.IsHandakutenConvertible(lastChar, out string newChar))
             {
                 // 最後の文字を半濁点文字に置き換える
                 pendingText = pendingText.Substring(0, pendingText.Length - 1) + newChar;
@@ -666,7 +734,7 @@ namespace MapMemo.UI.Edit
             var lastChar = pendingText.LastOrDefault().ToString();
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnCharLower: "
                                 + $"lastChar='{lastChar}'");
-            if (StringHelper.IsAlphabetUppercase(lastChar, out string newChar))
+            if (StringUtils.IsAlphabetUppercase(lastChar, out string newChar))
             {
                 // 最後の文字を小文字に置き換える
                 pendingText = pendingText.Substring(0, pendingText.Length - 1) + newChar;
@@ -686,7 +754,7 @@ namespace MapMemo.UI.Edit
             var lastChar = pendingText.LastOrDefault().ToString();
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnCharUpper: "
                                 + $"lastChar='{lastChar}'");
-            if (StringHelper.IsAlphabetLowercase(lastChar, out string newChar))
+            if (StringUtils.IsAlphabetLowercase(lastChar, out string newChar))
             {
                 // 最後の文字を大文字に置き換える
                 pendingText = pendingText.Substring(0, pendingText.Length - 1) + newChar;
@@ -743,14 +811,18 @@ namespace MapMemo.UI.Edit
                 SetBeatSaverData(map);
                 if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.InitializeParameters: "
                 + $"Using cached BeatSaver map info: id='{map.id}' for hash '{hash}'");
+                UpdateDescriptionScrollView();
+                // 親パネルの更新
+                MemoPanelController.instance.Refresh();
             },
             error =>
             {
                 // エラー時：エラーメッセージを表示
                 bsrCodeText.text = "N/A";
-                Plugin.Log?.Warn("BeatSaver取得失敗: " + error);
+                Plugin.Log?.Warn("Failed to fetch BeatSaver data: " + error);
             });
         }
+
 
         public void UpdateDescriptionScrollView()
         {

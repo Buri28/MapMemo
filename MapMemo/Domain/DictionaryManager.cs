@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using MapMemo.Utilities;
 using UnityEngine;
 
 namespace MapMemo.Domain
@@ -37,11 +38,10 @@ namespace MapMemo.Domain
         /// <summary>
         /// インスタンス用 API（辞書の読み込みなどを提供します）。
         /// </summary>
-        public DictionaryManager Load(string baseDir = null)
+        public DictionaryManager Load()
         {
-            var basePath = baseDir ?? Environment.CurrentDirectory;
             userDictionaryPath = Path.Combine(
-                basePath, "#dictionary.txt");
+                BeatSaberUtils.GetBeatSaberUserDataPath("MapMemo"), "#dictionary.txt");
             LoadInternal();
             return this;
         }

@@ -11,6 +11,8 @@ using MapMemo.UI.Edit;
 using MapMemo.Models;
 using MapMemo.Services;
 using Mapmemo.Models;
+using MapMemo.Domain;
+using MapMemo.UI.Common;
 
 namespace MapMemo.UI.Menu
 {
@@ -101,11 +103,12 @@ namespace MapMemo.UI.Menu
                     + $"sizeDelta: {parentRt.sizeDelta}");
                 if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanelController.GetInstance: "
                     + $"Created new instance:" + isInstance());
+
+                // リソースのロード
+                MemoService.Instance.LoadResources();
             }
             instance.levelContext = levelContext;
             instance.HostGameObject = view.gameObject;
-
-            instance.Refresh();
             return instance;
         }
 
@@ -155,67 +158,110 @@ namespace MapMemo.UI.Menu
         /// </summary>
         public Task Refresh()
         {
-            if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoPanel: "
-                + $"Refresh called for key='{levelContext.GetLevelId()}' "
-                + $"song='{levelContext.GetSongName()}' author='{levelContext.GetSongAuthor()}'"
-                + $" levelAuthor='{levelContext.GetLevelAuthor()}'");
-            // 同期ロードを使って確実に現在の Key に紐づくデータを取得する
-            var entry = memoService.LoadMemo(levelContext);
-
-            var parentLayout = penText.transform.parent.GetComponent<HorizontalLayoutGroup>();
-            if (parentLayout != null)
+            try
             {
-                parentLayout.childForceExpandWidth = false;
-                parentLayout.childControlWidth = true;
-            }
-
-            var layout = penText.GetComponent<LayoutElement>();
-            if (layout == null)
-                layout = penText.gameObject.AddComponent<LayoutElement>();
-
-            layout.preferredWidth = 10f; // 幅を制限
-            layout.flexibleWidth = 0f;    // 自動伸縮を無効に
-            if (entry == null)
-            {
-                if (Plugin.VerboseLogs) MapMemo.Plugin.Log?.Info("MemoPanel: "
-                    + $"No memo entry found for key='" + levelContext.GetLevelId() + "'");
-                penText.color = Color.cyan;
-                penText.faceColor = Color.cyan;
-                penText.HighlightColor = Color.green;
-                penText.text = "　🖊";
-                penText.fontStyle = FontStyles.Bold;
-                SetHoverHint(penText.gameObject, "Add Memo");
-            }
-            else
-            {
-                if (Plugin.VerboseLogs) MapMemo.Plugin.Log?.Info("MemoPanel: "
-                    + $"Memo entry found for key='" + levelContext.GetLevelId() + "'");
-
-                penText.text = "　📝";
-                penText.color = Color.yellow;
-                penText.outlineColor = Color.white;
-                penText.faceColor = Color.yellow;
-                penText.HighlightColor = Color.green;
-                penText.fontStyle = FontStyles.Bold;
-
-                var button = penText.GetComponentInParent<UnityEngine.UI.Button>();
-                if (button != null)
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoPanel: "
+                    + $"Refresh called for key='{levelContext.GetLevelId()}' "
+                    + $"song='{levelContext.GetSongName()}' author='{levelContext.GetSongAuthor()}'"
+                    + $" levelAuthor='{levelContext.GetLevelAuthor()}'"
+                    + $" hash='{levelContext.GetLevelHash()}'");
+                // 同期ロードを使って確実に現在の Key に紐づくデータを取得する
+                var entry = memoService.LoadMemo(levelContext);
+                var beatSaverMap = BeatSaverManager.Instance.TryGetCache(
+                                        levelContext.GetLevelHash());
+                var noEntryColor = Color.cyan;
+                var noEntryHighlight = Color.green;
+                var entryColor = Color.yellow;
+                var entryHighlight = Color.green;
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoPanel: "
+                    + $"Trying to get BeatSaverMap from cache for hash='{levelContext.GetLevelHash()}'");
+                if (beatSaverMap != null)
                 {
-                    var colors = button.colors;
-                    colors.normalColor = Color.yellow;
-                    colors.highlightedColor = Color.yellow;
-                    colors.pressedColor = Color.yellow;
-                    colors.selectedColor = Color.yellow;
-                    colors.disabledColor = Color.gray;
-                    button.colors = colors;
-                    button.transition = Selectable.Transition.None;
+                    if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoPanel: "
+                        + $"Found BeatSaverMap in cache for hash='{levelContext.GetLevelHash()}'");
+                    float score = (float)(beatSaverMap.stats.score * 100);
+                    // BeatSaver情報がある場合は色を変える
+                    var colorStr = UIHelper.Instance.GetMultiGradientColor(score);
+                    var highlightStr = UIHelper.Instance.GetHighlightColor(colorStr);
+                    noEntryColor = UIHelper.Instance.ToColor(colorStr);
+                    noEntryHighlight = UIHelper.Instance.ToColor(highlightStr);
+                    entryColor = UIHelper.Instance.ToColor(colorStr);
+                    entryHighlight = UIHelper.Instance.ToColor(highlightStr);
+                    if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoPanel: "
+                        + $"No entry color for score={score} is '{colorStr}' highlight '{highlightStr}'");
                 }
 
-                SetHoverHint(penText.gameObject,
-                    MakeTooltipLine(entry, 40));
-            }
+                var parentLayout = penText.transform.parent.GetComponent<HorizontalLayoutGroup>();
+                if (parentLayout != null)
+                {
+                    parentLayout.childForceExpandWidth = false;
+                    parentLayout.childControlWidth = true;
+                }
 
-            return Task.CompletedTask;
+                var layout = penText.GetComponent<LayoutElement>();
+                if (layout == null)
+                    layout = penText.gameObject.AddComponent<LayoutElement>();
+
+                layout.preferredWidth = 10f; // 幅を制限
+                layout.flexibleWidth = 0f;    // 自動伸縮を無効に
+                if (entry == null)
+                {
+                    if (Plugin.VerboseLogs) MapMemo.Plugin.Log?.Info("MemoPanel: "
+                        + $"No memo entry found for key='" + levelContext.GetLevelId() + "'");
+                    penText.color = noEntryColor;
+                    penText.DefaultColor = noEntryColor;
+                    penText.HighlightColor = noEntryHighlight;
+                    penText.text = "　🖊";
+                    penText.fontStyle = FontStyles.Bold;
+                    SetHoverHint(penText.gameObject, MakeTooltipLine(entry, beatSaverMap, memoService, 40));
+                }
+                else
+                {
+                    if (Plugin.VerboseLogs) MapMemo.Plugin.Log?.Info("MemoPanel: "
+                        + $"Memo entry found for key='" + levelContext.GetLevelId() + "'");
+
+                    if (entry.autoCreateEmptyMemo)
+                    {
+                        // 自動作成された空のメモの場合は特別表示
+                        penText.text = "　📑";
+                    }
+                    else
+                    {
+                        penText.text = "　📝";
+                    }
+                    penText.color = entryColor;
+                    penText.outlineColor = Color.white;
+                    penText.DefaultColor = entryColor;
+                    penText.HighlightColor = entryHighlight;
+                    penText.fontStyle = FontStyles.Bold;
+
+                    var button = penText.GetComponentInParent<UnityEngine.UI.Button>();
+                    if (button != null)
+                    {
+                        var colors = button.colors;
+                        colors.normalColor = entryColor;
+                        colors.highlightedColor = entryHighlight;
+                        colors.pressedColor = entryHighlight;
+                        colors.selectedColor = entryHighlight;
+                        colors.disabledColor = Color.gray;
+                        button.colors = colors;
+                        button.transition = Selectable.Transition.None;
+                    }
+                    if (Plugin.VerboseLogs) MapMemo.Plugin.Log?.Info("MemoPanel: "
+                        + $"Setting hover hint for memo entry key='" + levelContext.GetLevelId() + "'");
+
+
+                    SetHoverHint(penText.gameObject,
+                        MakeTooltipLine(entry, beatSaverMap, memoService, 40));
+                }
+
+                return Task.CompletedTask;
+            }
+            catch (Exception ex)
+            {
+                Plugin.Log?.Warn($"MemoPanel.Refresh: {ex.Message}");
+                return Task.CompletedTask;
+            }
         }
 
         /// <summary>
@@ -235,24 +281,65 @@ namespace MapMemo.UI.Menu
         /// <param name="entry">メモエントリ</param>
         /// <param name="max">最大文字数</param>
         /// <returns>ツールチップ用のテキスト</returns>
-        private static string MakeTooltipLine(MemoEntry entry, int max)
+        private static string MakeTooltipLine(
+            MemoEntry entry, BeatSaverMap beatSaverMap, MemoService memoService, int max)
         {
-            if (string.IsNullOrEmpty(entry.memo)) return "";
-            var oneLine = entry.memo.Replace("\r", "").Replace("\n", " ");
-
-            var (cutString, isComplete, weightedLength) = MemoService.Instance.GetWeightedCutString(oneLine, 40);
-            if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoPanel.MakeTooltipLine: "
-                + $"original='{oneLine}' cutString='{cutString}' "
-                + $"isComplete={isComplete} weightedLength={weightedLength}");
-            var toolTipStr = isComplete ? cutString : cutString + "…";
-            // 日時が大体10文字分で1行全角18文字と仮定すると8文字までは日時が同じ行に入る
-            if (weightedLength % 18 <= 8)
+            var toolTipStr = "";
+            double weightedLength = 0;
+            if (entry == null)
             {
-                toolTipStr += " (" + FormatLocal(entry.updatedAt) + ")";
+                toolTipStr += "Add memo";
             }
             else
             {
-                toolTipStr += "\n　(" + FormatLocal(entry.updatedAt) + ")";
+                if (string.IsNullOrEmpty(entry.memo))
+                {
+                    toolTipStr += "Add memo";
+                }
+                else
+                {
+                    var oneLine = entry.memo.Replace("\r", "").Replace("\n", " ");
+
+                    var (cutString, isComplete, pWeightedLength) = MemoService.Instance.GetWeightedCutString(oneLine, 40);
+                    weightedLength = pWeightedLength;
+                    if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoPanel.MakeTooltipLine: "
+                        + $"original='{oneLine}' cutString='{cutString}' "
+                        + $"isComplete={isComplete} weightedLength={weightedLength}");
+                    toolTipStr = isComplete ? cutString : cutString + "…";
+                }
+                // 日時が大体10文字分で1行全角18文字と仮定すると8文字までは日時が同じ行に入る
+                if (weightedLength % 18 <= 8)
+                {
+                    toolTipStr += " (" + FormatLocal(entry.updatedAt) + ")";
+                }
+                else
+                {
+                    toolTipStr += "\n(" + FormatLocal(entry.updatedAt) + ")";
+                }
+            }
+            if (beatSaverMap != null)
+            {
+                var beatSaverLine = "\n";
+                if (memoService.GetTooltipShowBsr() && !memoService.GetTooltipShowRating())
+                {
+                    beatSaverLine += $"[{beatSaverMap.id}]";
+                }
+                if (memoService.GetTooltipShowRating() && !memoService.GetTooltipShowBsr())
+                {
+                    beatSaverLine += "["
+                        + $"{beatSaverMap.stats.score * 100:0.0}%"
+                        + $"⬆{beatSaverMap.stats.upvotes}⬇{beatSaverMap.stats.downvotes}]";
+                }
+                if (memoService.GetTooltipShowBsr() && memoService.GetTooltipShowRating())
+                {
+                    beatSaverLine += $"[{beatSaverMap.id} / "
+                        + $"{beatSaverMap.stats.score * 100:0.0}%"
+                        + $"⬆{beatSaverMap.stats.upvotes}⬇{beatSaverMap.stats.downvotes}]";
+                }
+                if (memoService.GetTooltipShowBsr() || memoService.GetTooltipShowRating())
+                {
+                    toolTipStr += beatSaverLine;
+                }
             }
             return toolTipStr;
         }

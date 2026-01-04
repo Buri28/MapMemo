@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Globalization;
 using MapMemo.Utilities;
+using MapMemo.UI.Menu;
 
 namespace MapMemo.Services
 {
@@ -26,11 +27,11 @@ namespace MapMemo.Services
         public void LoadResources()
         {
             // 辞書ファイルを読み込む
-            DictionaryManager.Instance.Load(Path.Combine("UserData", "MapMemo"));
+            DictionaryManager.Instance.Load();
             // 入力履歴ファイルを読み込む
-            InputHistoryManager.Instance.LoadHistory(Path.Combine("UserData", "MapMemo"));
+            InputHistoryManager.Instance.LoadHistory();
             // キーバインド設定を読み込む (UserData に resource をコピーしてからロード)
-            InputKeyManager.Instance.Load(Path.Combine("UserData", "MapMemo"));
+            InputKeyManager.Instance.Load();
             // bsr情報を読み込む
             // BsrManager.Instance.LoadBsrInfo();
             BeatSaverManager.Instance.LoadCache();
@@ -62,7 +63,8 @@ namespace MapMemo.Services
                 songAuthor = levelContext.GetSongAuthor(),
                 levelAuthor = levelContext.GetLevelAuthor(),
                 bsrCode = bsrCode,
-                memo = text
+                memo = text,
+                autoCreateEmptyMemo = false
             };
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnSave: "
                 + $"key='{entry.key}' song='{entry.songName}' "
@@ -79,7 +81,7 @@ namespace MapMemo.Services
         /// <returns></returns>
         public int GetHistoryMaxCount()
         {
-            return MemoSettingsManager.Instance.settingsEntity.HistoryMaxCount;
+            return MemoSettingsManager.Instance.HistoryMaxCount;
         }
 
         /// <summary>
@@ -88,7 +90,7 @@ namespace MapMemo.Services
         /// <param name="value"></param>
         public void SaveHistoryMaxCount(int value)
         {
-            MemoSettingsManager.Instance.settingsEntity.HistoryMaxCount = value;
+            MemoSettingsManager.Instance.HistoryMaxCount = value;
         }
 
         /// <summary>
@@ -97,7 +99,7 @@ namespace MapMemo.Services
         /// <returns></returns>
         public int GetHistoryShowCount()
         {
-            return MemoSettingsManager.Instance.settingsEntity.HistoryShowCount;
+            return MemoSettingsManager.Instance.HistoryShowCount;
         }
 
         /// <summary>
@@ -106,7 +108,55 @@ namespace MapMemo.Services
         /// <param name="value"></param>
         public void SaveHistoryShowCount(int value)
         {
-            MemoSettingsManager.Instance.settingsEntity.HistoryShowCount = value;
+            MemoSettingsManager.Instance.HistoryShowCount = value;
+        }
+
+        /// <summary>
+        /// BSRコードをツールチップに表示するかどうかを取得または設定します。
+        /// </summary>
+        /// <returns></returns>
+        public bool GetTooltipShowBsr()
+        {
+            return MemoSettingsManager.Instance.TooltipShowBsr;
+        }
+        /// <summary>
+        /// BSRコードをツールチップに表示するかどうかを保存します
+        /// /// </summary>
+        /// <param name="value"></param>
+        public void SaveTooltipShowBsr(bool value)
+        {
+            MemoSettingsManager.Instance.TooltipShowBsr = value;
+        }
+        /// <summary>
+        /// レーティング情報をツールチップに表示するかどうかを取得または設定します。
+        /// </summary>
+        public bool GetTooltipShowRating()
+        {
+            return MemoSettingsManager.Instance.TooltipShowRating;
+        }
+        /// <summary>
+        /// レーティング情報をツールチップに表示するかどうかを保存します。
+        /// </summary>
+        /// <param name="value"></param>
+        public void SaveTooltipShowRating(bool value)
+        {
+            MemoSettingsManager.Instance.TooltipShowRating = value;
+        }
+        /// <summary>
+        /// 空のメモを自動作成するかどうかを取得または
+        /// 設定します。
+        /// </summary>
+        public bool GetAutoCreateEmptyMemo()
+        {
+            return MemoSettingsManager.Instance.AutoCreateEmptyMemo;
+        }
+        /// <summary>
+        /// 空のメモを自動作成するかどうかを保存します。
+        /// </summary>
+        /// <param name="value"></param>
+        public void SaveAutoCreateEmptyMemo(bool value)
+        {
+            MemoSettingsManager.Instance.AutoCreateEmptyMemo = value;
         }
 
         /// <summary>
@@ -128,8 +178,8 @@ namespace MapMemo.Services
             if (string.IsNullOrWhiteSpace(text)) return;
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoService.AddHistory: "
                 + $"Adding history text='{text}' subText='{(subText ?? "null")}'");
-            string addText = StringHelper.RemoveLineBreaks(text);
-            string addSubText = StringHelper.RemoveLineBreaks(subText);
+            string addText = StringUtils.RemoveLineBreaks(text);
+            string addSubText = StringUtils.RemoveLineBreaks(subText);
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoService.AddHistory2: "
                 + $"Adding history text='{addText}' subText='{(addSubText ?? "null")}'");
             if (addText.Length < 2) return;
@@ -319,15 +369,21 @@ namespace MapMemo.Services
             {
                 int start = indices[i];
                 int end = (i + 1 < indices.Length) ? indices[i + 1] : oneLine.Length;
+
+                // 安全チェックを追加
+                if (start < 0 || start >= oneLine.Length || end > oneLine.Length || end < start)
+                {
+                    continue; // 無効な範囲はスキップ
+                }
+
                 var elem = oneLine.Substring(start, end - start);
 
                 var weightedRate = GetWeightedRate(elem);
                 if (weightedRate == 1.0)
                 {
-                    weightedRate = StringHelper.IsHalfWidthElement(elem) ? 0.5 : 1.0;
+                    weightedRate = StringUtils.IsHalfWidthElement(elem) ? 0.5 : 1.0;
                 }
 
-                // if (Plugin.VerboseLogs) Plugin.Log?.Info($"GetWeightedCutString: elem='{elem}' weightedRate={weightedRate}");
                 length += weightedRate;
                 if (length > maxLength)
                 {
@@ -335,6 +391,11 @@ namespace MapMemo.Services
                     break;
                 }
             }
+
+            // ここでcutIndexが範囲外にならないように修正
+            if (cutIndex < 0) cutIndex = 0;
+            if (cutIndex > oneLine.Length) cutIndex = oneLine.Length;
+
             return (oneLine.Substring(0, cutIndex), cutIndex == oneLine.Length, length);
         }
 
@@ -379,6 +440,60 @@ namespace MapMemo.Services
         {
             var local = utc.ToLocalTime();
             return $"{local:yyyy/MM/dd HH:mm:ss}";
+        }
+
+        /// <summary>
+        /// レベル完了時の処理を行います。
+        /// </summary>
+        /// <param name="data">シーン遷移データ</param>
+        /// <param name="results">レベル完了結果</param>
+        internal async Task HandleLevelCompletion(
+            StandardLevelScenesTransitionSetupDataSO data, LevelCompletionResults results)
+        {
+            var levelId = data.beatmapLevel.levelID;
+            var levelHash = Utilities.BeatSaberUtils.GetLevelHash(levelId);
+            // BeatSaverManager 経由で BSR 情報を更新する
+            UpdateBeatSaverDataAsync(levelHash, map =>
+            {
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.InitializeParameters: "
+                + $"Using cached BeatSaver map info: id='{map.id}' for hash '{levelHash}'");
+
+                MemoPanelController.instance.Refresh();
+            },
+            error =>
+            {
+                // ログは英語で 出力
+                Plugin.Log?.Warn("Failed to fetch BeatSaver data: " + error);
+            });
+
+            // 空のメモを自動作成する設定が有効な場合にのみ処理を行う
+            if (!GetAutoCreateEmptyMemo()) return;
+
+            MemoEntry existingMemo = LoadMemo(new LevelContext(data.beatmapLevel));
+            // 既にメモが存在する場合は何もしない
+            if (existingMemo != null) return;
+
+            if (Plugin.VerboseLogs) Plugin.Log.Info($"ResultListener: "
+                + $"Auto-creating empty memo for level ID: {levelId}, Hash: {levelHash}");
+            var newMemo = new MemoEntry
+            {
+                key = levelId,
+                songName = data.beatmapLevel.songName,
+                songAuthor = data.beatmapLevel.songAuthorName,
+                levelAuthor = (new LevelContext(data.beatmapLevel)).GetLevelAuthor(),
+                memo = "",
+                autoCreateEmptyMemo = true
+            };
+            await MemoRepository.SaveAsync(newMemo);
+        }
+        /// <summary>
+        /// BeatSaverのデータを非同期で更新します。
+        /// </summary>
+        /// <param name="hash">レベルのハッシュ値</param>
+        /// <param name="onSuccess">成功時のコールバック</param>
+        public void UpdateBeatSaverDataAsync(string hash, Action<BeatSaverMap> onSuccess, Action<string> onError)
+        {
+            BeatSaverManager.Instance.TryRequestAsync(hash, onSuccess, onError);
         }
     }
 

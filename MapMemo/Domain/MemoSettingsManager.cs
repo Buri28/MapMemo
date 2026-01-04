@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System.IO;
 using UnityEngine;
 using Mapmemo.Models;
+using MapMemo.Utilities;
 
 namespace MapMemo.Domain
 {
@@ -15,9 +16,9 @@ namespace MapMemo.Domain
         public static MemoSettingsManager Instance { get; private set; }
         /// <summary> 設定ファイルのパス。</summary>
         private static readonly string SettingsPath = Path.Combine(
-            UnityGame.UserDataPath, "MapMemo", "#settings.json");
+            BeatSaberUtils.GetBeatSaberUserDataPath("MapMemo"), "#settings.json");
         /// <summary> 設定エンティティ。</summary>
-        public MemoSettingEntity settingsEntity { get; set; }
+        private MemoSettingEntity settingsEntity { get; set; }
 
         /// <summary>
         /// 履歴の最大保存件数を取得または設定します。設定時は保存も行います。
@@ -34,6 +35,30 @@ namespace MapMemo.Domain
         {
             get => settingsEntity.HistoryShowCount;
             set { settingsEntity.HistoryShowCount = value; Save(); }
+        }
+        /// <summary>
+        /// ツールチップに BSR を表示するかを取得または設定します。設定時は保存も行います。
+        /// </summary>
+        public bool TooltipShowBsr
+        {
+            get => settingsEntity.TooltipShowBsr;
+            set { settingsEntity.TooltipShowBsr = value; Save(); }
+        }
+        /// <summary>
+        /// ツールチップに Rating を表示するかを取得または設定します。設定時は保存も行います。
+        /// </summary>
+        public bool TooltipShowRating
+        {
+            get => settingsEntity.TooltipShowRating;
+            set { settingsEntity.TooltipShowRating = value; Save(); }
+        }
+        /// <summary>
+        /// 空のメモを自動作成するかを取得または設定します。設定時は保存も行います。
+        /// </summary>
+        public bool AutoCreateEmptyMemo
+        {
+            get => settingsEntity.AutoCreateEmptyMemo;
+            set { settingsEntity.AutoCreateEmptyMemo = value; Save(); }
         }
 
         /// <summary>

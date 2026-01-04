@@ -39,12 +39,12 @@ namespace MapMemo.Domain
         /// <summary>
         /// 履歴ファイルを読み込みます。
         /// </summary>
-        public InputHistoryManager LoadHistory(string userDataDir)
+        public InputHistoryManager LoadHistory()
         {
-            Directory.CreateDirectory(userDataDir);
-            historyFilePath = Path.Combine(userDataDir, "#input_history.txt");
+            Directory.CreateDirectory(BeatSaberUtils.GetBeatSaberUserDataPath("MapMemo"));
+            historyFilePath = Path.Combine(BeatSaberUtils.GetBeatSaberUserDataPath("MapMemo"), "#input_history.txt");
 
-            LoadHistory();
+            LoadHistoryInternal();
 
             return this;
         }
@@ -73,11 +73,11 @@ namespace MapMemo.Domain
             // 完全一致の重複を削除
             HistoryList.RemoveAll(x =>
                 string.Equals(
-                    StringHelper.RemoveLineBreaks(x.Key),
+                    StringUtils.RemoveLineBreaks(x.Key),
                     subText,
                     StringComparison.Ordinal) &&
                 string.Equals(
-                    StringHelper.RemoveLineBreaks(x.Value),
+                    StringUtils.RemoveLineBreaks(x.Value),
                     text,
                     StringComparison.Ordinal));
 
@@ -91,7 +91,7 @@ namespace MapMemo.Domain
         /// <summary>
         /// 履歴ファイルを読み込み、内部の履歴リストを初期化します。
         /// </summary>
-        private void LoadHistory()
+        private void LoadHistoryInternal()
         {
             if (!File.Exists(historyFilePath))
             {
@@ -106,8 +106,8 @@ namespace MapMemo.Domain
                     string key = splitIndex >= 0 ? line.Substring(0, splitIndex) : null;
                     string value = splitIndex >= 0 ? line.Substring(splitIndex + 1) : line;
 
-                    key = StringHelper.RemoveLineBreaks(key);
-                    value = StringHelper.RemoveLineBreaks(value);
+                    key = StringUtils.RemoveLineBreaks(key);
+                    value = StringUtils.RemoveLineBreaks(value);
 
                     return new KeyValuePair<string, string>(key, value);
                 })

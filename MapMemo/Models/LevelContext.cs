@@ -30,10 +30,12 @@ namespace MapMemo.Models
         {
             return NormalizeUnknown(mapLevel.levelID);
         }
-
+        /// <summary>
+        /// レベルハッシュを取得します。
+        /// </summary>
         public string GetLevelHash()
         {
-            return GetLevelId() != "unknown" ? GetLevelId().Substring("custom_level_".Length) : "unknown";
+            return Utilities.BeatSaberUtils.GetLevelHash(mapLevel.levelID);
         }
         /// <summary>
         /// 曲名を取得します。
@@ -158,7 +160,10 @@ namespace MapMemo.Models
         public void DebugLog()
         {
             // ジャンプディスタンスとリアクションタイムをログに出力
-            Plugin.Log?.Info($"LevelContext: id='{GetLevelId()}' name='{GetSongName()}' author='{GetSongAuthor()}' levelAuthor='{GetLevelAuthor()}'");
+            Plugin.Log?.Info($"LevelContext: id='{GetLevelId()}' "
+            + $"name='{GetSongName()}' author='{GetSongAuthor()}' "
+            + $"levelAuthor='{GetLevelAuthor()}'"
+            + $" hash='{GetLevelHash()}'");
 
             var characteristics = mapLevel.GetCharacteristics();
 
