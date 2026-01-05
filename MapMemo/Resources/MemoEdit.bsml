@@ -16,7 +16,7 @@
       <!-- メモ表示エリア -->
       <vertical pref-height="32.5" pad-top="0" pad-left="0" pad-right="0" align="TopLeft" pref-width="103" >
         <scroll-view id="memo-scroll">
-          <vertical vertical-fit="PreferredSize" pref-width="93">
+          <vertical vertical-fit="PreferredSize" pref-width="93" pad-top="2">
           <text id="memoText" 
                   text="" 
                   font-size="4"
@@ -36,12 +36,13 @@
         <vertical spacing="0.5" child-force-expand-height="false" align="TopCenter" anchor-pos-y="0" anchor-pos-x="0">
           <horizontal child-align='MiddleLeft' spacing="1" pad-top="-1" pref-width="108" child-expand-width="true" child-force-expand-width="false">
             <horizontal child-expand-width="false" child-force-expand-width="false" align="Left" pad-left="1" spacing="2" >              
-              <button text="" pref-width="12" preferred-height="6" interactable="false" />
-              <button text="Shift" on-click="on-char-shift" pref-width="24" preferred-height="6" />
               <button text="" pref-width="6" preferred-height="6" interactable="false" />
-              <button text="Lower" on-click="on-char-lower" pref-width="10" preferred-height="6"/>
-              <button text="Upper" on-click="on-char-upper" pref-width="10" preferred-height="6"/>
-              <button text="" pref-width="24" preferred-height="6" interactable="false" />
+              <button text="Shift" on-click="on-char-shift" pref-width="24" preferred-height="6" />
+              <button text="" pref-width="10" preferred-height="6" interactable="false" />
+              <button text="Upper/Lower" on-click="on-char-upper-lower" pref-width="20" preferred-height="6"/>
+              <!-- <button text="Lower" on-click="on-char-lower" pref-width="10" preferred-height="6"/>
+              <button text="Upper" on-click="on-char-upper" pref-width="10" preferred-height="6"/> -->
+              <!-- <button text="" pref-width="24" preferred-height="6" interactable="false" /> -->
               <button text="" pref-width="24" preferred-height="6" interactable="false" />
             </horizontal>
           </horizontal>
@@ -162,10 +163,10 @@
           <horizontal child-align='MiddleLeft' spacing="1" pad-top="-1" pref-width="108" child-expand-width="true" child-force-expand-width="false">
             <horizontal child-expand-width="false" child-force-expand-width="false" align="Left" pad-left="1" spacing="2" >
               <button text="" pref-width="15" preferred-height="6" interactable="false"/>
-              <button text="カナ"  on-click="on-char-toggle-kana" pref-width="25" preferred-height="6" />
+              <button text="✓かな/カナ"  on-click="on-char-toggle-kana" pref-width="25" preferred-height="6" />
               <button text="濁点/半濁"  on-click="on-char-toggle-dakuten" pref-width="20" preferred-height="6" font-size="4" pad-right="3"/>              
-              <button text="かな" on-click="on-char-kana" pref-width="5" preferred-height="6"/>
-              <button text="カナ" on-click="on-char-katakana" pref-width="5" preferred-height="6"/>
+              <button text="かな変換" on-click="on-char-kana" pref-width="15" preferred-height="6"/>
+              <!-- <button text="カナ" on-click="on-char-katakana" pref-width="5" preferred-height="6"/> -->
               <button text="゛" on-click="on-char-dakuten" pref-width="5" preferred-height="6"/>
               <button text="゜" on-click="on-char-handakuten" pref-width="5" preferred-height="6"/>
               <button text="" pref-width="15" preferred-height="6" interactable="false"/>
@@ -392,7 +393,7 @@
       <tab tags="keyboard-tabs" tab-name="🛈"  child-align='TopLeft'>
         <vertical spacing="1" pad-top="0" align="TopLeft" pref-width="108">
           <horizontal spacing="0" child-align="UpperLeft">
-            <button text="UPDATE DATA" on-click="on-update-data" pref-width="25" preferred-height="6" align="Left"/>
+            <button text="UPDATE DATA" on-click="on-update-data" pref-width="20" preferred-height="6" align="Left"/>
             <text id="dataTimeStamp" text="" align="Left" font-size="3.5" pad-left="-55" color="#FFFFFF" /> 
             <button text="" pref-width="40" interactable="false" />
           </horizontal>

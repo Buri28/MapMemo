@@ -121,13 +121,13 @@ namespace MapMemo.Domain
         /// <summary>
         /// メモを非同期で保存します。メモが空文字の場合はファイルを削除します。
         /// </summary>
-        public static async Task SaveAsync(MemoEntry entry)
+        public static async Task SaveAsync(MemoEntry entry, bool isEmptyFile = false)
         {
             EnsureDir();
             DeleteExistingMemoFile(entry);
             // 既存ファイルがあれば削除（キー変更や曲名・作者名変更に対応）
             // メモが空文字（0文字）の場合はファイルを削除して終了
-            if (string.IsNullOrEmpty(entry.memo))
+            if (string.IsNullOrEmpty(entry.memo) && !isEmptyFile)
             {
                 return;
             }

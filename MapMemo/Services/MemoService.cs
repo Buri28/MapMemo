@@ -146,7 +146,7 @@ namespace MapMemo.Services
         /// 空のメモを自動作成するかどうかを取得または
         /// 設定します。
         /// </summary>
-        public bool GetAutoCreateEmptyMemo()
+        public bool IsAutoCreateEmptyMemo()
         {
             return MemoSettingsManager.Instance.AutoCreateEmptyMemo;
         }
@@ -462,13 +462,12 @@ namespace MapMemo.Services
             },
             error =>
             {
-                // ログは英語で 出力
                 Plugin.Log?.Warn("Failed to fetch BeatSaver data: " + error);
             });
 
             // 空のメモを自動作成する設定が有効な場合にのみ処理を行う
-            if (!GetAutoCreateEmptyMemo()) return;
-
+            if (!IsAutoCreateEmptyMemo()) return;
+            if (Plugin.VerboseLogs) Plugin.Log.Info("AutoCreateEmptyMemo is enabled.");
             MemoEntry existingMemo = LoadMemo(new LevelContext(data.beatmapLevel));
             // 既にメモが存在する場合は何もしない
             if (existingMemo != null) return;
@@ -484,7 +483,8 @@ namespace MapMemo.Services
                 memo = "",
                 autoCreateEmptyMemo = true
             };
-            await MemoRepository.SaveAsync(newMemo);
+            if (Plugin.VerboseLogs) Plugin.Log.Info("Saving new empty memo.");
+            await MemoRepository.SaveAsync(newMemo, isEmptyFile: true);
         }
         /// <summary>
         /// BeatSaverのデータを非同期で更新します。
