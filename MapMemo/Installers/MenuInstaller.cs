@@ -1,4 +1,5 @@
 using MapMemo.Domain;
+using MapMemo.Events;
 using MapMemo.UI.Common;
 using MapMemo.UI.Settings;
 using UnityEngine;
@@ -30,7 +31,8 @@ namespace MapMemo.Installers
             go.AddComponent<BeatSaverManager>();
 
             ///Container.InstantiateComponent<ResultManager>(go);
-            Container.BindInterfacesAndSelfTo<ResultListener>().AsSingle();
+            // Container.BindInterfacesAndSelfTo<ResultListener>().AsSingle();
+            Container.BindInterfacesAndSelfTo<BackToDetailObserver>().AsSingle();
             // UI ヘルパーコンポーネントのバインディング
             go.AddComponent<UIHelper>();
 

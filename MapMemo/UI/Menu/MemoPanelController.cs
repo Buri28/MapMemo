@@ -332,7 +332,7 @@ namespace MapMemo.UI.Menu
                 }
                 if (memoService.GetTooltipShowBsr() && memoService.GetTooltipShowRating())
                 {
-                    beatSaverLine += $"[{beatSaverMap.id} / "
+                    beatSaverLine += $"[{beatSaverMap.id} | "
                         + $"{beatSaverMap.stats.score * 100:0.0}%"
                         + $"⬆{beatSaverMap.stats.upvotes}⬇{beatSaverMap.stats.downvotes}]";
                 }

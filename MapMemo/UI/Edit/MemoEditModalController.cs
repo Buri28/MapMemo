@@ -261,7 +261,6 @@ namespace MapMemo.UI.Edit
             {
                 this.memoText.richText = true;
                 this.memoText.enableWordWrapping = true;
-
                 this.confirmedText = memo;
                 this.pendingText = "";
                 this.UpdateMemoText();
@@ -638,7 +637,7 @@ namespace MapMemo.UI.Edit
         }
 
         /// <summary>
-        /// ひらがな変換ボタン押下時の処理
+        /// かな変換ボタン押下時の処理
         /// 最後の1文字をカタカナからひらがなに変換しサジェストリストを更新します。
         /// </summary>
         [UIAction("on-char-kana")]
@@ -658,29 +657,38 @@ namespace MapMemo.UI.Edit
                 UpdateMemoText();
                 UpdateSuggestions();
             }
-        }
-        /// <summary>
-        /// カタカナ変換ボタン押下時の処理
-        /// 最後の1文字をひらがなからカタカナに変換しサジェストリストを更新します。
-        /// </summary>
-        [UIAction("on-char-katakana")]
-        private void OnCharKatakana()
-        {
-            // 最後の1文字をひらがなからカタカナに変換しサジェストリストを更新
-            if (pendingText.Length == 0) return;
-            var lastChar = pendingText.LastOrDefault().ToString();
-            if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnCharKatakana: "
-                                + $"lastChar='{lastChar}'");
-            if (StringUtils.IsHiragana(lastChar, out string newChar))
+            else if (StringUtils.IsHiragana(lastChar, out string newChar2))
             {
                 // 最後の文字をカタカナに置き換える
-                pendingText = pendingText.Substring(0, pendingText.Length - 1) + newChar;
-                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnCharKatakana: "
+                pendingText = pendingText.Substring(0, pendingText.Length - 1) + newChar2;
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnCharKana: "
                                 + $"pendingText='{pendingText}'");
                 UpdateMemoText();
                 UpdateSuggestions();
             }
         }
+        // /// <summary>
+        // /// カタカナ変換ボタン押下時の処理
+        // /// 最後の1文字をひらがなからカタカナに変換しサジェストリストを更新します。
+        // /// </summary>
+        // [UIAction("on-char-katakana")]
+        // private void OnCharKatakana()
+        // {
+        //     // 最後の1文字をひらがなからカタカナに変換しサジェストリストを更新
+        //     if (pendingText.Length == 0) return;
+        //     var lastChar = pendingText.LastOrDefault().ToString();
+        //     if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnCharKatakana: "
+        //                         + $"lastChar='{lastChar}'");
+        //     if (StringUtils.IsHiragana(lastChar, out string newChar))
+        //     {
+        //         // 最後の文字をカタカナに置き換える
+        //         pendingText = pendingText.Substring(0, pendingText.Length - 1) + newChar;
+        //         if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnCharKatakana: "
+        //                         + $"pendingText='{pendingText}'");
+        //         UpdateMemoText();
+        //         UpdateSuggestions();
+        //     }
+        // }
 
         [UIAction("on-char-dakuten")]
         private void OnCharDakuten()
@@ -717,6 +725,37 @@ namespace MapMemo.UI.Edit
                 // 最後の文字を半濁点文字に置き換える
                 pendingText = pendingText.Substring(0, pendingText.Length - 1) + newChar;
                 if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnCharHandakuten: "
+                                + $"pendingText='{pendingText}'");
+                UpdateMemoText();
+                UpdateSuggestions();
+            }
+        }
+        /// <summary>
+        /// 大文字/小文字変換ボタン押下時の処理
+        /// </summary>
+        [UIAction("on-char-upper-lower")]
+        private void OnCharUpperLower()
+        {
+            // 最後の文字が大文字の英字だったら小文字に、または小文字の英字だったら大文字に変換しサジェストリストを更新
+            // 最後の文字を取得
+            if (pendingText.Length == 0) return;
+            var lastChar = pendingText.LastOrDefault().ToString();
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnCharUpperLower: "
+                                + $"lastChar='{lastChar}'");
+            if (StringUtils.IsAlphabetUppercase(lastChar, out string newLowerChar))
+            {
+                // 最後の文字を小文字に置き換える
+                pendingText = pendingText.Substring(0, pendingText.Length - 1) + newLowerChar;
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnCharUpperLower: "
+                                + $"pendingText='{pendingText}'");
+                UpdateMemoText();
+                UpdateSuggestions();
+            }
+            else if (StringUtils.IsAlphabetLowercase(lastChar, out string newUpperChar))
+            {
+                // 最後の文字を大文字に置き換える
+                pendingText = pendingText.Substring(0, pendingText.Length - 1) + newUpperChar;
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnCharUpperLower: "
                                 + $"pendingText='{pendingText}'");
                 UpdateMemoText();
                 UpdateSuggestions();

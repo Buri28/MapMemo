@@ -207,11 +207,11 @@ namespace MapMemo.Services
                 }
 
                 var kanaModeButton = buttons
-                    .FirstOrDefault(btn => btn.text.Trim().Replace("　", "") == "カナ"
-                                        || btn.text.Trim().Replace("　", "") == "かな");
+                    .FirstOrDefault(btn => btn.text.Trim().Replace("　", "") == "✓かな/カナ"
+                                        || btn.text.Trim().Replace("　", "") == "かな/✓カナ");
                 if (kanaModeButton != null)
                 {
-                    string label = isKanaMode ? "かな" : "カナ";
+                    string label = isKanaMode ? "かな/✓カナ" : "✓かな/カナ";
                     kanaModeButton.text = EditLabel(label);
                 }
             }
@@ -248,12 +248,12 @@ namespace MapMemo.Services
 
                 var dakutenButton = buttons
                     .FirstOrDefault(btn => btn.text.Trim().Replace("　", "") == "濁点/半濁"
-                                        || btn.text.Trim().Replace("　", "") == "濁点✓/半濁"
-                                        || btn.text.Trim().Replace("　", "") == "濁点/半濁✓");
+                                        || btn.text.Trim().Replace("　", "") == "✓濁点/半濁"
+                                        || btn.text.Trim().Replace("　", "") == "濁点/✓半濁");
                 if (dakutenButton != null)
                 {
-                    string label = dakutenMode == 1 ? "濁点✓/半濁"
-                                 : dakutenMode == 2 ? "濁点/半濁✓"
+                    string label = dakutenMode == 1 ? "✓濁点/半濁"
+                                 : dakutenMode == 2 ? "濁点/✓半濁"
                                  : "濁点/半濁";
                     dakutenButton.text = EditLabel(label);
                 }

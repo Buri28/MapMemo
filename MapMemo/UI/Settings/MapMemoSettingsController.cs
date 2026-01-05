@@ -137,11 +137,11 @@ namespace MapMemo.UI.Settings
         [UIValue("autoCreateEmptyMemo")]
         public bool AutoCreateEmptyMemo
         {
-            get => memoService.GetAutoCreateEmptyMemo();
+            get => memoService.IsAutoCreateEmptyMemo();
             set
             {
                 Plugin.Log?.Info($"autoCreateEmptyMemo: {value}");
-                if (memoService.GetAutoCreateEmptyMemo() == value) return;
+                if (memoService.IsAutoCreateEmptyMemo() == value) return;
                 memoService.SaveAutoCreateEmptyMemo(value);
                 NotifyPropertyChanged();
             }
