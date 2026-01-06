@@ -67,7 +67,7 @@ Pluginsフォルダに「MapMemo.dll」を格納してBeatSaberを起動しま�
 |------------|--------------------------|
 | Show BSR in Tooltip | ツールチップにマップのBSR(※)を表示します。(デフォルト値:有効) 【v1.1】 |
 | Show Rating in Tooltip | ツールチップにマップのRating(※)を表示します。(デフォルト値:有効) 【v1.1】 |
-| Auto Create Empty Memo After Play | プレイ後に空のメモを作成します。v1.1(デフォルト値:無効) 【v1.1】 |
+| Auto Create Empty Memo After Play | プレイ後に空のメモを作成します。(デフォルト値:無効) 【v1.1】 |
 | Max History Count   | 履歴ファイルに保存する件数を設定します。0～5000(デフォルト値:1000)   | 
 | History Show Count | 入力候補に表示する件数を設定します。0～10(デフォルト値:3)         | 
 | Clear Historyボタン | 履歴ファイルを削除し、入力履歴をクリアします。 |
