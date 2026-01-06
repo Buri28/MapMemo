@@ -63,6 +63,7 @@ namespace MapMemo.UI.Edit
         // レベルコンテキスト(マップ情報)
         private LevelContext levelContext;
 
+        // BeatSaverマップ情報
         private BeatSaverMap beatSaverMap;
 
         // メッセージ表示コンポーネント
@@ -839,6 +840,10 @@ namespace MapMemo.UI.Edit
             UpdateMemoText();
             UpdateSuggestions();
         }
+
+        /// <summary>
+        /// BeatSaverデータ更新ボタン押下時の処理。最新のBeatSaverデータを取得してUIに反映します。
+        /// </summary>
         [UIAction("on-update-data")]
         private void OnUpdateData()
         {
@@ -851,6 +856,7 @@ namespace MapMemo.UI.Edit
                 if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.InitializeParameters: "
                 + $"Using cached BeatSaver map info: id='{map.id}' for hash '{hash}'");
                 UpdateDescriptionScrollView();
+
                 // 親パネルの更新
                 MemoPanelController.instance.Refresh();
             },
@@ -862,7 +868,9 @@ namespace MapMemo.UI.Edit
             });
         }
 
-
+        /// <summary>
+        /// 説明スクロールビューの状態を更新します。
+        /// </summary>
         public void UpdateDescriptionScrollView()
         {
             // 2. スクロールビューの状態を更新
@@ -874,7 +882,9 @@ namespace MapMemo.UI.Edit
                 descriptionScrollView.UpdateContentSize();
             }
         }
-
+        /// <summary>
+        /// メモスクロールビューの状態を更新します。
+        /// </summary>
         public void UpdateMemoScrollView()
         {
             // 2. スクロールビューの状態を更新
