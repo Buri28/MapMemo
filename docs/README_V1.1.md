@@ -5,7 +5,7 @@
 更新日時が表示されるため、メモを残した日時も確認できます。  
 設定が有効の場合、マップのBSRとRatingが表示されます。【v1.1】   
 ※BSRとRatingはBeatSaverから最後にデータ取得したときのものが表示されます。  
-<img width="50%" height="50%" alt="image" src="https://github.com/user-attachments/assets/3ebe1a27-6f12-4252-a230-6b456e274a33" />  
+<img width="50%" height="50%" alt="image" src="https://github.com/user-attachments/assets/9f549ec2-9286-4079-b6c4-b9a20e58211c" />  
 
 辞書ファイルや入力履歴から入力候補が表示されます。  
 
