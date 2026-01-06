@@ -115,7 +115,7 @@
       <HintPath>$(BeatSaberManagedPath)\BGLib.UnityExtension.dll</HintPath>
       <Private>false</Private>
     </Reference>
-        <Reference Include="UnityEngine.UnityWebRequestModule">
+    <Reference Include="UnityEngine.UnityWebRequestModule">
       <HintPath>$(BeatSaberManagedPath)\UnityEngine.UnityWebRequestModule.dll</HintPath>
       <Private>false</Private>
     </Reference>

@@ -447,31 +447,19 @@ namespace MapMemo.Services
         /// </summary>
         /// <param name="data">シーン遷移データ</param>
         /// <param name="results">レベル完了結果</param>
-        internal async Task HandleLevelCompletion(
+        public async Task HandleLevelCompletion(
             StandardLevelScenesTransitionSetupDataSO data, LevelCompletionResults results)
         {
-            var levelId = data.beatmapLevel.levelID;
-            var levelHash = Utilities.BeatSaberUtils.GetLevelHash(levelId);
-            // BeatSaverManager 経由で BSR 情報を更新する
-            UpdateBeatSaverDataAsync(levelHash, map =>
-            {
-                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.InitializeParameters: "
-                + $"Using cached BeatSaver map info: id='{map.id}' for hash '{levelHash}'");
-
-                MemoPanelController.instance.Refresh();
-            },
-            error =>
-            {
-                Plugin.Log?.Warn("Failed to fetch BeatSaver data: " + error);
-            });
-
             // 空のメモを自動作成する設定が有効な場合にのみ処理を行う
             if (!IsAutoCreateEmptyMemo()) return;
             if (Plugin.VerboseLogs) Plugin.Log.Info("AutoCreateEmptyMemo is enabled.");
+
+
             MemoEntry existingMemo = LoadMemo(new LevelContext(data.beatmapLevel));
             // 既にメモが存在する場合は何もしない
             if (existingMemo != null) return;
-
+            var levelId = data.beatmapLevel.levelID;
+            var levelHash = Utilities.BeatSaberUtils.GetLevelHash(levelId);
             if (Plugin.VerboseLogs) Plugin.Log.Info($"ResultListener: "
                 + $"Auto-creating empty memo for level ID: {levelId}, Hash: {levelHash}");
             var newMemo = new MemoEntry
@@ -485,6 +473,29 @@ namespace MapMemo.Services
             };
             if (Plugin.VerboseLogs) Plugin.Log.Info("Saving new empty memo.");
             await MemoRepository.SaveAsync(newMemo, isEmptyFile: true);
+            await MemoPanelController.instance.Refresh();
+        }
+        /// <summary>
+        /// リザルト画面から詳細画面に戻る際の処理を行います。
+        /// </summary>
+        /// <param name="transitionSetupData">シーン遷移データ</param
+        public async Task HandleBackToDetail(
+            StandardLevelScenesTransitionSetupDataSO transitionSetupData, LevelCompletionResults results)
+        {
+            var levelId = transitionSetupData.beatmapLevel.levelID;
+            var levelHash = Utilities.BeatSaberUtils.GetLevelHash(levelId);
+            // BeatSaverからデータを取得してMemoPanelを更新
+            UpdateBeatSaverDataAsync(levelHash, map =>
+            {
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.InitializeParameters: "
+                + $"Using cached BeatSaver map info: id='{map.id}' for hash '{levelHash}'");
+
+                MemoPanelController.instance.Refresh();
+            },
+            error =>
+            {
+                Plugin.Log?.Warn("Failed to fetch BeatSaver data: " + error);
+            });
         }
         /// <summary>
         /// BeatSaverのデータを非同期で更新します。
@@ -495,6 +506,8 @@ namespace MapMemo.Services
         {
             BeatSaverManager.Instance.TryRequestAsync(hash, onSuccess, onError);
         }
+
+
     }
 
 }

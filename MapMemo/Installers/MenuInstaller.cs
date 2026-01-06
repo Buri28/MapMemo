@@ -30,12 +30,10 @@ namespace MapMemo.Installers
             go.AddComponent<MemoSettingsManager>();
             go.AddComponent<BeatSaverManager>();
 
-            ///Container.InstantiateComponent<ResultManager>(go);
-            // Container.BindInterfacesAndSelfTo<ResultListener>().AsSingle();
-            Container.BindInterfacesAndSelfTo<BackToDetailObserver>().AsSingle();
+            // イベントオブザーバーのバインディング
+            Container.BindInterfacesAndSelfTo<ResultObserver>().AsSingle();
             // UI ヘルパーコンポーネントのバインディング
             go.AddComponent<UIHelper>();
-
 
             // 設定画面コントローラーのバインディング
             var settingsController =
