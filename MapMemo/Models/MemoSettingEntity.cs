@@ -28,6 +28,6 @@ namespace Mapmemo.Models
         /// <remarks>デフォルトは false。</remarks>
         ///     
         /// </summary>
-        public bool AutoCreateEmptyMemo { get; set; } = true;
+        public bool AutoCreateEmptyMemo { get; set; } = false;
     }
 }
