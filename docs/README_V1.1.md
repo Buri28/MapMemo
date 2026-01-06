@@ -55,8 +55,7 @@ Pluginsフォルダに「MapMemo.dll」を格納してBeatSaberを起動しま�
     BeatSaverのマップ情報(説明文、パブリッシュ日、Rating)が表示されます。  
     「UPDATE DATA」ボタンを押すとBeatSaverから最新情報を取得します。    
      サーバアクセス軽減のため、キャッシュファイルに保持されたものが表示されます。(「BeatSaverのデータを取得するタイミング」参照)  
-     <img width="40%" height="40%" alt="image" src="https://github.com/user-attachments/assets/2e1acc79-24b2-4566-adde-54697c313ad0" />
-
+    <img width="40%" height="40%" alt="image" src="https://github.com/user-attachments/assets/9e0a38a0-7945-4e42-a541-5822f1548433" />  
 
 ### 設定画面  
   入力履歴に関する設定を行います。  
