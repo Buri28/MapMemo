@@ -81,7 +81,7 @@ Pluginsフォルダに「MapMemo.dll」を格納してBeatSaberを起動しま�
 
 ### メモファイル形式
 bsrCode、beatSaverUrl、autoCreateEmptyMemoを追加しています。【v1.1】  
-<img width="40%" height="40%" alt="image" src="https://github.com/user-attachments/assets/65692f94-2284-458c-84f0-8409a5454fd1" />
+<img width="40%" height="40%" alt="image" src="https://github.com/user-attachments/assets/40193238-602e-450d-81af-55edd13670e8" />
  
 ## カスタマイズ
 ### 辞書ファイルをカスタマイズ
