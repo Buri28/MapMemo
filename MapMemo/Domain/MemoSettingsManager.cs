@@ -1,4 +1,3 @@
-using IPA.Utilities;
 using Newtonsoft.Json;
 using System.IO;
 using UnityEngine;
@@ -60,6 +59,15 @@ namespace MapMemo.Domain
             get => settingsEntity.AutoCreateEmptyMemo;
             set { settingsEntity.AutoCreateEmptyMemo = value; Save(); }
         }
+        /// <summary>
+        /// BeatSaverのアクセスモードを取得または設定します。設定時は保存も行います。
+        /// </summary>
+        public string BeatSaverAccessMode
+        {
+            get => settingsEntity.BeatSaverAccessMode;
+            set { settingsEntity.BeatSaverAccessMode = value; Save(); }
+        }
+
 
         /// <summary>
         /// MonoBehaviour の初期化時に呼ばれ、シングルトン登録と DontDestroyOnLoad を実行します。

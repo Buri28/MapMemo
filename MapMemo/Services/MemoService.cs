@@ -158,6 +158,14 @@ namespace MapMemo.Services
         {
             MemoSettingsManager.Instance.AutoCreateEmptyMemo = value;
         }
+        public string GetBeatSaverAccessMode()
+        {
+            return MemoSettingsManager.Instance.BeatSaverAccessMode;
+        }
+        public void SaveBeatSaverAccessMode(string value)
+        {
+            MemoSettingsManager.Instance.BeatSaverAccessMode = value;
+        }
 
         /// <summary>
         /// 入力履歴ファイルを削除します。
@@ -454,7 +462,7 @@ namespace MapMemo.Services
             if (!IsAutoCreateEmptyMemo()) return;
             if (Plugin.VerboseLogs) Plugin.Log.Info("AutoCreateEmptyMemo is enabled.");
 
-
+            // 自動的に空のメモを作成する
             MemoEntry existingMemo = LoadMemo(new LevelContext(data.beatmapLevel));
             // 既にメモが存在する場合は何もしない
             if (existingMemo != null) return;
@@ -484,6 +492,15 @@ namespace MapMemo.Services
         {
             var levelId = transitionSetupData.beatmapLevel.levelID;
             var levelHash = Utilities.BeatSaberUtils.GetLevelHash(levelId);
+
+            // マニュアルの場合、BeatSaverからのデータ取得をスキップ
+            if (MemoSettingsManager.Instance.BeatSaverAccessMode == "Manual")
+            {
+                if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoEditModal.InitializeParameters: "
+                + $"BeatSaverAccessMode is 'Manual', skipping BeatSaver data fetch.");
+                return;
+            }
+
             // BeatSaverからデータを取得してMemoPanelを更新
             UpdateBeatSaverDataAsync(levelHash, map =>
             {
@@ -502,7 +519,8 @@ namespace MapMemo.Services
         /// </summary>
         /// <param name="hash">レベルのハッシュ値</param>
         /// <param name="onSuccess">成功時のコールバック</param>
-        public void UpdateBeatSaverDataAsync(string hash, Action<BeatSaverMap> onSuccess, Action<string> onError)
+        public void UpdateBeatSaverDataAsync(
+            string hash, Action<BeatSaverMap> onSuccess, Action<string> onError)
         {
             BeatSaverManager.Instance.TryRequestAsync(hash, onSuccess, onError);
         }

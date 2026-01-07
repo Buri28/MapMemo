@@ -29,5 +29,9 @@ namespace Mapmemo.Models
         ///     
         /// </summary>
         public bool AutoCreateEmptyMemo { get; set; } = false;
+        /// <summary>
+        /// BeatSaver へのアクセスモード
+        /// </summary>
+        public string BeatSaverAccessMode { get; set; } = "Semi-Auto";
     }
 }

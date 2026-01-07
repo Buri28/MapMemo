@@ -393,7 +393,7 @@
       <tab tags="keyboard-tabs" tab-name="🛈"  child-align='TopLeft'>
         <vertical spacing="1" pad-top="0" align="TopLeft" pref-width="108">
           <horizontal spacing="0" child-align="UpperLeft">
-            <button text="UPDATE DATA" on-click="on-update-data" pref-width="20" preferred-height="6" align="Left"/>
+            <button text="GET LATEST" on-click="on-update-data" pref-width="20" preferred-height="6" align="Left"/>
             <text id="dataTimeStamp" text="" align="Left" font-size="3.5" pad-left="-55" color="#FFFFFF" /> 
             <button text="" pref-width="40" interactable="false" />
           </horizontal>
