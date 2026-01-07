@@ -54,8 +54,7 @@ Pluginsフォルダに「MapMemo.dll」を格納してBeatSaberを起動しま�
   - 「🛈」タブ【v1.1】  
     BeatSaverのマップ情報(説明文、パブリッシュ日、Rating)が表示されます。  
     「GET LATEST」ボタンを押すとBeatSaverから最新情報を取得します。    
-     サーバアクセス軽減のため、キャッシュファイルに保持されたものが表示されます。  
-     (「BeatSaverのデータを取得するタイミング」参照)  
+     ※BSRとRatingはBeatSaverから最後にデータ取得したときのものが表示されます。(設定画面のBeatSaver Access Modeを参照)  
     <img width="40%" height="40%" alt="image" src="https://github.com/user-attachments/assets/9e0a38a0-7945-4e42-a541-5822f1548433" />  
 
 ### 設定画面  
@@ -68,10 +67,12 @@ Pluginsフォルダに「MapMemo.dll」を格納してBeatSaberを起動しま�
 | Show BSR in Tooltip | ツールチップにマップのBSR(※)を表示します。(デフォルト値:有効) 【v1.1】 |
 | Show Rating in Tooltip | ツールチップにマップのRating(※)を表示します。(デフォルト値:有効) 【v1.1】 |
 | Auto Create Empty Memo After Play | プレイ後に空のメモを作成します。(デフォルト値:無効) 【v1.1】 |
-| BeatSaver Access Mode |いつBeatSaverにアクセスするかのモード【v1.1】<br>Manual：② ／Semi-Auto：①②③ ／Auto：①②③④ (デフォルト値:Semi-Auto)<br>①メモ編集画面初回表示 <br>②「🛈」タブのGET LATESTボタン<br> ③マッププレイ終了<br> ④マップ選択 |
+| BeatSaver Access Mode |いつBeatSaverにアクセスするかのモード【v1.1】<br><b>(マップ選択時にアクセスしたい場合はAutoにしてください)</b><br><br>Manual：② ／Semi-Auto：①②③ ／Auto：①②③④ (デフォルト値:Semi-Auto)<br>①メモ編集画面初回表示時 <br>②「🛈」タブのGET LATESTボタンを押した時<br> ③マッププレイ終了時<br> ④マップ選択時 |
 | Max History Count   | 履歴ファイルに保存する件数を設定します。0～5000(デフォルト値:1000)   | 
 | History Show Count | 入力候補に表示する件数を設定します。0～10(デフォルト値:3)         | 
-| Clear Historyボタン | 履歴ファイルを削除し、入力履歴をクリアします。 |
+| Clear Historyボタン | 履歴ファイルを削除し、入力履歴をクリアします。 |  
+
+※BSRとRatingはBeatSaverから最後にデータ取得したときのものが表示されます。  
 
 ### メモファイル形式
 bsrCode、beatSaverUrl、autoCreateEmptyMemoを追加しています。【v1.1】  
