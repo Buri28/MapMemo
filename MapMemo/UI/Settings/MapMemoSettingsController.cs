@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using BeatSaberMarkupLanguage.Attributes;
@@ -17,6 +18,9 @@ namespace MapMemo.UI.Settings
     /// </summary>
     public class MapMemoSettingsController : MonoBehaviour, INotifyPropertyChanged
     {
+        [UIValue("beatsaverAccessModeOptions")]
+        public List<object> BeatSaverAccessModeOptions = new List<object> { "Manual", "Semi-Auto", "Auto" };
+
         /// <summary> プロパティ変更通知イベント。</summary>
         public event PropertyChangedEventHandler PropertyChanged;
         /// <summary> 設定タブ追加済みフラグ。</summary>
@@ -146,6 +150,21 @@ namespace MapMemo.UI.Settings
                 NotifyPropertyChanged();
             }
         }
+        /// <summary>
+        /// BeatSaver へのアクセスモード（設定）。UI の変更はここで保存されます。
+        /// </summary>
+        [UIValue("beatsaverAccessMode")]
+        public string BeatsaverAccessMode
+        {
+            get => memoService.GetBeatSaverAccessMode();
+            set
+            {
+                Plugin.Log?.Info($"beatsaverAccessMode: {value}");
+                if (memoService.GetBeatSaverAccessMode() == value) return;
+                memoService.SaveBeatSaverAccessMode(value);
+                NotifyPropertyChanged();
+            }
+        }
 
         /// <summary>
         /// 設定画面から履歴をクリアするアクション。
@@ -206,6 +225,16 @@ namespace MapMemo.UI.Settings
         {
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"OnAutoCreateEmptyMemoChanged: {value}");
             AutoCreateEmptyMemo = value;
+        }
+        /// <summary>
+        /// 設定 UI で BeatSaver へのアクセスモードが変更されたときに呼ばれます。
+        /// </summary>
+        [UIAction("on-beatsaver-access-mode-changed")]
+        private void OnBeatsaverAccessModeChanged(object value)
+        {
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"OnBeatsaverAccessModeChanged: {value}");
+            BeatsaverAccessMode = (string)value;
+
         }
     }
 }

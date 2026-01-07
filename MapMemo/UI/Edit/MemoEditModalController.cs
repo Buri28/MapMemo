@@ -14,9 +14,7 @@ using MapMemo.Services;
 using MapMemo.UI.Common;
 using MapMemo.Models;
 using MapMemo.Domain;
-using System.Collections.Generic;
 using UnityEngine.UI;
-using System.Collections;
 using Mapmemo.Models;
 
 namespace MapMemo.UI.Edit
@@ -237,24 +235,32 @@ namespace MapMemo.UI.Edit
                 }
                 else
                 {
-                    memoService.UpdateBeatSaverDataAsync(hash, map =>
+                    if (MemoSettingsManager.Instance.BeatSaverAccessMode == "Manual")
                     {
-                        // リクエスト成功時：UIに反映
-                        SetBeatSaverData(map);
-                        if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.InitializeParameters: "
-                        + $"Using cached BeatSaver map info: id='{map.id}' for hash '{hash}'");
-                        UpdateDescriptionScrollView();
-                        // 親パネルの更新
-                        MemoPanelController.instance.Refresh();
-                    },
-                    error =>
+                        if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoEditModal.InitializeParameters: "
+                        + $"BeatSaverAccessMode is 'Manual', skipping BeatSaver data fetch.");
+                    }
+                    else
                     {
-                        // エラー時：エラーメッセージを表示
-                        bsrCodeText.text = "N/A";
-                        descriptionText.text = "N/A";
-                        UpdateDescriptionScrollView();
-                        Plugin.Log?.Warn("Failed to fetch BeatSaver data: " + error);
-                    });
+                        memoService.UpdateBeatSaverDataAsync(hash, map =>
+                        {
+                            // リクエスト成功時：UIに反映
+                            SetBeatSaverData(map);
+                            if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.InitializeParameters: "
+                            + $"Using cached BeatSaver map info: id='{map.id}' for hash '{hash}'");
+                            UpdateDescriptionScrollView();
+                            // 親パネルの更新
+                            MemoPanelController.instance.Refresh();
+                        },
+                        error =>
+                        {
+                            // エラー時：エラーメッセージを表示
+                            bsrCodeText.text = "N/A";
+                            descriptionText.text = "N/A";
+                            UpdateDescriptionScrollView();
+                            Plugin.Log?.Warn("Failed to fetch BeatSaver data: " + error);
+                        });
+                    }
                 }
             }
             // メモ内容を初期化
@@ -277,10 +283,19 @@ namespace MapMemo.UI.Edit
         private void InitBeatSaverData()
         {
             bsrCodeText.text = "BSR：";
-            descriptionText.text = "Loading...";
+            if (MemoSettingsManager.Instance.BeatSaverAccessMode == "Manual")
+            {
+                descriptionText.text = "Manual Mode: Press \"GET LATEST\" to fetch latest data.";
+            }
+            else
+            {
+                descriptionText.text = "Loading...";
+            }
             lastPublishedAtText.text = "Published date：";
             levelAuthorText.text = "Mappers：";
             scoreText.text = "Rating：";
+            dataTimeStampText.text = "";
+
         }
 
         /// <summary>

@@ -1,6 +1,9 @@
 <bg>
-    <vertical spacing="2" align="TopCenter" pad="2">
-        <text text="[Tooltip]" color="#00FFFF"/>
+  <settings-container child-control-width='true' child-expand-width='true' spacing='0' pad='0'>
+        <!-- <vertical spacing="2" align="TopCenter" pad="2" > -->
+        <horizontal spacing='1' pad='0' pad-top='1'>
+            <text text="[Tooltip]" color="#00FFFF"/>
+        </horizontal>
         <!-- ツールチップにbsrを表示するか -->
         <toggle-setting id="tooltip-show-bsr" 
                         text="Show BSR in Tooltip" 
@@ -13,16 +16,30 @@
                         value='tooltipShowRating' 
                         on-change="on-tooltip-show-rating-changed"
                         apply-on-change='true' />
-        <text text="[Memo]" color="#00FFFF"/>
+        <horizontal spacing='1' pad='0' pad-top='1'>
+            <text text="[Memo]" color="#00FFFF"/>
+        </horizontal>
         <!-- プレイ後に空のメモを作成するか -->
         <toggle-setting id="auto-create-empty-memo" 
                         text="Auto Create Empty Memo After Play" 
                         value='autoCreateEmptyMemo' 
                         on-change="on-auto-create-empty-memo-changed"
                         apply-on-change='true' />
-        
+        <horizontal spacing='1' pad='0' pad-top='1'>
+            <text text="[BeatSaver]" color="#00FFFF"/>
+        </horizontal>
+        <!-- BeatSaverのアクセスをプルダウンで選択(MANUAL,SEMI-AUTO,AUTO) -->
+        <dropdown-list-setting 
+                        id="beatsaver-access-mode" 
+                        text="BeatSaver Access Mode" 
+                        value='beatsaverAccessMode' 
+                        options="beatsaverAccessModeOptions"
+                        on-change="on-beatsaver-access-mode-changed"
+                        apply-on-change='true' />
         <!-- ヒストリーの最大件数 -->
-        <text text="[History]" color="#00FFFF"/>
+        <horizontal spacing='1' pad='0' pad-top='1'>
+            <text text="[History]" color="#00FFFF"/>
+        </horizontal>
         <increment-setting id="history-max-count" 
                             text="Max History Count" 
                             value='historyMaxCount' 
@@ -32,7 +49,6 @@
                             apply-on-change='true'
                             on-change="on-history-max-count-changed"
                             formatter="FormatInt"  />
-
         <increment-setting id="history-show-count" 
                             text="History Show Count" 
                             value='historyShowCount' 
@@ -40,9 +56,11 @@
                             apply-on-change='true'
                             on-change="on-history-show-count-changed"
                             formatter="FormatInt"  />
-        <vertical spacing="0" align="TopCenter">
+        <vertical spacing="0" align="TopCenter" >
             <button text="CLEAR HISTORY" on-click="on-clear-history" pref-width="40" />
             <text id="history-clear-message" text="" active="false"/>
         </vertical>
-    </vertical>
+        <!-- 下が切れるのでスペーサー -->
+        <button text="" pref-width="15" pref-height="10" interactable="false" />
+	</settings-container>
 </bg>

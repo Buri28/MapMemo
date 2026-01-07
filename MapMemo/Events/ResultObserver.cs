@@ -1,4 +1,5 @@
 using System;
+using HarmonyLib;
 using IPA.Utilities;
 using MapMemo.Services;
 using Zenject;
@@ -12,6 +13,10 @@ namespace MapMemo.Events
     public class ResultObserver : IInitializable, IDisposable
     {
         /// <summary>
+        /// リザルト画面がアクティブかどうかを示すフラグ
+        /// </summary>
+        // private bool _isResultsActive = false;
+        /// <summary>
         /// コンストラクタで注入されるシーン遷移データ。
         /// </summary>
         private readonly StandardLevelScenesTransitionSetupDataSO _transitionSetupData;
@@ -19,7 +24,10 @@ namespace MapMemo.Events
         /// コンストラクタで注入されるリザルト画面コントローラー。
         /// </summary>
         private readonly ResultsViewController _resultsViewController;
-
+        /// <summary>
+        /// 最後に保存されたレベル完了結果。
+        /// </summary>
+        private LevelCompletionResults _lastResults;
         /// <summary>
         /// コンストラクタ。
         /// Zenject によって依存関係が注入されます。
@@ -43,12 +51,16 @@ namespace MapMemo.Events
             // シーン遷移完了時のイベントに登録
             _transitionSetupData.didFinishEvent += OnLevelFinished;
             //　リザルト画面がアクティブになった時
-            //_resultsViewController.didActivateEvent += OnResultsActivated;
+            _resultsViewController.didActivateEvent += OnResultsActivated;
+            // リザルト画面が非アクティブになった時
+            // _resultsViewController.didDeactivateEvent += OnResultsDeactivated;
             // 「OK/Continue」ボタンが押された時
             _resultsViewController.continueButtonPressedEvent += OnBackToDetail;
             // 「Restart」ボタンが押された時
             _resultsViewController.restartButtonPressedEvent += OnRestartPressed;
         }
+
+
 
         /// <summary>
         /// 破棄処理。
@@ -57,8 +69,9 @@ namespace MapMemo.Events
         {
             if (_resultsViewController != null)
             {
-                _transitionSetupData.didFinishEvent -= OnLevelFinished;
-                // _resultsViewController.didActivateEvent -= OnResultsActivated;
+                // _transitionSetupData.didFinishEvent -= OnLevelFinished;
+                _resultsViewController.didActivateEvent -= OnResultsActivated;
+                // _resultsViewController.didDeactivateEvent -= OnResultsDeactivated;
                 _resultsViewController.continueButtonPressedEvent -= OnBackToDetail;
                 _resultsViewController.restartButtonPressedEvent -= OnRestartPressed;
             }
@@ -70,21 +83,45 @@ namespace MapMemo.Events
             // リザルト画面に遷移するときの処理
             if (Plugin.VerboseLogs) Plugin.Log.Info("Level finished event triggered.");
 
-            if (results != null)
-            {
-                if (Plugin.VerboseLogs) Plugin.Log.Info($"Result score: {results.modifiedScore}");
-                await MemoService.Instance.HandleLevelCompletion(data, results);
-            }
+            _lastResults = results;
         }
 
+        /// <summary>
+        /// リザルト画面がアクティブになった時の処理。
+        /// </summary>
+        /// <param name="firstActivation"></param>
+        /// <param name="addedToHierarchy"></param>
+        /// <param name="screenSystemEnabling"></param>
+        private async void OnResultsActivated(
+            bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
+        {
+            // リザルト画面が表示された時の処理
+            if (Plugin.VerboseLogs) Plugin.Log.Info("Results screen activated: {results.modifiedScore}");
+            if (_lastResults != null)
+            {
+                if (Plugin.VerboseLogs) Plugin.Log.Info($"Result score: {_lastResults.modifiedScore}");
+                await MemoService.Instance.HandleLevelCompletion(_transitionSetupData, _lastResults);
+            }
+            else
+            {
+                if (Plugin.VerboseLogs) Plugin.Log.Info("Results data is null.");
+            }
+            _lastResults = null;
+        }
 
-        // private void OnResultsActivated(
-        //     bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
+        /// <summary>
+        /// リザルト画面が非アクティブになった時の処理。
+        /// </summary>
+        /// <param name="removedFromHierarchy"></param>
+        /// <param name="screenSystemDisabling"></param>
+        // private void OnResultsDeactivated(
+        //     bool removedFromHierarchy, bool screenSystemDisabling)
         // {
-        //     // リザルト画面が表示された時の処理
-        //     if (Plugin.VerboseLogs) Plugin.Log.Info("Results screen activated.");
-        // }
+        //     // リザルト画面が非表示になった時の処理
+        //     if (Plugin.VerboseLogs) Plugin.Log.Info("Results screen deactivated.");
 
+        //     _isResultsActive = false;
+        // }
         /// <summary>
         /// リザルト画面からマップ詳細画面に戻る直前の処理。
         /// </summary>

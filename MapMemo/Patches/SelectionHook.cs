@@ -1,5 +1,7 @@
 using System.Threading.Tasks;
+using MapMemo.Domain;
 using MapMemo.Models;
+using MapMemo.Services;
 using MapMemo.UI.Menu;
 using UnityEngine;
 
@@ -25,9 +27,30 @@ namespace MapMemo.Patches
                     + $"song='{levelContext.GetSongName()}' author='{levelContext.GetSongAuthor()}'"
                     + $" levelAuthor='{levelContext.GetLevelAuthor()}'");
             if (view == null) return;
-
-            var ctrl = MemoPanelController.GetInstance(view, levelContext);
-            await ctrl.Refresh();
+            if (MemoSettingsManager.Instance.BeatSaverAccessMode == "Auto")
+            {
+                if (Plugin.VerboseLogs) Plugin.Log?.Info("SelectionHook: BeatSaverAccessMode is 'Auto', fetching BeatSaver data.");
+                // BeatSaverからデータを取得してMemoPanelを更新
+                var levelId = levelContext.GetLevelId();
+                var levelHash = Utilities.BeatSaberUtils.GetLevelHash(levelId);
+                // BeatSaverからデータを取得してMemoPanelを更新
+                MemoService.Instance.UpdateBeatSaverDataAsync(levelHash, map =>
+                {
+                    if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.InitializeParameters: "
+                    + $"Using cached BeatSaver map info: id='{map.id}' for hash '{levelHash}'");
+                    var ctrl = MemoPanelController.GetInstance(view, levelContext);
+                    ctrl.Refresh();
+                },
+                error =>
+                {
+                    Plugin.Log?.Warn("Failed to fetch BeatSaver data: " + error);
+                });
+            }
+            else
+            {
+                var ctrl = MemoPanelController.GetInstance(view, levelContext);
+                await ctrl.Refresh();
+            }
         }
 
         /// <summary>
