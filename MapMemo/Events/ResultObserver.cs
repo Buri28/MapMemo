@@ -27,7 +27,7 @@ namespace MapMemo.Events
         /// <summary>
         /// 最後に保存されたレベル完了結果。
         /// </summary>
-        private LevelCompletionResults _lastResults;
+        // private LevelCompletionResults _lastResults;
         /// <summary>
         /// コンストラクタ。
         /// Zenject によって依存関係が注入されます。
@@ -49,9 +49,9 @@ namespace MapMemo.Events
         public void Initialize()
         {
             // シーン遷移完了時のイベントに登録
-            _transitionSetupData.didFinishEvent += OnLevelFinished;
+            // _transitionSetupData.didFinishEvent += OnLevelFinished;
             //　リザルト画面がアクティブになった時
-            _resultsViewController.didActivateEvent += OnResultsActivated;
+            // _resultsViewController.didActivateEvent += OnResultsActivated;
             // リザルト画面が非アクティブになった時
             // _resultsViewController.didDeactivateEvent += OnResultsDeactivated;
             // 「OK/Continue」ボタンが押された時
@@ -70,21 +70,21 @@ namespace MapMemo.Events
             if (_resultsViewController != null)
             {
                 // _transitionSetupData.didFinishEvent -= OnLevelFinished;
-                _resultsViewController.didActivateEvent -= OnResultsActivated;
+                // _resultsViewController.didActivateEvent -= OnResultsActivated;
                 // _resultsViewController.didDeactivateEvent -= OnResultsDeactivated;
                 _resultsViewController.continueButtonPressedEvent -= OnBackToDetail;
                 _resultsViewController.restartButtonPressedEvent -= OnRestartPressed;
             }
         }
         // シーン遷移のイベントで結果を保存
-        private async void OnLevelFinished(
-            StandardLevelScenesTransitionSetupDataSO data, LevelCompletionResults results)
-        {
-            // リザルト画面に遷移するときの処理
-            if (Plugin.VerboseLogs) Plugin.Log.Info("Level finished event triggered.");
+        // private async void OnLevelFinished(
+        //     StandardLevelScenesTransitionSetupDataSO data, LevelCompletionResults results)
+        // {
+        //     // リザルト画面に遷移するときの処理
+        //     if (Plugin.VerboseLogs) Plugin.Log.Info("Level finished event triggered.");
 
-            _lastResults = results;
-        }
+        //     _lastResults = results;
+        // }
 
         /// <summary>
         /// リザルト画面がアクティブになった時の処理。
@@ -92,22 +92,22 @@ namespace MapMemo.Events
         /// <param name="firstActivation"></param>
         /// <param name="addedToHierarchy"></param>
         /// <param name="screenSystemEnabling"></param>
-        private async void OnResultsActivated(
-            bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
-        {
-            // リザルト画面が表示された時の処理
-            if (Plugin.VerboseLogs) Plugin.Log.Info("Results screen activated: {results.modifiedScore}");
-            if (_lastResults != null)
-            {
-                if (Plugin.VerboseLogs) Plugin.Log.Info($"Result score: {_lastResults.modifiedScore}");
-                await MemoService.Instance.HandleLevelCompletion(_transitionSetupData, _lastResults);
-            }
-            else
-            {
-                if (Plugin.VerboseLogs) Plugin.Log.Info("Results data is null.");
-            }
-            _lastResults = null;
-        }
+        // private async void OnResultsActivated(
+        //     bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling)
+        // {
+        //     // リザルト画面が表示された時の処理
+        //     if (Plugin.VerboseLogs) Plugin.Log.Info("Results screen activated: {results.modifiedScore}");
+        //     if (_lastResults != null)
+        //     {
+        //         if (Plugin.VerboseLogs) Plugin.Log.Info($"Result score: {_lastResults.modifiedScore}");
+        //         await MemoService.Instance.HandleLevelCompletion(_transitionSetupData, _lastResults);
+        //     }
+        //     else
+        //     {
+        //         if (Plugin.VerboseLogs) Plugin.Log.Info("Results data is null.");
+        //     }
+        //     _lastResults = null;
+        // }
 
         /// <summary>
         /// リザルト画面が非アクティブになった時の処理。
@@ -134,7 +134,7 @@ namespace MapMemo.Events
             var results = FieldAccessor<ResultsViewController, LevelCompletionResults>.Get(
                 ref controller, "_levelCompletionResults");
 
-            await MemoService.Instance.HandleBackToDetail(_transitionSetupData, results);
+            await MemoService.Instance.HandleResultTransition(_transitionSetupData, results);
 
         }
         /// <summary>
@@ -147,7 +147,7 @@ namespace MapMemo.Events
             var results = FieldAccessor<ResultsViewController, LevelCompletionResults>.Get(
                             ref controller, "_levelCompletionResults");
 
-            await MemoService.Instance.HandleBackToDetail(_transitionSetupData, results);
+            await MemoService.Instance.HandleResultTransition(_transitionSetupData, results);
         }
     }
 }

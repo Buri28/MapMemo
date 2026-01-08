@@ -12,6 +12,17 @@ namespace MapMemo.Utilities
     /// </summary>
     public static class BeatSaberUtils
     {
+        /// <summary>
+        /// LevelId がカスタムレベルかどうかを判定します。
+        /// </summary>
+        public static bool IsCustomLevel(string levelId)
+        {
+            return !string.IsNullOrEmpty(levelId) && levelId.StartsWith("custom_level_");
+        }
+
+        /// <summary>
+        /// LevelId からレベルハッシュを取得します。
+        /// </summary>
         public static string GetLevelHash(string levelId)
         {
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"BeatSaberUtils: Getting hash for levelID='{levelId}'");

@@ -52,11 +52,25 @@ namespace Mapmemo.Models
         /// <summary>
         /// BeatSaverのURLを取得します。
         /// </summary>
-        public string beatSaverUrl { get => $"https://beatsaver.com/maps/{bsrCode}"; }
-
+        public string beatSaverUrl
+        {
+            get => string.IsNullOrEmpty(bsrCode) ?
+                "" : $"https://beatsaver.com/maps/{bsrCode}";
+        }
         /// <summary>
         /// 自動作成された空のメモかどうかを示すフラグ
         /// </summary>
         public bool autoCreateEmptyMemo { get; set; }
+
+        /// <summary>
+        /// オブジェクトの文字列表現を取得します。
+        /// </summary>
+        public override string ToString()
+        {
+            return $"MemoEntry(key={key}, songName={songName}, songAuthor={songAuthor}, "
+                + $"levelAuthor={levelAuthor}, memoLen={memo?.Length}, "
+                + $"updatedAt={updatedAt}, bsrCode={bsrCode}, "
+                + $"autoCreateEmptyMemo={autoCreateEmptyMemo})";
+        }
     }
 }
