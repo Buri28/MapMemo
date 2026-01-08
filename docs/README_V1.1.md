@@ -1,14 +1,19 @@
 マップごとにローカルメモを残すMODです。  
 マップの特徴や課題を残して、再度プレイする時などに確認ができます。すぐ忘れてしまう人にお勧めです。  
-<img width="50%" height="50%" alt="image" src="https://github.com/user-attachments/assets/e022f62c-b296-4dbb-aee9-f0455bb3b6f6" />
+
+<img width="50%" height="50%" alt="image" src="https://github.com/user-attachments/assets/e022f62c-b296-4dbb-aee9-f0455bb3b6f6" />  
 
 更新日時が表示されるため、メモを残した日時も確認できます。  
 設定が有効の場合、マップのBSRとRatingが表示されます。【v1.1】   
-※BSRとRatingはBeatSaverから最後にデータ取得したときのものが表示されます。  
+<sup>$\color{green}{\text{※BSRとRatingはBeatSaverから最後にデータ取得したときのものが表示されます。}}$</span></sup>  
+
 <img width="50%" height="50%" alt="image" src="https://github.com/user-attachments/assets/9f549ec2-9286-4079-b6c4-b9a20e58211c" />  
 
 辞書ファイルや入力履歴から入力候補が表示されます。  
 
+<img width="50%" height="50%" alt="image" src="https://github.com/user-attachments/assets/9e0a38a0-7945-4e42-a541-5822f1548433" />  
+
+「🛈」タブには、BeatSaverのマップ説明文などが表示されます。【v1.1】
 <!-- 
 ## 特徴
 | 機能       | 概要                     | 
@@ -54,12 +59,12 @@ Pluginsフォルダに「MapMemo.dll」を格納してBeatSaberを起動しま�
   - 「🛈」タブ【v1.1】  
     BeatSaverのマップ情報(説明文、パブリッシュ日、Rating)が表示されます。  
     「GET LATEST」ボタンを押すとBeatSaverから最新情報を取得します。    
-     ※BSRとRatingはBeatSaverから最後にデータ取得したときのものが表示されます。(設定画面のBeatSaver Access Modeを参照)  
+     <sup>$\color{green}{\text{※BSRとRatingはBeatSaverから最後にデータ取得したときのものが表示されます。(設定画面のBeatSaver Access Modeを参照)}}$</sup>  
     <img width="40%" height="40%" alt="image" src="https://github.com/user-attachments/assets/9e0a38a0-7945-4e42-a541-5822f1548433" />  
 
 ### 設定画面  
   入力履歴に関する設定を行います。  
-  ※メモ編集画面の入力候補には、辞書ファイルの候補より上に入力履歴の候補が新しい順に表示されます。  
+  <sup>$\color{green}{\text{※メモ編集画面の入力候補には、辞書ファイルの候補より上に入力履歴の候補が新しい順に表示されます。}}$</sup>  
   <img width="40%" height="40%" alt="image" src="https://github.com/user-attachments/assets/de0fb5a1-2890-4904-b891-b1a60e3f1dcc" />
   <img width="40%" height="40%" alt="image" src="https://github.com/user-attachments/assets/72113253-6ec6-47a9-a306-4226d604bd51" />
 | 項目       | 説明                     | 
@@ -67,12 +72,12 @@ Pluginsフォルダに「MapMemo.dll」を格納してBeatSaberを起動しま�
 | Show BSR in Tooltip | ツールチップにマップのBSR(※)を表示します。(デフォルト値:有効) 【v1.1】 |
 | Show Rating in Tooltip | ツールチップにマップのRating(※)を表示します。(デフォルト値:有効) 【v1.1】 |
 | Auto Create Empty Memo After Play | プレイ後に空のメモを作成します。(デフォルト値:無効) 【v1.1】 |
-| BeatSaver Access Mode |いつBeatSaverにアクセスするかのモード【v1.1】<br><b>(マップ選択時にアクセスしたい場合はAutoにしてください)</b><br><br>Manual：② ／Semi-Auto：①②③ ／Auto：①②③④ (デフォルト値:Semi-Auto)<br>①メモ編集画面初回表示時 <br>②「🛈」タブのGET LATESTボタンを押した時<br> ③マッププレイ終了時<br> ④マップ選択時 |
+| BeatSaver Access Mode |いつBeatSaverにアクセスするかのモード【v1.1】<br><b><sup>(マップ選択時に最新を表示したい場合はAutoにしてください)</sup></b><br><b>Manual：② ／Semi-Auto：①②③ ／Auto：①②③④</b> (デフォルト値:Semi-Auto)<br>①メモ編集画面初回表示時 <br>②「🛈」タブのGET LATESTボタンを押した時<br> ③マッププレイ終了時<br> ④マップ選択時 |
 | Max History Count   | 履歴ファイルに保存する件数を設定します。0～5000(デフォルト値:1000)   | 
 | History Show Count | 入力候補に表示する件数を設定します。0～10(デフォルト値:3)         | 
 | Clear Historyボタン | 履歴ファイルを削除し、入力履歴をクリアします。 |  
 
-※BSRとRatingはBeatSaverから最後にデータ取得したときのものが表示されます。  
+<sup>$\color{green}{\text{※BSRとRatingはBeatSaverから最後にデータ取得したときのものが表示されます。}}$</sup>  
 
 ### メモファイル形式
 bsrCode、beatSaverUrl、autoCreateEmptyMemoを追加しています。【v1.1】  
@@ -94,10 +99,10 @@ bsrCode、beatSaverUrl、autoCreateEmptyMemoを追加しています。【v1.1�
    絵文字の範囲を文字コードで複数設定することで絵文字が入力候補に表示されます。
    - keyNo:1～64 (type:Emoji)  
      並び順:左上から右  
-     ※比較的新しい絵文字は使用できせまん。(ゲーム画面で?と表示されます)
+     <sup>$\color{green}{\text{※比較的新しい絵文字は使用できせまん。(ゲーム画面で?と表示されます)}}$</sup>
    - デフォルトで表示される全絵文字一覧はこちら  
      [全絵文字リスト(v1.0.0)](docs/all_emoji_list_v1.0.0.txt)  
-     ※ゲーム画面ではフォントが異なるため表示は異なります。
+     <sup>$\color{green}{\text{※ゲーム画面ではフォントが異なるため表示は異なります。}}$</sup>
 
 ## 謝辞・参考文献
 入力候補に表示される辞書ファイルの作成にあたり  
