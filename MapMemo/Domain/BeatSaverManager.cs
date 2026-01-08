@@ -61,7 +61,7 @@ namespace MapMemo.Domain
             }
             catch
             {
-                // ログ出力などしてもOK
+                Plugin.Log?.Error("BeatSaverManager: Failed to save cache.");
             }
         }
 
@@ -81,7 +81,8 @@ namespace MapMemo.Domain
         {
             StartCoroutine(BeatSaverClient.Instance.GetMapInfoFromLevelHash(hash, (result, url) =>
             {
-                Plugin.Log?.Info($"BeatSaverManager: Fetched map info from {url} for hash {hash}");
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"BeatSaverManager: Fetched map info from {url} for hash {hash}");
+
                 // 結果に取得日時(DataTimeStamp)をセット
                 result.DataTimeStamp = DateTime.Now;
 
@@ -101,8 +102,19 @@ namespace MapMemo.Domain
         /// <param name="map"></param>
         public void Store(string hash, BeatSaverMap map)
         {
-            _cache[hash] = map;
-            SaveCache();
+            if (map != null)
+            {
+                if (Plugin.VerboseLogs) Plugin.Log?.Info(
+                    $"BeatSaverManager: Storing map for hash {hash} with map.id {map.id}");
+                _cache[hash] = map;
+                if (Plugin.VerboseLogs) Plugin.Log?.Info(
+                    $"BeatSaverManager: Cache now has {_cache.Count} entries.");
+                SaveCache();
+            }
+            else
+            {
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"BeatSaverManager: Not storing null map for hash {hash}");
+            }
         }
     }
 }

@@ -504,6 +504,7 @@ namespace MapMemo.Services
                     // BeatSaverからデータを取得してMemoPanelを更新
                     UpdateBeatSaverDataAsync(levelHash, async map =>
                     {
+
                         if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.InitializeParameters: "
                         + $"Using cached BeatSaver map info: id='{map.id}' for hash '{levelHash}'");
                         // 空のメモを作成する場合はBSRコード付きで作成

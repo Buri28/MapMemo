@@ -323,6 +323,7 @@ namespace MapMemo.UI.Edit
 
             scoreText.text = $"<color={gradientColor}>Rating：{score} (<color=#00FF00>⬆{upVotes}</color> / <color=#FF0000>⬇{downVotes}</color>)</color>";
             dataTimeStampText.text = $"({beatSaverMap.DataTimeStamp.ToLocalTime().ToString("yyyy-M  M-dd HH:mm:ss")})";
+
         }
 
         /// <summary>
@@ -864,7 +865,7 @@ namespace MapMemo.UI.Edit
         {
             var hash = levelContext.GetLevelHash();
 
-            BeatSaverManager.Instance.TryRequestAsync(hash, map =>
+            memoService.UpdateBeatSaverDataAsync(hash, map =>
             {
                 // リクエスト成功時：UIに反映
                 SetBeatSaverData(map);
