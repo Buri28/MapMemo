@@ -37,6 +37,11 @@ namespace Mapmemo.Networking
                 string json = www.downloadHandler.text;
                 // UnityEngine.Debug.Log("BeatSaverClient: Received response from URL: " + json);
                 BeatSaverMap map = JsonConvert.DeserializeObject<BeatSaverMap>(json);
+                if (map == null)
+                {
+                    onError?.Invoke("Failed to parse BeatSaver map data.");
+                    yield break;
+                }
                 onSuccess?.Invoke(map, url);
             }
             else

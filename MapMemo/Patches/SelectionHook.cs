@@ -27,6 +27,8 @@ namespace MapMemo.Patches
                     + $"song='{levelContext.GetSongName()}' author='{levelContext.GetSongAuthor()}'"
                     + $" levelAuthor='{levelContext.GetLevelAuthor()}'");
             if (view == null) return;
+            // インスタンス取得タイミングはUpdateBeatSaverDataAsyncより前
+            var ctrl = MemoPanelController.GetInstance(view, levelContext);
             if (MemoSettingsManager.Instance.BeatSaverAccessMode == "Auto")
             {
                 if (Plugin.VerboseLogs) Plugin.Log?.Info("SelectionHook: BeatSaverAccessMode is 'Auto', fetching BeatSaver data.");
@@ -48,7 +50,6 @@ namespace MapMemo.Patches
             }
             else
             {
-                var ctrl = MemoPanelController.GetInstance(view, levelContext);
                 await ctrl.Refresh();
             }
         }
