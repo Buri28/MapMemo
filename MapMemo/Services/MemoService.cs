@@ -54,7 +54,8 @@ namespace MapMemo.Services
         /// </summary>
         /// <param name="levelContext">レベルコンテキスト</param>
         /// <param name="text">保存するメモのテキスト</param>
-        public async Task SaveMemoAsync(LevelContext levelContext, string text, string bsrCode = null)
+        public async Task SaveMemoAsync(
+            LevelContext levelContext, string text, string bsrCode = null, bool autoCreateEmptyMemo = false)
         {
             var entry = new MemoEntry
             {
@@ -62,17 +63,18 @@ namespace MapMemo.Services
                 songName = levelContext.GetSongName(),
                 songAuthor = levelContext.GetSongAuthor(),
                 levelAuthor = levelContext.GetLevelAuthor(),
-                bsrCode = bsrCode,
+                bsrCode = bsrCode ?? "",
                 memo = text,
-                autoCreateEmptyMemo = false
+                autoCreateEmptyMemo = autoCreateEmptyMemo
             };
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.OnSave: "
                 + $"key='{entry.key}' song='{entry.songName}' "
                 + $"author='{entry.songAuthor}' len={text.Length}"
-                + $" levelAuthor='{entry.levelAuthor}'");
+                + $" levelAuthor='{entry.levelAuthor}'"
+                + $" bsrCode='{entry.bsrCode}'");
 
             // 非同期で保存
-            await MemoRepository.SaveAsync(entry);
+            await MemoRepository.SaveAsync(entry, isEmptyFile: autoCreateEmptyMemo);
         }
 
         /// <summary>
@@ -455,65 +457,93 @@ namespace MapMemo.Services
         /// </summary>
         /// <param name="data">シーン遷移データ</param>
         /// <param name="results">レベル完了結果</param>
-        public async Task HandleLevelCompletion(
-            StandardLevelScenesTransitionSetupDataSO data, LevelCompletionResults results)
+        // public async Task HandleLevelCompletion(
+        //     StandardLevelScenesTransitionSetupDataSO data, LevelCompletionResults results)
+        // {
+        //     bool flowControl = await CreateEmptyMemoIfNeeded(data);
+        //     if (!flowControl)
+        //     {
+        //         return;
+        //     }
+        // }
+
+
+        /// <summary>
+        /// リザルト画面から遷移する際の処理を行います。
+        /// </summary>
+        /// <param name="transitionSetupData">シーン遷移データ</param
+        public async Task HandleResultTransition(
+            StandardLevelScenesTransitionSetupDataSO transitionSetupData,
+            LevelCompletionResults results)
+        {
+            var levelId = transitionSetupData.beatmapLevel.levelID;
+            var levelHash = Utilities.BeatSaberUtils.GetLevelHash(levelId);
+
+
+            if (MemoSettingsManager.Instance.BeatSaverAccessMode == "Manual")
+            {
+                // マニュアルの場合、BeatSaverからのデータ取得をしない
+                if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoEditModal.InitializeParameters: "
+                + $"BeatSaverAccessMode is 'Manual', skipping BeatSaver data fetch.");
+                // 空のメモを作成する場合はBSRコードなしで作成
+                await CreateEmptyMemoIfNeeded(transitionSetupData);
+                await MemoPanelController.instance.Refresh();
+            }
+            else
+            {
+                if (!BeatSaberUtils.IsCustomLevel(levelId))
+                {
+                    // カスタムレベルでない場合はBeatSaverからデータを取得しない
+                    if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoEditModal.InitializeParameters: "
+                    + $"Level ID '{levelId}' is not a custom level, skipping BeatSaver data fetch.");
+                    // 空のメモを作成する場合はBSRコードなしで作成
+                    await CreateEmptyMemoIfNeeded(transitionSetupData);
+                }
+                else
+                {
+                    // BeatSaverからデータを取得してMemoPanelを更新
+                    UpdateBeatSaverDataAsync(levelHash, async map =>
+                    {
+                        if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.InitializeParameters: "
+                        + $"Using cached BeatSaver map info: id='{map.id}' for hash '{levelHash}'");
+                        // 空のメモを作成する場合はBSRコード付きで作成
+                        await CreateEmptyMemoIfNeeded(transitionSetupData, map);
+                        await MemoPanelController.instance.Refresh();
+                    },
+                    error =>
+                    {
+                        Plugin.Log?.Warn("Failed to fetch BeatSaver data: " + error);
+                    });
+                }
+            }
+        }
+
+        /// <summary>
+        /// 空のメモを自動作成する必要がある場合に作成します。
+        /// </summary>
+        /// <param name="data">シーン遷移データ</param>
+        /// <returns>空のメモを作成した場合は true、そうでなければ false</returns>
+        private async Task<bool> CreateEmptyMemoIfNeeded(
+            StandardLevelScenesTransitionSetupDataSO data, BeatSaverMap beatSaverMap = null)
         {
             // 空のメモを自動作成する設定が有効な場合にのみ処理を行う
-            if (!IsAutoCreateEmptyMemo()) return;
+            if (!IsAutoCreateEmptyMemo()) return false;
             if (Plugin.VerboseLogs) Plugin.Log.Info("AutoCreateEmptyMemo is enabled.");
 
             // 自動的に空のメモを作成する
             MemoEntry existingMemo = LoadMemo(new LevelContext(data.beatmapLevel));
             // 既にメモが存在する場合は何もしない
-            if (existingMemo != null) return;
+            if (existingMemo != null) return false;
             var levelId = data.beatmapLevel.levelID;
             var levelHash = Utilities.BeatSaberUtils.GetLevelHash(levelId);
             if (Plugin.VerboseLogs) Plugin.Log.Info($"ResultListener: "
                 + $"Auto-creating empty memo for level ID: {levelId}, Hash: {levelHash}");
-            var newMemo = new MemoEntry
-            {
-                key = levelId,
-                songName = data.beatmapLevel.songName,
-                songAuthor = data.beatmapLevel.songAuthorName,
-                levelAuthor = (new LevelContext(data.beatmapLevel)).GetLevelAuthor(),
-                memo = "",
-                autoCreateEmptyMemo = true
-            };
-            if (Plugin.VerboseLogs) Plugin.Log.Info("Saving new empty memo.");
-            await MemoRepository.SaveAsync(newMemo, isEmptyFile: true);
+
+            await SaveMemoAsync(new LevelContext(data.beatmapLevel), "", beatSaverMap?.id, true);
             await MemoPanelController.instance.Refresh();
+            return true;
         }
-        /// <summary>
-        /// リザルト画面から詳細画面に戻る際の処理を行います。
-        /// </summary>
-        /// <param name="transitionSetupData">シーン遷移データ</param
-        public async Task HandleBackToDetail(
-            StandardLevelScenesTransitionSetupDataSO transitionSetupData, LevelCompletionResults results)
-        {
-            var levelId = transitionSetupData.beatmapLevel.levelID;
-            var levelHash = Utilities.BeatSaberUtils.GetLevelHash(levelId);
 
-            // マニュアルの場合、BeatSaverからのデータ取得をスキップ
-            if (MemoSettingsManager.Instance.BeatSaverAccessMode == "Manual")
-            {
-                if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoEditModal.InitializeParameters: "
-                + $"BeatSaverAccessMode is 'Manual', skipping BeatSaver data fetch.");
-                return;
-            }
-
-            // BeatSaverからデータを取得してMemoPanelを更新
-            UpdateBeatSaverDataAsync(levelHash, map =>
-            {
-                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.InitializeParameters: "
-                + $"Using cached BeatSaver map info: id='{map.id}' for hash '{levelHash}'");
-
-                MemoPanelController.instance.Refresh();
-            },
-            error =>
-            {
-                Plugin.Log?.Warn("Failed to fetch BeatSaver data: " + error);
-            });
-        }
         /// <summary>
         /// BeatSaverのデータを非同期で更新します。
         /// </summary>

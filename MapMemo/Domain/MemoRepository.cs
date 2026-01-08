@@ -139,10 +139,8 @@ namespace MapMemo.Domain
             entry.updatedAt = DateTime.UtcNow;
             var json = JsonConvert.SerializeObject(entry, Formatting.Indented);
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoRepository.SaveAsync: "
-                                            + $"path='{path}' key='{entry.key}' "
-                                            + $"song='{entry.songName}' author='{entry.songAuthor}'"
-                                            + $" levelAuthor='{entry.levelAuthor}'"
-                                            + $" len={entry.memo.Length}");
+                                            + $"path='{path}' "
+                                            + entry.ToString());
             using (var sw = new StreamWriter(path, false, Encoding.UTF8))
             {
                 await sw.WriteAsync(json);
