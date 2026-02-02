@@ -116,7 +116,7 @@ namespace MapMemo.UI.Settings
                 if (memoService.GetTooltipShowBsr() == value) return;
                 memoService.SaveTooltipShowBsr(value);
                 NotifyPropertyChanged();
-                MemoPanelController.instance.Refresh();
+                MemoPanelController.Instance.Refresh();
             }
         }
         /// <summary>
@@ -132,7 +132,7 @@ namespace MapMemo.UI.Settings
                 if (memoService.GetTooltipShowRating() == value) return;
                 memoService.SaveTooltipShowRating(value);
                 NotifyPropertyChanged();
-                MemoPanelController.instance.Refresh();
+                MemoPanelController.Instance.Refresh();
             }
         }
         /// <summary>

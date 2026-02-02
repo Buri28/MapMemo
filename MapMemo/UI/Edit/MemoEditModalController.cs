@@ -171,6 +171,7 @@ namespace MapMemo.UI.Edit
             MemoPanelController parent,
             LevelContext levelContext)
         {
+            // if (ReferenceEquals(Instance, null) || Instance.modal == null)
             if (ReferenceEquals(Instance, null))
             {
                 if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoEditModal.GetInstance: creating new modal instance");
@@ -252,7 +253,7 @@ namespace MapMemo.UI.Edit
 
                             if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoEditModal.InitializeParameters: Refreshing instance");
                             // 親パネルの更新
-                            MemoPanelController.instance.Refresh();
+                            MemoPanelController.Instance.Refresh();
                         },
                         error =>
                         {
@@ -424,7 +425,7 @@ namespace MapMemo.UI.Edit
                 // 最終更新日時の表示を更新
                 lastUpdated.text = memoService.FormatLocal(DateTime.UtcNow);
                 // 親パネルの反映
-                var parentPanelLocal = MemoPanelController.instance;
+                var parentPanelLocal = MemoPanelController.Instance;
                 //  入力履歴に追加
                 MemoService.Instance.AddHistory(pendingText);
                 // 確定状態にする
@@ -878,7 +879,7 @@ namespace MapMemo.UI.Edit
 
                 if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoEditModal.OnUpdateData: Refreshing instance");
                 // 親パネルの更新
-                MemoPanelController.instance.Refresh();
+                MemoPanelController.Instance.Refresh();
             },
             error =>
             {
