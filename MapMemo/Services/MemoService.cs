@@ -489,7 +489,7 @@ namespace MapMemo.Services
                 await CreateEmptyMemoIfNeeded(transitionSetupData);
 
                 if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoService.HandleResultTransition: Refreshing MemoPanelController instance");
-                await MemoPanelController.instance.Refresh();
+                await MemoPanelController.Instance.Refresh();
             }
             else
             {
@@ -513,7 +513,7 @@ namespace MapMemo.Services
                         await CreateEmptyMemoIfNeeded(transitionSetupData, map);
 
                         if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoService.UpdateBeatSaverDataAsync: Refreshing MemoPanelController instance");
-                        await MemoPanelController.instance.Refresh();
+                        await MemoPanelController.Instance.Refresh();
                     },
                     error =>
                     {
@@ -547,7 +547,7 @@ namespace MapMemo.Services
             await SaveMemoAsync(new LevelContext(data.beatmapLevel), "", beatSaverMap?.id, true);
 
             if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoService.CreateEmptyMemoIfNeeded: Refreshing MemoPanelController instance");
-            await MemoPanelController.instance.Refresh();
+            await MemoPanelController.Instance.Refresh();
             return true;
         }
 

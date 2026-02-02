@@ -1,6 +1,8 @@
 using MapMemo.Domain;
 using MapMemo.Events;
 using MapMemo.UI.Common;
+using MapMemo.UI.Edit;
+using MapMemo.UI.Menu;
 using MapMemo.UI.Settings;
 using UnityEngine;
 using Zenject;
@@ -18,6 +20,11 @@ namespace MapMemo.Installers
         public override void InstallBindings()
         {
             Plugin.Log?.Info("MenuInstaller InstallBindings");
+            // 設定メニューやModSettingでOKを押すとインストーラーが再度動作するため
+            // MemoEditModalController、MemoPanelControllerにnullのコンポーネントのインスタンスが設定されてしまう
+            // それを防ぐため、ここで明示的にインスタンスをクリアする
+            MemoPanelController.Instance = null;
+            MemoEditModalController.Instance = null;
 
             var go = new GameObject("MapMemoSettingsViewInstaller");
             go.SetActive(true);

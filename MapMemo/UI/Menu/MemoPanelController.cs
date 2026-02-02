@@ -25,7 +25,7 @@ namespace MapMemo.UI.Menu
     public class MemoPanelController : BSMLAutomaticViewController
     {
         // この段階でインスタンスを作るとUnityの管理外のためバインド対象外となる。
-        public static MemoPanelController instance;
+        public static MemoPanelController Instance = null;
         /// <summary>
         /// ホストとなる GameObject（バインド対象）
         /// </summary>
@@ -42,7 +42,7 @@ namespace MapMemo.UI.Menu
         /// <summary>
         /// インスタンスが存在するかどうかを判定します。
         /// </summary>
-        public static bool isInstance() => !ReferenceEquals(instance, null);
+        public static bool isInstance() => !ReferenceEquals(Instance, null);
 
         /// <summary>
         /// BSML 解析後の初期化処理。
@@ -62,27 +62,28 @@ namespace MapMemo.UI.Menu
         public static MemoPanelController GetInstance(
             MonoBehaviour view, LevelContext levelContext)
         {
-            if (!isInstance() || instance.penText == null)
+            // if (!isInstance() || Instance.penText == null)
+            if (!isInstance())
             {
                 if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanelController.GetInstance: "
                     + $"instance is null, creating new one");
-                instance = BeatSaberUI.CreateViewController<MemoPanelController>();
+                Instance = BeatSaberUI.CreateViewController<MemoPanelController>();
 
-                if (Plugin.VerboseLogs) Plugin.Log?.Info($"instance.gameObject = {instance?.gameObject}");
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"instance.gameObject = {Instance?.gameObject}");
 
                 // 親に追加（ここでは view は既存の ViewController）
-                instance.transform.SetParent(view.transform, false);
+                Instance.transform.SetParent(view.transform, false);
 
                 var bsmlContent = BeatSaberMarkupLanguage.Utilities.GetResourceContent(
                      typeof(MemoPanelController).Assembly,
                      "MapMemo.Resources.MemoPanel.bsml");
-                instance.ParseBSML(bsmlContent, instance.gameObject);
+                Instance.ParseBSML(bsmlContent, Instance.gameObject);
 
                 // 表示を確実にする
-                instance.gameObject.SetActive(true);
+                Instance.gameObject.SetActive(true);
 
                 // 子の位置とサイズを親に合わせて調整
-                var child = instance.transform.GetChild(0) as RectTransform;
+                var child = Instance.transform.GetChild(0) as RectTransform;
                 child.anchorMin = new Vector2(0f, 1f);
                 child.anchorMax = new Vector2(1f, 1f);
                 child.pivot = new Vector2(0.5f, 1f);
@@ -107,13 +108,13 @@ namespace MapMemo.UI.Menu
                 // リソースのロード
                 MemoService.Instance.LoadResources();
             }
-            instance.levelContext = levelContext;
+            Instance.levelContext = levelContext;
 
             if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanelController.GetInstance: Refreshing instance");
-            instance.Refresh();
+            Instance.Refresh();
 
-            instance.HostGameObject = view.gameObject;
-            return instance;
+            Instance.HostGameObject = view.gameObject;
+            return Instance;
         }
 
         /// <summary>
@@ -138,7 +139,7 @@ namespace MapMemo.UI.Menu
                 + $"Edit click key='{levelContext.GetLevelId()}' "
                 + $"song='{levelContext.GetSongName()}' author='{levelContext.GetSongAuthor()}'"
                 + $" levelAuthor='{levelContext.GetLevelAuthor()}'");
-            MemoEditModalController.Show(instance, levelContext);
+            MemoEditModalController.Show(Instance, levelContext);
         }
 
         /// <summary>
