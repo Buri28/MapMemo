@@ -62,7 +62,7 @@ namespace MapMemo.UI.Menu
         public static MemoPanelController GetInstance(
             MonoBehaviour view, LevelContext levelContext)
         {
-            if (!isInstance())
+            if (!isInstance() || instance.penText == null)
             {
                 if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanelController.GetInstance: "
                     + $"instance is null, creating new one");
@@ -108,6 +108,10 @@ namespace MapMemo.UI.Menu
                 MemoService.Instance.LoadResources();
             }
             instance.levelContext = levelContext;
+
+            if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanelController.GetInstance: Refreshing instance");
+            instance.Refresh();
+
             instance.HostGameObject = view.gameObject;
             return instance;
         }
@@ -160,11 +164,19 @@ namespace MapMemo.UI.Menu
         {
             try
             {
+                if (Plugin.VerboseLogs) Plugin.Log?.Debug("MemoPanel: Refresh called");
+                if (penText == null)
+                {
+                    if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanel: penText is null, cannot refresh");
+                    return Task.CompletedTask;
+                }
+
                 if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoPanel: "
                     + $"Refresh called for key='{levelContext.GetLevelId()}' "
                     + $"song='{levelContext.GetSongName()}' author='{levelContext.GetSongAuthor()}'"
                     + $" levelAuthor='{levelContext.GetLevelAuthor()}'"
                     + $" hash='{levelContext.GetLevelHash()}'");
+
                 // 同期ロードを使って確実に現在の Key に紐づくデータを取得する
                 var entry = memoService.LoadMemo(levelContext);
                 var beatSaverMap = BeatSaverManager.Instance.TryGetCache(
@@ -190,14 +202,12 @@ namespace MapMemo.UI.Menu
                     if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoPanel: "
                         + $"No entry color for score={score} is '{colorStr}' highlight '{highlightStr}'");
                 }
-
                 var parentLayout = penText.transform.parent.GetComponent<HorizontalLayoutGroup>();
                 if (parentLayout != null)
                 {
                     parentLayout.childForceExpandWidth = false;
                     parentLayout.childControlWidth = true;
                 }
-
                 var layout = penText.GetComponent<LayoutElement>();
                 if (layout == null)
                     layout = penText.gameObject.AddComponent<LayoutElement>();
@@ -259,7 +269,7 @@ namespace MapMemo.UI.Menu
             }
             catch (Exception ex)
             {
-                Plugin.Log?.Warn($"MemoPanel.Refresh: {ex.Message}");
+                Plugin.Log?.Warn($"MemoPanel.Refresh: {ex}");
                 return Task.CompletedTask;
             }
         }

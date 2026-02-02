@@ -142,7 +142,7 @@ namespace MapMemo.Services
             }
             catch (Exception ex)
             {
-                Plugin.Log?.Warn($"ApplyKeyBindings failed: {ex.Message}");
+                Plugin.Log?.Warn($"ApplyKeyBindings failed: {ex}");
             }
         }
 
@@ -181,7 +181,7 @@ namespace MapMemo.Services
             }
             catch (Exception ex)
             {
-                Plugin.Log?.Warn($"InputKeyController.UpdateAlphaButtonLabels: {ex.Message}");
+                Plugin.Log?.Warn($"InputKeyController.UpdateAlphaButtonLabels: {ex}");
             }
         }
 
@@ -217,7 +217,7 @@ namespace MapMemo.Services
             }
             catch (Exception ex)
             {
-                Plugin.Log?.Warn($"InputKeyController.UpdateKanaModeButtonLabel: {ex.Message}");
+                Plugin.Log?.Warn($"InputKeyController.UpdateKanaModeButtonLabel: {ex}");
             }
         }
 
@@ -260,7 +260,7 @@ namespace MapMemo.Services
             }
             catch (Exception ex)
             {
-                Plugin.Log?.Warn($"InputKeyController.UpdateDakutenButtonLabel: {ex.Message}");
+                Plugin.Log?.Warn($"InputKeyController.UpdateDakutenButtonLabel: {ex}");
             }
         }
 

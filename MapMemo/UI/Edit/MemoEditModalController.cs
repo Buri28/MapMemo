@@ -119,7 +119,7 @@ namespace MapMemo.UI.Edit
             }
             catch (System.Exception ex)
             {
-                Plugin.Log?.Warn($"MemoEditModal.Show: ModalView.Show failed: {ex.Message}; modal may not be visible");
+                Plugin.Log?.Warn($"MemoEditModal.Show: ModalView.Show failed: {ex}; modal may not be visible");
             }
         }
         /// <summary>
@@ -249,6 +249,8 @@ namespace MapMemo.UI.Edit
                             if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.InitializeParameters: "
                             + $"Using cached BeatSaver map info: id='{map.id}' for hash '{hash}'");
                             UpdateDescriptionScrollView();
+
+                            if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoEditModal.InitializeParameters: Refreshing instance");
                             // 親パネルの更新
                             MemoPanelController.instance.Refresh();
                         },
@@ -431,6 +433,7 @@ namespace MapMemo.UI.Edit
                 // 保存完了メッセージを表示
                 UIHelper.Instance.ShowTemporaryMessage(
                     message, "<color=#00FF00>Memo Saved.</color>");
+                if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoEditModal.OnSave: Refreshing instance");
                 // 親パネルを更新
                 await parentPanelLocal.Refresh();
             }
@@ -873,6 +876,7 @@ namespace MapMemo.UI.Edit
                 + $"Using cached BeatSaver map info: id='{map.id}' for hash '{hash}'");
                 UpdateDescriptionScrollView();
 
+                if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoEditModal.OnUpdateData: Refreshing instance");
                 // 親パネルの更新
                 MemoPanelController.instance.Refresh();
             },

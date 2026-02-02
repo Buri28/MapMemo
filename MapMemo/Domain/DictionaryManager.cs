@@ -70,7 +70,7 @@ namespace MapMemo.Domain
                 }
                 catch (Exception ex)
                 {
-                    Plugin.Log?.Error($"DictionaryManager: Failed to load dictionary file: {ex.Message}");
+                    Plugin.Log?.Error($"DictionaryManager: Failed to load dictionary file: {ex}");
                     dictionaryWords = new List<KeyValuePair<string, string>>();
                 }
                 loaded = true;
