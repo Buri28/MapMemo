@@ -487,6 +487,8 @@ namespace MapMemo.Services
                 + $"BeatSaverAccessMode is 'Manual', skipping BeatSaver data fetch.");
                 // 空のメモを作成する場合はBSRコードなしで作成
                 await CreateEmptyMemoIfNeeded(transitionSetupData);
+
+                if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoService.HandleResultTransition: Refreshing MemoPanelController instance");
                 await MemoPanelController.instance.Refresh();
             }
             else
@@ -509,6 +511,8 @@ namespace MapMemo.Services
                         + $"Using cached BeatSaver map info: id='{map.id}' for hash '{levelHash}'");
                         // 空のメモを作成する場合はBSRコード付きで作成
                         await CreateEmptyMemoIfNeeded(transitionSetupData, map);
+
+                        if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoService.UpdateBeatSaverDataAsync: Refreshing MemoPanelController instance");
                         await MemoPanelController.instance.Refresh();
                     },
                     error =>
@@ -541,6 +545,8 @@ namespace MapMemo.Services
                 + $"Auto-creating empty memo for level ID: {levelId}, Hash: {levelHash}");
 
             await SaveMemoAsync(new LevelContext(data.beatmapLevel), "", beatSaverMap?.id, true);
+
+            if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoService.CreateEmptyMemoIfNeeded: Refreshing MemoPanelController instance");
             await MemoPanelController.instance.Refresh();
             return true;
         }

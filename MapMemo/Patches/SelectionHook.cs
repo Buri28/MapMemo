@@ -41,6 +41,8 @@ namespace MapMemo.Patches
                     if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoEditModal.InitializeParameters: "
                     + $"Using cached BeatSaver map info: id='{map.id}' for hash '{levelHash}'");
                     var ctrl = MemoPanelController.GetInstance(view, levelContext);
+
+                    if (Plugin.VerboseLogs) Plugin.Log?.Info("SelectionHook: Refreshing MemoPanelController instance after fetching BeatSaver data.");
                     ctrl.Refresh();
                 },
                 error =>
@@ -50,6 +52,8 @@ namespace MapMemo.Patches
             }
             else
             {
+                if (Plugin.VerboseLogs) Plugin.Log?.Info("SelectionHook: BeatSaverAccessMode is not 'Auto', skipping BeatSaver data fetch.");
+                // ただちにMemoPanelを更新
                 await ctrl.Refresh();
             }
         }

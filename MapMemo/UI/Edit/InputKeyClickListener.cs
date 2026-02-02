@@ -54,7 +54,7 @@ namespace MapMemo.UI.Edit
             }
             catch (Exception ex)
             {
-                Plugin.Log?.Warn($"KeyClickListener.OnPointerClick: {ex.Message}");
+                Plugin.Log?.Warn($"KeyClickListener.OnPointerClick: {ex}");
             }
         }
     }

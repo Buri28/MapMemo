@@ -50,7 +50,7 @@ namespace MapMemo.Utilities
             }
             catch (Exception ex)
             {
-                Plugin.Log?.Error($"BeatSaberUtils: Error determining Beat Saber UserData path: {ex.Message}\n{ex.StackTrace}");
+                Plugin.Log?.Error($"BeatSaberUtils: Error determining Beat Saber UserData path: {ex}\n{ex.StackTrace}");
                 return null;
             }
         }
