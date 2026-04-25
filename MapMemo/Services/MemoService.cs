@@ -162,6 +162,22 @@ namespace MapMemo.Services
         }
 
         /// <summary>
+        /// カバー画像ホバーヒントの最大文字数（合計）を取得します。
+        /// </summary>
+        public int GetCoverHoverMaxChars()
+        {
+            return MemoSettingsManager.Instance.CoverHoverMaxChars;
+        }
+        /// <summary>
+        /// カバー画像ホバーヒントの最大文字数（合計）を保存します。
+        /// </summary>
+        /// <param name="value"></param>
+        public void SaveCoverHoverMaxChars(int value)
+        {
+            MemoSettingsManager.Instance.CoverHoverMaxChars = value;
+        }
+
+        /// <summary>
         /// 空のメモを自動作成するかどうかを取得または
         /// 設定します。
         /// </summary>

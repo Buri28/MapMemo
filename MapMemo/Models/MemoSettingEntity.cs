@@ -30,6 +30,11 @@ namespace Mapmemo.Models
         public bool CoverHoverHint { get; set; } = true;
 
         /// <summary>
+        /// カバー画像ホバーヒントに表示する最大文字数（合計）
+        /// </summary>
+        public int CoverHoverMaxChars { get; set; } = 160;
+
+        /// <summary>
         /// 空のメモを自動作成するかどうか
         /// </summary>
         /// <remarks>デフォルトは false。</remarks>
