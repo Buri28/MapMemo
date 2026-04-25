@@ -2,6 +2,7 @@ using BeatSaberMarkupLanguage;
 using BeatSaberMarkupLanguage.Attributes;
 using BeatSaberMarkupLanguage.ViewControllers;
 using System;
+using System.Reflection;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -13,6 +14,7 @@ using MapMemo.Services;
 using Mapmemo.Models;
 using MapMemo.Domain;
 using MapMemo.UI.Common;
+using HMUI;
 
 namespace MapMemo.UI.Menu
 {
@@ -30,6 +32,7 @@ namespace MapMemo.UI.Menu
         /// ホストとなる GameObject（バインド対象）
         /// </summary>
         public GameObject HostGameObject { get; set; }
+        private MonoBehaviour hostView;
         /// <summary> 現在のレベルコンテキスト</summary>
         private LevelContext levelContext;
         /// <summary> ペンアイコンテキスト</summary>
@@ -109,11 +112,12 @@ namespace MapMemo.UI.Menu
                 MemoService.Instance.LoadResources();
             }
             Instance.levelContext = levelContext;
+            Instance.HostGameObject = view.gameObject;
+            Instance.hostView = view;
 
             if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanelController.GetInstance: Refreshing instance");
             Instance.Refresh();
 
-            Instance.HostGameObject = view.gameObject;
             return Instance;
         }
 
@@ -150,12 +154,107 @@ namespace MapMemo.UI.Menu
         /// <param name="hint">表示するホバーテキスト</param>
         public void SetHoverHint(GameObject go, string hint)
         {
-            // HoverHint が無ければ追加
-            var hover = go.GetComponent<HMUI.HoverHint>();
-            if (hover == null)
-                hover = go.AddComponent<HMUI.HoverHint>();
+            if (go == null)
+            {
+                Plugin.Log?.Warn("MemoPanel: GameObject is null, cannot set hover hint");
+                return;
+            }
 
-            hover.text = hint;
+            var normalizedHint = string.IsNullOrWhiteSpace(hint) ? "" : hint.Trim();
+            var hover = go.GetComponent<HMUI.HoverHint>();
+
+            if (string.IsNullOrEmpty(normalizedHint))
+            {
+                if (hover != null)
+                {
+                    if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanel: Clearing hover hint because hint is empty");
+                    hover.text = "";
+                    hover.enabled = false;
+                }
+                return;
+            }
+
+            // HoverHint が無ければ追加
+            if (hover == null)
+            {
+                // ここは通る
+                if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanel: Adding HoverHint component");
+                hover = go.AddComponent<HMUI.HoverHint>();
+            }
+
+            // AddComponent で追加した HoverHint は _hoverHintController が null のまま
+            // (DI で注入されないため) なので、既存の動いている HoverHint から Controller を拝借する
+            InjectHoverHintController(hover);
+
+            hover.text = normalizedHint;
+            hover.enabled = true;
+        }
+
+        /// <summary>
+        /// HMUI.HoverHint の非公開フィールド <c>_hoverHintController</c> へのリフレクション参照。
+        /// AddComponent で生成した HoverHint にコントローラーを注入するために使用します。
+        /// </summary>
+        private static readonly FieldInfo _hoverHintControllerField =
+            typeof(HMUI.HoverHint).GetField("_hoverHintController",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+
+        /// <summary>
+        /// 指定した <see cref="HMUI.HoverHint"/> に <see cref="HMUI.HoverHintController"/> を注入します。
+        /// <para>
+        /// AddComponent で追加した HoverHint は DI が行われないため <c>_hoverHintController</c> が null のままです。
+        /// 既存の動作済み HoverHint（ペンアイコン）またはシーン全体から Controller を取得して注入します。
+        /// </para>
+        /// </summary>
+        /// <param name="target">Controller を注入する対象の HoverHint</param>
+        private void InjectHoverHintController(HMUI.HoverHint target)
+        {
+            if (target == null)
+            {
+                Plugin.Log?.Warn("MemoPanel: HoverHint target is null, cannot inject controller");
+                return;
+            }
+            if (_hoverHintControllerField == null)
+            {
+                Plugin.Log?.Warn("MemoPanel: HoverHintController field is null, cannot inject controller");
+                return;
+            }
+
+            // 既にセット済みなら何もしない
+            if (_hoverHintControllerField.GetValue(target) != null)
+            {
+                if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanel: HoverHintController already set, skipping injection");
+                return;
+            }
+
+
+            // ペンアイコン上の動作済み HoverHint から Controller を取得する
+            HMUI.HoverHintController controller = null;
+            if (penText != null)
+            {
+                var penHover = penText.GetComponent<HMUI.HoverHint>();
+                if (penHover != null)
+                {
+                    if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanel: Found HoverHint on penText");
+                    controller = _hoverHintControllerField.GetValue(penHover) as HMUI.HoverHintController;
+                }
+            }
+
+            // ペンアイコンにまだない場合はシーン全体から探す
+            if (controller == null)
+            {
+                if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanel: HoverHintController not found on penText, searching in scene");
+                controller = UnityEngine.Object.FindObjectOfType<HMUI.HoverHintController>();
+            }
+
+            if (controller != null)
+            {
+                _hoverHintControllerField.SetValue(target, controller);
+                if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanel: injected HoverHintController into HoverHint");
+            }
+            else
+            {
+                Plugin.Log?.Warn("MemoPanel: HoverHintController not found, tooltip may not show");
+            }
         }
 
         /// <summary>
@@ -203,6 +302,9 @@ namespace MapMemo.UI.Menu
                     if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoPanel: "
                         + $"No entry color for score={score} is '{colorStr}' highlight '{highlightStr}'");
                 }
+
+                SetCoverHoverHint(beatSaverMap);
+
                 var parentLayout = penText.transform.parent.GetComponent<HorizontalLayoutGroup>();
                 if (parentLayout != null)
                 {
@@ -273,6 +375,106 @@ namespace MapMemo.UI.Menu
                 Plugin.Log?.Warn($"MemoPanel.Refresh: {ex}");
                 return Task.CompletedTask;
             }
+        }
+
+        /// <summary>
+        /// カバー画像の GameObject を特定し、BeatSaver 説明文のホバーヒントを設定します。
+        /// BeatSaver データが未取得の場合はヒントをクリアします。
+        /// </summary>
+        /// <param name="beatSaverMap">BeatSaver から取得したマップ情報（null 可）</param>
+        private void SetCoverHoverHint(BeatSaverMap beatSaverMap)
+        {
+            if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanel: Setting cover hover hint");
+            var coverObject = FindCoverHoverTarget();
+            if (coverObject == null)
+            {
+                Plugin.Log?.Warn("MemoPanel: cover hover target not found");
+                return;
+            }
+
+            EnsureHoverRaycastTarget(coverObject);
+            SetHoverHint(coverObject, MakeCoverTooltipText(beatSaverMap));
+        }
+
+        /// <summary>
+        /// カバー画像の <see cref="ImageView"/> / <see cref="Image"/> に対して
+        /// raycastTarget を有効化し、VR ポインターのヒット判定を受け取れるようにします。
+        /// </summary>
+        /// <param name="coverObject">対象の GameObject</param>
+        private static void EnsureHoverRaycastTarget(GameObject coverObject)
+        {
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoPanel: Ensuring raycastTarget on cover object '{coverObject.name}'");
+            if (coverObject == null)
+            {
+                Plugin.Log?.Warn("MemoPanel: coverObject is null, cannot ensure raycastTarget");
+                return;
+            }
+            var imageView = coverObject.GetComponent<ImageView>();
+            if (imageView != null)
+            {
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoPanel: Enabling raycastTarget on ImageView '{coverObject.name}'");
+                imageView.raycastTarget = true;
+            }
+
+            // imageは不要
+            // var image = coverObject.GetComponent<Image>();
+            // if (image != null)
+            // {
+            //     if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoPanel: Enabling raycastTarget on Image '{coverObject.name}'");
+            //     image.raycastTarget = true;
+            // }
+        }
+
+        /// <summary>
+        /// カバー画像の GameObject を探して返します。
+        /// まずリフレクションで <c>StandardLevelDetailView._levelBar._songArtworkImageView</c> を辿り、
+        /// 取得できない場合はオブジェクト名のヒューリスティック探索にフォールバックします。
+        /// </summary>
+        /// <returns>カバー画像の GameObject。見つからない場合は null。</returns>
+        private GameObject FindCoverHoverTarget()
+        {
+            if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanel: Finding cover hover target");
+            var reflectedTarget = FindCoverHoverTargetByReflection();
+            if (reflectedTarget != null)
+            {
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoPanel: Found cover hover target by reflection: '{reflectedTarget.name}'");
+                return reflectedTarget;
+            }
+            Plugin.Log?.Warn("MemoPanel: Reflection method failed, trying heuristic search");
+            return null;
+        }
+
+        /// <summary>
+        /// リフレクションを使って <c>StandardLevelDetailView._levelBar._songArtworkImageView</c> を取得します。
+        /// Beat Saber のバージョンによってフィールドが存在しない場合は null を返します。
+        /// </summary>
+        /// <returns>曲アートワークの <see cref="ImageView"/> の GameObject。取得できない場合は null。</returns>
+        private GameObject FindCoverHoverTargetByReflection()
+        {
+            if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanel: Finding cover hover target by reflection");
+            if (hostView == null)
+            {
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoPanel: hostView is null, cannot find cover hover target by reflection");
+                return null;
+            }
+
+            var levelBarField = hostView.GetType().GetField("_levelBar",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            var levelBar = levelBarField?.GetValue(hostView) as MonoBehaviour;
+            if (levelBar == null)
+            {
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoPanel: _levelBar field not found or null in hostView");
+                return null;
+            }
+            var artworkField = levelBar.GetType().GetField("_songArtworkImageView",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            var artwork = artworkField?.GetValue(levelBar) as ImageView;
+            if (artwork == null)
+            {
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoPanel: _songArtworkImageView field not found or null in _levelBar");
+                return null;
+            }
+            return artwork.gameObject;
         }
 
         /// <summary>
@@ -353,6 +555,71 @@ namespace MapMemo.UI.Menu
                 }
             }
             return toolTipStr;
+        }
+
+        /// <summary>
+        /// カバー画像ホバー時に表示するツールチップ文字列を生成します。
+        /// BeatSaver の説明文を最大 <c>maxLines</c> 行・1 行 <c>maxCharsPerLine</c> 文字に切り詰めて返します。
+        /// 説明文がない場合や BeatSaver 情報が未取得の場合は空文字を返します。
+        /// </summary>
+        /// <param name="beatSaverMap">BeatSaver から取得したマップ情報（null 可）</param>
+        /// <returns>ツールチップに表示する文字列</returns>
+        private static string MakeCoverTooltipText(BeatSaverMap beatSaverMap)
+        {
+            if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanel: Making cover tooltip text");
+            if (beatSaverMap == null)
+            {
+                Plugin.Log?.Warn("MakeCoverTooltipText: beatSaverMap is null");
+                return "";
+            }
+
+            if (string.IsNullOrWhiteSpace(beatSaverMap.description))
+            {
+                Plugin.Log?.Warn("MakeCoverTooltipText: beatSaverMap.description is null or whitespace");
+                return "";
+            }
+
+            const int maxLines = 4;
+            const int maxCharsPerLine = 40;
+
+            // 改行で分割し空行を除去
+            var lines = beatSaverMap.description
+                .Replace("\r\n", "\n").Replace("\r", "\n")
+                .Split('\n');
+
+            var resultLines = new System.Collections.Generic.List<string>();
+            foreach (var rawLine in lines)
+            {
+                if (resultLines.Count >= maxLines)
+                    break;
+
+                var line = rawLine.Trim();
+                if (line.Length == 0)
+                    continue;
+
+                // 1 行が長すぎる場合は maxCharsPerLine で切って … を付ける
+                if (line.Length > maxCharsPerLine)
+                    line = line.Substring(0, maxCharsPerLine) + "…";
+
+                resultLines.Add(line);
+            }
+
+            if (resultLines.Count == 0)
+            {
+                if (Plugin.VerboseLogs) Plugin.Log?.Info("MakeCoverTooltipText: resultLines is empty");
+                return "";
+            }
+
+            // 最大行数に達したが元データに続きがある場合は末尾に … を付ける
+            var totalLineCount = 0;
+            foreach (var l in lines)
+                if (l.Trim().Length > 0) totalLineCount++;
+
+            var result = string.Join("\n", resultLines);
+            if (totalLineCount > maxLines)
+                result += "\n…";
+
+            return result;
         }
     }
 }
