@@ -22,6 +22,14 @@
                         value='coverHoverHint' 
                         on-change="on-cover-hover-hint-changed"
                         apply-on-change='true' />
+        <!-- カバー画像ホバーヒントの最大文字数（合計） -->
+        <increment-setting id="cover-hover-max-chars"
+                            text="Cover Hint Max Chars"
+                            value='coverHoverMaxChars'
+                            min='20' max='500' increment='20'
+                            apply-on-change='true'
+                            on-change="on-cover-hover-max-chars-changed"
+                            formatter="FormatInt" />
 
         <horizontal spacing='1' pad='0' pad-top='1'>
             <text text="[Memo]" color="#00FFFF"/>

@@ -154,6 +154,21 @@ namespace MapMemo.UI.Settings
         }
 
         /// <summary>
+        /// カバー画像ホバーヒントの最大文字数（合計）（設定）。UI の変更はここで保存されます。
+        /// </summary>
+        [UIValue("coverHoverMaxChars")]
+        public int CoverHoverMaxChars
+        {
+            get => memoService.GetCoverHoverMaxChars();
+            set
+            {
+                if (memoService.GetCoverHoverMaxChars() == value) return;
+                memoService.SaveCoverHoverMaxChars(value);
+                NotifyPropertyChanged();
+            }
+        }
+
+        /// <summary>
         /// プレイ後に空のメモを自動作成するか（設定）。UI の変更はここで保存されます。
         /// </summary>
         [UIValue("autoCreateEmptyMemo")]
@@ -262,7 +277,16 @@ namespace MapMemo.UI.Settings
         {
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"OnBeatsaverAccessModeChanged: {value}");
             BeatsaverAccessMode = (string)value;
+        }
 
+        /// <summary>
+        /// 設定 UI でカバー画像ホバーヒントの最大文字数が変更されたときに呼ばれます。
+        /// </summary>
+        [UIAction("on-cover-hover-max-chars-changed")]
+        private void OnCoverHoverMaxCharsChanged(float value)
+        {
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"OnCoverHoverMaxCharsChanged: {value}");
+            CoverHoverMaxChars = (int)value;
         }
     }
 }

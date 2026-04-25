@@ -622,47 +622,14 @@ namespace MapMemo.UI.Menu
                 return "";
             }
 
-            const int maxLines = 4;
-            const int maxCharsPerLine = 40;
+            int maxChars = MemoService.Instance.GetCoverHoverMaxChars();
 
-            // 改行で分割し空行を除去
-            var lines = beatSaverMap.description
-                .Replace("\r\n", "\n").Replace("\r", "\n")
-                .Split('\n');
+            var text = beatSaverMap.description.Trim();
+            if (text.Length <= maxChars)
+                return text;
 
-            var resultLines = new System.Collections.Generic.List<string>();
-            foreach (var rawLine in lines)
-            {
-                if (resultLines.Count >= maxLines)
-                    break;
-
-                var line = rawLine.Trim();
-                if (line.Length == 0)
-                    continue;
-
-                // 1 行が長すぎる場合は maxCharsPerLine で切って … を付ける
-                if (line.Length > maxCharsPerLine)
-                    line = line.Substring(0, maxCharsPerLine) + "…";
-
-                resultLines.Add(line);
-            }
-
-            if (resultLines.Count == 0)
-            {
-                if (Plugin.VerboseLogs) Plugin.Log?.Info("MakeCoverTooltipText: resultLines is empty");
-                return "";
-            }
-
-            // 最大行数に達したが元データに続きがある場合は末尾に … を付ける
-            var totalLineCount = 0;
-            foreach (var l in lines)
-                if (l.Trim().Length > 0) totalLineCount++;
-
-            var result = string.Join("\n", resultLines);
-            if (totalLineCount > maxLines)
-                result += "\n…";
-
-            return result;
+            // maxChars を超える場合は切り詰めて … を付ける
+            return text.Substring(0, maxChars) + "…";
         }
     }
 }

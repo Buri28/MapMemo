@@ -62,6 +62,15 @@ namespace MapMemo.Domain
         }
 
         /// <summary>
+        /// カバー画像ホバーヒントの最大文字数（合計）を取得または設定します。設定時は保存も行います。
+        /// </summary>
+        public int CoverHoverMaxChars
+        {
+            get => settingsEntity.CoverHoverMaxChars;
+            set { settingsEntity.CoverHoverMaxChars = value; Save(); }
+        }
+
+        /// <summary>
         /// 空のメモを自動作成するかを取得または設定します。設定時は保存も行います。
         /// </summary>
         public bool AutoCreateEmptyMemo
@@ -77,7 +86,6 @@ namespace MapMemo.Domain
             get => settingsEntity.BeatSaverAccessMode;
             set { settingsEntity.BeatSaverAccessMode = value; Save(); }
         }
-
 
         /// <summary>
         /// MonoBehaviour の初期化時に呼ばれ、シングルトン登録と DontDestroyOnLoad を実行します。
