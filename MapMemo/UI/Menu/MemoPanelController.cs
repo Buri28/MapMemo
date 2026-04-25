@@ -303,6 +303,7 @@ namespace MapMemo.UI.Menu
                         + $"No entry color for score={score} is '{colorStr}' highlight '{highlightStr}'");
                 }
 
+                // カバー画像のホバーヒントを設定（BeatSaver 情報があれば説明文を、なければ空にする）
                 SetCoverHoverHint(beatSaverMap);
 
                 var parentLayout = penText.transform.parent.GetComponent<HorizontalLayoutGroup>();
