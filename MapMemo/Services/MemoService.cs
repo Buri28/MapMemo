@@ -144,6 +144,23 @@ namespace MapMemo.Services
         {
             MemoSettingsManager.Instance.TooltipShowRating = value;
         }
+
+        /// <summary>
+        /// カバー画像のホバーヒントに説明文を表示するかどうかを取得または設定します。
+        /// </summary>
+        public bool GetCoverHoverHint()
+        {
+            return MemoSettingsManager.Instance.CoverHoverHint;
+        }
+        /// <summary>
+        /// カバー画像のホバーヒントに説明文を表示するかどうかを保存します。
+        /// </summary>
+        /// <param name="value"></param>
+        public void SaveCoverHoverHint(bool value)
+        {
+            MemoSettingsManager.Instance.CoverHoverHint = value;
+        }
+
         /// <summary>
         /// 空のメモを自動作成するかどうかを取得または
         /// 設定します。

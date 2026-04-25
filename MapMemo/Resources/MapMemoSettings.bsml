@@ -16,9 +16,17 @@
                         value='tooltipShowRating' 
                         on-change="on-tooltip-show-rating-changed"
                         apply-on-change='true' />
+        <!-- カバー画像のホバーヒントに説明文を表示するか -->
+        <toggle-setting id="cover-hover-hint" 
+                        text="Show description in cover hover hint" 
+                        value='coverHoverHint' 
+                        on-change="on-cover-hover-hint-changed"
+                        apply-on-change='true' />
+
         <horizontal spacing='1' pad='0' pad-top='1'>
             <text text="[Memo]" color="#00FFFF"/>
         </horizontal>
+
         <!-- プレイ後に空のメモを作成するか -->
         <toggle-setting id="auto-create-empty-memo" 
                         text="Auto Create Empty Memo After Play" 

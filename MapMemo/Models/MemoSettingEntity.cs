@@ -22,6 +22,13 @@ namespace Mapmemo.Models
         /// <remarks>デフォルトは true。</remarks>
         /// </summary>
         public bool TooltipShowRating { get; set; } = true;
+
+        /// <summary>
+        /// カバー画像のホバーヒントに説明文を表示するかどうか
+        /// </summary>
+        /// <remarks>デフォルトは true。</remarks>
+        public bool CoverHoverHint { get; set; } = true;
+
         /// <summary>
         /// 空のメモを自動作成するかどうか
         /// </summary>

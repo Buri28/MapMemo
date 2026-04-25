@@ -135,6 +135,24 @@ namespace MapMemo.UI.Settings
                 MemoPanelController.Instance.Refresh();
             }
         }
+
+        /// <summary>
+        /// 設定 UI でカバー画像のホバーヒントに説明文を表示するかが変更されたときに呼ばれます。
+        /// </summary>
+        [UIValue("coverHoverHint")]
+        public bool CoverHoverHint
+        {
+            get => memoService.GetCoverHoverHint();
+            set
+            {
+                Plugin.Log?.Info($"coverHoverHint: {value}");
+                if (memoService.GetCoverHoverHint() == value) return;
+                memoService.SaveCoverHoverHint(value);
+                NotifyPropertyChanged();
+                MemoPanelController.Instance.Refresh();
+            }
+        }
+
         /// <summary>
         /// プレイ後に空のメモを自動作成するか（設定）。UI の変更はここで保存されます。
         /// </summary>
@@ -215,6 +233,16 @@ namespace MapMemo.UI.Settings
         {
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"OnTooltipShowRatingChanged: {value}");
             TooltipShowRating = value;
+        }
+
+        /// <summary>
+        /// 設定 UI でカバー画像のホバーヒントに説明文を表示するかが変更されたときに呼ばれます。
+        /// </summary>
+        [UIAction("on-cover-hover-hint-changed")]
+        private void OnCoverHoverHintChanged(bool value)
+        {
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"OnCoverHoverHintChanged: {value}");
+            CoverHoverHint = value;
         }
 
         /// <summary>
