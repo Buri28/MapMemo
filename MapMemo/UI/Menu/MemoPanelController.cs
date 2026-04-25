@@ -304,7 +304,15 @@ namespace MapMemo.UI.Menu
                 }
 
                 // カバー画像のホバーヒントを設定（BeatSaver 情報があれば説明文を、なければ空にする）
-                SetCoverHoverHint(beatSaverMap);
+                if (memoService.GetCoverHoverHint())
+                {
+                    SetCoverHoverHint(beatSaverMap);
+                }
+                else
+                {
+                    // 設定OFFのときは既存のヒントを無効化し raycastTarget も戻す
+                    ClearCoverHoverHint();
+                }
 
                 var parentLayout = penText.transform.parent.GetComponent<HorizontalLayoutGroup>();
                 if (parentLayout != null)
@@ -375,6 +383,39 @@ namespace MapMemo.UI.Menu
             {
                 Plugin.Log?.Warn($"MemoPanel.Refresh: {ex}");
                 return Task.CompletedTask;
+            }
+        }
+
+        /// <summary>
+        /// カバー画像のホバーヒントを無効化し、raycastTarget を false に戻します。
+        /// 設定 OFF 時に既存の HoverHint コンポーネントが残り続けるのを防ぎます。
+        /// </summary>
+        private void ClearCoverHoverHint()
+        {
+            var coverObject = FindCoverHoverTarget();
+            if (coverObject == null)
+            {
+                Plugin.Log?.Warn("MemoPanel: cover hover target not found, cannot clear hover hint");
+                return;
+            }
+
+            // HoverHint コンポーネントが存在する場合のみ無効化・raycastTarget 復元を行う
+            var hover = coverObject.GetComponent<HMUI.HoverHint>();
+            if (hover == null)
+            {
+                if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanel: No HoverHint component found on cover object, skipping clear");
+                return;
+            }
+
+            if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanel: Clearing cover hover hint");
+            hover.text = "";
+            hover.enabled = false;
+
+            var imageView = coverObject.GetComponent<ImageView>();
+            if (imageView != null)
+            {
+                if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoPanel: Disabling raycastTarget on ImageView '{coverObject.name}'");
+                imageView.raycastTarget = false;
             }
         }
 
@@ -570,13 +611,14 @@ namespace MapMemo.UI.Menu
             if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanel: Making cover tooltip text");
             if (beatSaverMap == null)
             {
-                Plugin.Log?.Warn("MakeCoverTooltipText: beatSaverMap is null");
+                // BeatSaberの公式マップはBeatSaverに存在しないため、beatSaverMapがnullになる
+                if (Plugin.VerboseLogs) Plugin.Log?.Info("MakeCoverTooltipText: beatSaverMap is null");
                 return "";
             }
 
             if (string.IsNullOrWhiteSpace(beatSaverMap.description))
             {
-                Plugin.Log?.Warn("MakeCoverTooltipText: beatSaverMap.description is null or whitespace");
+                if (Plugin.VerboseLogs) Plugin.Log?.Info("MakeCoverTooltipText: beatSaverMap.description is null or whitespace");
                 return "";
             }
 

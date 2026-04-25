@@ -51,6 +51,16 @@ namespace MapMemo.Domain
             get => settingsEntity.TooltipShowRating;
             set { settingsEntity.TooltipShowRating = value; Save(); }
         }
+
+        /// <summary>
+        /// カバー画像のホバーヒントに説明文を表示するかを取得または設定します。設定時は保存も行います。
+        /// </summary>
+        public bool CoverHoverHint
+        {
+            get => settingsEntity.CoverHoverHint;
+            set { settingsEntity.CoverHoverHint = value; Save(); }
+        }
+
         /// <summary>
         /// 空のメモを自動作成するかを取得または設定します。設定時は保存も行います。
         /// </summary>
