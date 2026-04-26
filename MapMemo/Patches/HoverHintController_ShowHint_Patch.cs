@@ -105,7 +105,7 @@ namespace MapMemo.Patches
             float maxTextWidth = 0f;
             foreach (var tmp in panel.GetComponentsInChildren<TMPro.TMP_Text>(true))
             {
-                tmp.text = tmp.text;
+                //tmp.text = tmp.text + "テスト";
                 if (Plugin.VerboseLogs) Plugin.Log?.Info($"HoverHintController_Patch: text={tmp.text}, preferredWidth={tmp.preferredWidth}");
                 maxTextWidth = Mathf.Max(maxTextWidth, tmp.preferredWidth);
             }
