@@ -177,7 +177,6 @@ namespace MapMemo.UI.Menu
             // HoverHint が無ければ追加
             if (hover == null)
             {
-                // ここは通る
                 if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanel: Adding HoverHint component");
                 hover = go.AddComponent<HMUI.HoverHint>();
             }
@@ -229,20 +228,20 @@ namespace MapMemo.UI.Menu
 
             // ペンアイコン上の動作済み HoverHint から Controller を取得する
             HMUI.HoverHintController controller = null;
-            if (penText != null)
-            {
-                var penHover = penText.GetComponent<HMUI.HoverHint>();
-                if (penHover != null)
-                {
-                    if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanel: Found HoverHint on penText");
-                    controller = _hoverHintControllerField.GetValue(penHover) as HMUI.HoverHintController;
-                }
-            }
+            // if (penText != null)
+            // {
+            //     var penHover = penText.GetComponent<HMUI.HoverHint>();
+            //     if (penHover != null)
+            //     {
+            //         if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanel: Found HoverHint on penText");
+            //         controller = _hoverHintControllerField.GetValue(penHover) as HMUI.HoverHintController;
+            //     }
+            // }
 
             // ペンアイコンにまだない場合はシーン全体から探す
             if (controller == null)
             {
-                if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanel: HoverHintController not found on penText, searching in scene");
+                if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanel: HoverHintController searching in scene");
                 controller = UnityEngine.Object.FindObjectOfType<HMUI.HoverHintController>();
             }
 
@@ -436,6 +435,10 @@ namespace MapMemo.UI.Menu
 
             EnsureHoverRaycastTarget(coverObject);
             SetHoverHint(coverObject, MakeCoverTooltipText(beatSaverMap));
+
+            // パッチ側にカバーの HoverHint を登録（パッチ適用対象の絞り込みに使用）
+            var coverHover = coverObject.GetComponent<HMUI.HoverHint>();
+            MapMemo.Patches.HoverHintController_ShowHint_Patch.CoverHoverHint = coverHover;
         }
 
         /// <summary>
