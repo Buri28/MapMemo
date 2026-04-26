@@ -60,6 +60,9 @@ namespace MapMemo.UI.Patches
                     }
                 }
             }
+            // ツールチップパネルのレイアウト強制再計算パッチ（多行→1行切り替え時のサイズ残り問題対策）
+            HoverHintController_ShowHint_Patch.Apply(harmony);
+
             if (Plugin.VerboseLogs) Plugin.Log?.Info("ApplyPatches: end");
         }
 
