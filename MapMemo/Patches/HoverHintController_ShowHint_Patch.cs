@@ -53,7 +53,8 @@ namespace MapMemo.Patches
             var postfix = new HarmonyMethod(
                 typeof(HoverHintController_ShowHint_Patch),
                 nameof(Postfix));
-            harmony.Patch(method, postfix: postfix);
+            // TODO : 一旦パッチはやめる
+            //harmony.Patch(method, postfix: postfix);
 
             if (Plugin.VerboseLogs) Plugin.Log?.Info("HoverHintController_Patch: patch applied to SetupAndShowHintPanel");
         }
@@ -106,6 +107,8 @@ namespace MapMemo.Patches
             foreach (var tmp in panel.GetComponentsInChildren<TMPro.TMP_Text>(true))
             {
                 //tmp.text = tmp.text + "テスト";
+                tmp.text = tmp.text;
+                tmp.ForceMeshUpdate();
                 if (Plugin.VerboseLogs) Plugin.Log?.Info($"HoverHintController_Patch: text={tmp.text}, preferredWidth={tmp.preferredWidth}");
                 maxTextWidth = Mathf.Max(maxTextWidth, tmp.preferredWidth);
             }
@@ -116,7 +119,8 @@ namespace MapMemo.Patches
             newWidth = Mathf.Min(newWidth, 70f);
 
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"HoverHintController_Patch: maxTextWidth={maxTextWidth}, padH={padH}, newWidth={newWidth}");
-            rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, newWidth);
+            // TODO :プレイ後に壊れるため、一旦幅の自動調整はやめる
+            //rt.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, newWidth);
 
             // 3. 幅確定後に再度 ForceMeshUpdate → 折り返しを考慮した正確な preferredHeight を得る
             float textHeight = 0f;
