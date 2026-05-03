@@ -32,6 +32,29 @@
                             formatter="FormatInt" />
 
         <horizontal spacing='1' pad='0' pad-top='1'>
+            <text text="[Event]" color="#00FFFF"/>
+        </horizontal>
+        <toggle-setting id="event-mode-enabled"
+                        text="Enable Event Mode"
+                        value='eventModeEnabled'
+                        on-change="on-event-mode-enabled-changed"
+                        apply-on-change='true' />
+        <vertical id="event-debug-controls" spacing='0'>
+            <toggle-setting id="event-debug-override-enabled"
+                            text="Enable Event Test Override"
+                            value='eventDebugOverrideEnabled'
+                            on-change="on-event-debug-override-enabled-changed"
+                            apply-on-change='true' />
+            <dropdown-list-setting
+                            id="event-theme"
+                            text="Event Number"
+                            value='eventTheme'
+                            options="eventThemeOptions"
+                            on-change="on-event-theme-changed"
+                            apply-on-change='true' />
+        </vertical>
+
+        <horizontal spacing='1' pad='0' pad-top='1'>
             <text text="[Memo]" color="#00FFFF"/>
         </horizontal>
 

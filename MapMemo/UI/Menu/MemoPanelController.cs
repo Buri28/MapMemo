@@ -26,6 +26,15 @@ namespace MapMemo.UI.Menu
     /// </summary>
     public class MemoPanelController : BSMLAutomaticViewController
     {
+        private enum EventThemeType
+        {
+            None,
+            Halloween,
+            AprilFool,
+            Christmas,
+            NewYear
+        }
+
         // この段階でインスタンスを作るとUnityの管理外のためバインド対象外となる。
         public static MemoPanelController Instance = null;
         /// <summary>
@@ -284,6 +293,7 @@ namespace MapMemo.UI.Menu
                 var noEntryHighlight = Color.green;
                 var entryColor = Color.yellow;
                 var entryHighlight = Color.green;
+                var activeEventTheme = GetActiveEventTheme();
                 if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoPanel: "
                     + $"Trying to get BeatSaverMap from cache for hash='{levelContext.GetLevelHash()}'");
                 if (beatSaverMap != null)
@@ -300,6 +310,14 @@ namespace MapMemo.UI.Menu
                     entryHighlight = UIHelper.Instance.ToColor(highlightStr);
                     if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoPanel: "
                         + $"No entry color for score={score} is '{colorStr}' highlight '{highlightStr}'");
+                }
+
+                if (activeEventTheme != EventThemeType.None)
+                {
+                    noEntryColor = GetEventBaseColor(activeEventTheme, noEntryColor);
+                    noEntryHighlight = GetEventHighlightColor(activeEventTheme, noEntryHighlight);
+                    entryColor = GetEventBaseColor(activeEventTheme, entryColor);
+                    entryHighlight = GetEventHighlightColor(activeEventTheme, entryHighlight);
                 }
 
                 // カバー画像のホバーヒントを設定（BeatSaver 情報があれば説明文を、なければ空にする）
@@ -332,24 +350,17 @@ namespace MapMemo.UI.Menu
                     penText.color = noEntryColor;
                     penText.DefaultColor = noEntryColor;
                     penText.HighlightColor = noEntryHighlight;
-                    penText.text = "　🖊";
+                    penText.text = GetEventIcon(activeEventTheme, entry);
                     penText.fontStyle = FontStyles.Bold;
-                    SetHoverHint(penText.gameObject, MakeTooltipLine(entry, beatSaverMap, memoService, 40));
+                    SetHoverHint(penText.gameObject,
+                        MakeTooltipLine(entry, beatSaverMap, memoService, activeEventTheme, 40));
                 }
                 else
                 {
                     if (Plugin.VerboseLogs) MapMemo.Plugin.Log?.Info("MemoPanel: "
                         + $"Memo entry found for key='" + levelContext.GetLevelId() + "'");
 
-                    if (entry.autoCreateEmptyMemo)
-                    {
-                        // 自動作成された空のメモの場合は特別表示
-                        penText.text = "　📑";
-                    }
-                    else
-                    {
-                        penText.text = "　📝";
-                    }
+                    penText.text = GetEventIcon(activeEventTheme, entry);
                     penText.color = entryColor;
                     penText.outlineColor = Color.white;
                     penText.DefaultColor = entryColor;
@@ -373,7 +384,7 @@ namespace MapMemo.UI.Menu
 
 
                     SetHoverHint(penText.gameObject,
-                        MakeTooltipLine(entry, beatSaverMap, memoService, 40));
+                        MakeTooltipLine(entry, beatSaverMap, memoService, activeEventTheme, 40));
                 }
 
                 return Task.CompletedTask;
@@ -437,8 +448,9 @@ namespace MapMemo.UI.Menu
             SetHoverHint(coverObject, MakeCoverTooltipText(beatSaverMap));
 
             // パッチ側にカバーの HoverHint を登録（パッチ適用対象の絞り込みに使用）
-            var coverHover = coverObject.GetComponent<HMUI.HoverHint>();
-            MapMemo.Patches.HoverHintController_ShowHint_Patch.CoverHoverHint = coverHover;
+            // ツールチップの大きさは結局制御できなかったためパッチは削除したが、念のため HoverHintController は登録しておく
+            // var coverHover = coverObject.GetComponent<HMUI.HoverHint>();
+            // MapMemo.Patches.HoverHintController_ShowHint_Patch.CoverHoverHint = coverHover;
         }
 
         /// <summary>
@@ -534,31 +546,207 @@ namespace MapMemo.UI.Menu
         }
 
         /// <summary>
+        /// 現在有効なイベントテーマを返します。
+        /// </summary>
+        private EventThemeType GetActiveEventTheme()
+        {
+            if (!memoService.GetEventModeEnabled())
+            {
+                return EventThemeType.None;
+            }
+
+            if (memoService.GetEventDebugOverrideEnabled())
+            {
+                var selectedTheme = memoService.GetEventTheme();
+                var overriddenTheme = ParseEventTheme(selectedTheme);
+                if (selectedTheme != "0: Auto")
+                {
+                    return overriddenTheme;
+                }
+            }
+
+            return ResolveEventTheme(DateTime.Now);
+        }
+
+        /// <summary>
+        /// 設定値からイベントテーマを解決します。
+        /// </summary>
+        private static EventThemeType ParseEventTheme(string value)
+        {
+            switch (value)
+            {
+                case "1: Halloween":
+                    return EventThemeType.Halloween;
+                case "2: April Fool":
+                    return EventThemeType.AprilFool;
+                case "3: Christmas":
+                    return EventThemeType.Christmas;
+                case "4: New Year":
+                    return EventThemeType.NewYear;
+                default:
+                    return EventThemeType.None;
+            }
+        }
+
+        /// <summary>
+        /// 現在日付からイベントテーマを解決します。
+        /// </summary>
+        private static EventThemeType ResolveEventTheme(DateTime now)
+        {
+            if (now.Month == 10 && now.Day == 31)
+            {
+                return EventThemeType.Halloween;
+            }
+
+            if (now.Month == 4 && now.Day == 1)
+            {
+                return EventThemeType.AprilFool;
+            }
+
+            if (now.Month == 12 && (now.Day == 24 || now.Day == 25))
+            {
+                return EventThemeType.Christmas;
+            }
+
+            if (now.Month == 1 && now.Day >= 1 && now.Day <= 3)
+            {
+                return EventThemeType.NewYear;
+            }
+
+            return EventThemeType.None;
+        }
+
+        /// <summary>
+        /// イベント用のアイコンを返します。
+        /// </summary>
+        private static string GetEventIcon(EventThemeType eventTheme, MemoEntry entry)
+        {
+            switch (eventTheme)
+            {
+                case EventThemeType.Halloween:
+                    if (entry == null)
+                    {
+                        return "　🎃";
+                    }
+                    return "　🦇";
+                case EventThemeType.AprilFool:
+                    if (entry == null)
+                    {
+                        return "☠☠";
+                    }
+                    return "👽👽";
+                case EventThemeType.Christmas:
+                    if (entry == null)
+                    {
+                        return "　🎄";
+                    }
+                    return "　⛄";
+                case EventThemeType.NewYear:
+                    if (entry == null)
+                    {
+                        return "　🎍";
+                    }
+                    return "　🎊";
+                default:
+                    if (entry == null)
+                    {
+                        return "　🖊";
+                    }
+
+                    return entry.autoCreateEmptyMemo ? "　📑" : "　📝";
+            }
+        }
+
+        /// <summary>
+        /// イベント用の基本色を返します。
+        /// </summary>
+        private static Color GetEventBaseColor(EventThemeType eventTheme, Color fallback)
+        {
+            switch (eventTheme)
+            {
+                case EventThemeType.Halloween:
+                    return new Color(0.45f, 0.08f, 0.08f);
+                case EventThemeType.AprilFool:
+                    return new Color(0.45f, 0.85f, 0.18f);
+                case EventThemeType.Christmas:
+                    return new Color(0.10f, 0.60f, 0.20f);
+                case EventThemeType.NewYear:
+                    return new Color(0.85f, 0.70f, 0.20f);
+                default:
+                    return fallback;
+            }
+        }
+
+        /// <summary>
+        /// イベント用のハイライト色を返します。
+        /// </summary>
+        private static Color GetEventHighlightColor(EventThemeType eventTheme, Color fallback)
+        {
+            switch (eventTheme)
+            {
+                case EventThemeType.Halloween:
+                    return new Color(0.65f, 0.18f, 0.18f);
+                case EventThemeType.AprilFool:
+                    return new Color(0.65f, 1.00f, 0.32f);
+                case EventThemeType.Christmas:
+                    return new Color(0.75f, 0.15f, 0.15f);
+                case EventThemeType.NewYear:
+                    return new Color(1.00f, 0.85f, 0.35f);
+                default:
+                    return fallback;
+            }
+        }
+
+        /// <summary>
+        /// イベント用の既定ツールチップ文言を返します。
+        /// </summary>
+        private static string GetEventTooltipText(EventThemeType eventTheme)
+        {
+            switch (eventTheme)
+            {
+                case EventThemeType.Halloween:
+                    return "Happy Halloween👻";
+                case EventThemeType.AprilFool:
+                    return "Cursed memo?";
+                case EventThemeType.Christmas:
+                    return "Merry Christmas🎅";
+                case EventThemeType.NewYear:
+                    return "Happy New Year🌅";
+                default:
+                    return "Add memo";
+            }
+        }
+
+        /// <summary>
         /// ツールチップ用のテキストを作成する
         /// </summary>
         /// <param name="entry">メモエントリ</param>
         /// <param name="max">最大文字数</param>
         /// <returns>ツールチップ用のテキスト</returns>
         private static string MakeTooltipLine(
-            MemoEntry entry, BeatSaverMap beatSaverMap, MemoService memoService, int max)
+            MemoEntry entry,
+            BeatSaverMap beatSaverMap,
+            MemoService memoService,
+            EventThemeType eventTheme,
+            int max)
         {
             var toolTipStr = "";
             double weightedLength = 0;
             if (entry == null)
             {
-                toolTipStr += "Add memo";
+                toolTipStr += GetEventTooltipText(eventTheme);
             }
             else
             {
                 if (string.IsNullOrEmpty(entry.memo))
                 {
-                    toolTipStr += "Add memo";
+                    toolTipStr += GetEventTooltipText(eventTheme);
                 }
                 else
                 {
                     var oneLine = entry.memo.Replace("\r", "").Replace("\n", " ");
 
-                    var (cutString, isComplete, pWeightedLength) = MemoService.Instance.GetWeightedCutString(oneLine, 40);
+                    var (cutString, isComplete, pWeightedLength) = MemoService.Instance.GetWeightedCutString(oneLine, max);
                     weightedLength = pWeightedLength;
                     if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoPanel.MakeTooltipLine: "
                         + $"original='{oneLine}' cutString='{cutString}' "

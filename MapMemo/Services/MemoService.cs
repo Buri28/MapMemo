@@ -203,6 +203,54 @@ namespace MapMemo.Services
         }
 
         /// <summary>
+        /// イベント表示を有効にするかどうかを取得します。
+        /// </summary>
+        public bool GetEventModeEnabled()
+        {
+            return MemoSettingsManager.Instance.EventModeEnabled;
+        }
+
+        /// <summary>
+        /// イベント表示を有効にするかどうかを保存します。
+        /// </summary>
+        public void SaveEventModeEnabled(bool value)
+        {
+            MemoSettingsManager.Instance.EventModeEnabled = value;
+        }
+
+        /// <summary>
+        /// テスト用イベント上書きを有効にするかどうかを取得します。
+        /// </summary>
+        public bool GetEventDebugOverrideEnabled()
+        {
+            return MemoSettingsManager.Instance.EventDebugOverrideEnabled;
+        }
+
+        /// <summary>
+        /// テスト用イベント上書きを有効にするかどうかを保存します。
+        /// </summary>
+        public void SaveEventDebugOverrideEnabled(bool value)
+        {
+            MemoSettingsManager.Instance.EventDebugOverrideEnabled = value;
+        }
+
+        /// <summary>
+        /// 選択中のイベント番号を取得します。
+        /// </summary>
+        public string GetEventTheme()
+        {
+            return MemoSettingsManager.Instance.EventTheme;
+        }
+
+        /// <summary>
+        /// 選択中のイベント番号を保存します。
+        /// </summary>
+        public void SaveEventTheme(string value)
+        {
+            MemoSettingsManager.Instance.EventTheme = value;
+        }
+
+        /// <summary>
         /// 入力履歴ファイルを削除します。
         /// </summary>
         public void DeleteHistory()

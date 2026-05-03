@@ -18,8 +18,21 @@ namespace MapMemo.UI.Settings
     /// </summary>
     public class MapMemoSettingsController : MonoBehaviour, INotifyPropertyChanged
     {
+        /// デバッグ用イベント設定 UI の表示フラグ。true の場合、イベント関連の設定項目を表示します。
+        private const bool ShowEventDebugControls = false;
+
         [UIValue("beatsaverAccessModeOptions")]
         public List<object> BeatSaverAccessModeOptions = new List<object> { "Manual", "Semi-Auto", "Auto" };
+
+        [UIValue("eventThemeOptions")]
+        public List<object> EventThemeOptions = new List<object>
+        {
+            "0: Auto",
+            "1: Halloween",
+            "2: April Fool",
+            "3: Christmas",
+            "4: New Year"
+        };
 
         /// <summary> プロパティ変更通知イベント。</summary>
         public event PropertyChangedEventHandler PropertyChanged;
@@ -28,6 +41,9 @@ namespace MapMemo.UI.Settings
         /// <summary> 履歴クリア完了メッセージ表示用の TextMeshProUGUI。</summary>
         [UIComponent("history-clear-message")]
         private TextMeshProUGUI historyClearMessage = null;
+        /// <summary> デバッグ用イベント設定コンテナ。</summary>
+        [UIComponent("event-debug-controls")]
+        private RectTransform eventDebugControls = null;
         /// <summary> メモサービスのインスタンス。</summary>
         private MemoService memoService = MemoService.Instance;
 
@@ -40,11 +56,33 @@ namespace MapMemo.UI.Settings
         }
 
         /// <summary>
+        /// BSML 解析後にデバッグ用 UI の表示状態を調整します。
+        /// </summary>
+        [UIAction("#post-parse")]
+        private void OnPostParse()
+        {
+            ApplyEventDebugControlsVisibility();
+        }
+
+        /// <summary>
         /// プロパティ変更を通知します。
         /// </summary>
         protected void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        /// <summary>
+        /// デバッグ用イベント設定 UI の表示状態を反映します。
+        /// </summary>
+        private void ApplyEventDebugControlsVisibility()
+        {
+            if (eventDebugControls == null)
+            {
+                return;
+            }
+
+            eventDebugControls.gameObject.SetActive(ShowEventDebugControls);
         }
 
         /// <summary>
@@ -200,6 +238,57 @@ namespace MapMemo.UI.Settings
         }
 
         /// <summary>
+        /// イベント表示を有効にするか（設定）。UI の変更はここで保存されます。
+        /// </summary>
+        [UIValue("eventModeEnabled")]
+        public bool EventModeEnabled
+        {
+            get => memoService.GetEventModeEnabled();
+            set
+            {
+                Plugin.Log?.Info($"eventModeEnabled: {value}");
+                if (memoService.GetEventModeEnabled() == value) return;
+                memoService.SaveEventModeEnabled(value);
+                NotifyPropertyChanged();
+                if (MemoPanelController.isInstance()) MemoPanelController.Instance.Refresh();
+            }
+        }
+
+        /// <summary>
+        /// テスト用のイベント上書きを有効にするか（設定）。UI の変更はここで保存されます。
+        /// </summary>
+        [UIValue("eventDebugOverrideEnabled")]
+        public bool EventDebugOverrideEnabled
+        {
+            get => memoService.GetEventDebugOverrideEnabled();
+            set
+            {
+                Plugin.Log?.Info($"eventDebugOverrideEnabled: {value}");
+                if (memoService.GetEventDebugOverrideEnabled() == value) return;
+                memoService.SaveEventDebugOverrideEnabled(value);
+                NotifyPropertyChanged();
+                if (MemoPanelController.isInstance()) MemoPanelController.Instance.Refresh();
+            }
+        }
+
+        /// <summary>
+        /// 選択中のイベント番号（設定）。UI の変更はここで保存されます。
+        /// </summary>
+        [UIValue("eventTheme")]
+        public string EventTheme
+        {
+            get => memoService.GetEventTheme();
+            set
+            {
+                Plugin.Log?.Info($"eventTheme: {value}");
+                if (memoService.GetEventTheme() == value) return;
+                memoService.SaveEventTheme(value);
+                NotifyPropertyChanged();
+                if (MemoPanelController.isInstance()) MemoPanelController.Instance.Refresh();
+            }
+        }
+
+        /// <summary>
         /// 設定画面から履歴をクリアするアクション。
         /// </summary>
         [UIAction("on-clear-history")]
@@ -277,6 +366,36 @@ namespace MapMemo.UI.Settings
         {
             if (Plugin.VerboseLogs) Plugin.Log?.Info($"OnBeatsaverAccessModeChanged: {value}");
             BeatsaverAccessMode = (string)value;
+        }
+
+        /// <summary>
+        /// 設定 UI でイベント表示有効フラグが変更されたときに呼ばれます。
+        /// </summary>
+        [UIAction("on-event-mode-enabled-changed")]
+        private void OnEventModeEnabledChanged(bool value)
+        {
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"OnEventModeEnabledChanged: {value}");
+            EventModeEnabled = value;
+        }
+
+        /// <summary>
+        /// 設定 UI でテスト用イベント上書きフラグが変更されたときに呼ばれます。
+        /// </summary>
+        [UIAction("on-event-debug-override-enabled-changed")]
+        private void OnEventDebugOverrideEnabledChanged(bool value)
+        {
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"OnEventDebugOverrideEnabledChanged: {value}");
+            EventDebugOverrideEnabled = value;
+        }
+
+        /// <summary>
+        /// 設定 UI でイベント番号が変更されたときに呼ばれます。
+        /// </summary>
+        [UIAction("on-event-theme-changed")]
+        private void OnEventThemeChanged(object value)
+        {
+            if (Plugin.VerboseLogs) Plugin.Log?.Info($"OnEventThemeChanged: {value}");
+            EventTheme = (string)value;
         }
 
         /// <summary>

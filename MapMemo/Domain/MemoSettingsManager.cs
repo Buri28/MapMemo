@@ -88,6 +88,33 @@ namespace MapMemo.Domain
         }
 
         /// <summary>
+        /// イベント表示を有効にするかどうかを取得または設定します。設定時は保存も行います。
+        /// </summary>
+        public bool EventModeEnabled
+        {
+            get => settingsEntity.EventModeEnabled;
+            set { settingsEntity.EventModeEnabled = value; Save(); }
+        }
+
+        /// <summary>
+        /// テスト用のイベント上書きを有効にするかどうかを取得または設定します。設定時は保存も行います。
+        /// </summary>
+        public bool EventDebugOverrideEnabled
+        {
+            get => settingsEntity.EventDebugOverrideEnabled;
+            set { settingsEntity.EventDebugOverrideEnabled = value; Save(); }
+        }
+
+        /// <summary>
+        /// 選択中のイベント番号を取得または設定します。設定時は保存も行います。
+        /// </summary>
+        public string EventTheme
+        {
+            get => settingsEntity.EventTheme;
+            set { settingsEntity.EventTheme = value; Save(); }
+        }
+
+        /// <summary>
         /// MonoBehaviour の初期化時に呼ばれ、シングルトン登録と DontDestroyOnLoad を実行します。
         /// </summary>
         private void Awake()
