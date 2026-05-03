@@ -8,6 +8,7 @@ using TMPro;
 using UnityEngine;
 using BeatSaberMarkupLanguage.Components;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using MapMemo.UI.Edit;
 using MapMemo.Models;
 using MapMemo.Services;
@@ -15,6 +16,7 @@ using Mapmemo.Models;
 using MapMemo.Domain;
 using MapMemo.UI.Common;
 using HMUI;
+using System.Text.RegularExpressions;
 
 namespace MapMemo.UI.Menu
 {
@@ -26,6 +28,17 @@ namespace MapMemo.UI.Menu
     /// </summary>
     public class MemoPanelController : BSMLAutomaticViewController
     {
+        private static readonly Version PenDecorationMinVersion = new Version(1, 42, 0);
+        private const int PenTextLeftPadding = 4;
+        private const int PenTextTopPadding = 2;
+        // ペンアイコンに重ねる装飾マーカーの設定 〇○□❏▱■▪
+        private const string PenDecorationMarkerText = "■";
+        private const float PenDecorationMarkerFontSize = 8.0f;
+        // 右に移動するには正の値を指定する必要があるが、テキストのサイズやフォントによって見た目の位置が変わるため、微調整が必要
+        private const float PenDecorationMarkerX = -0.1f;
+        // テキストの下に配置するために負の値を指定。こちらも微調整が必要。
+        private const float PenDecorationMarkerY = 0.6f;
+
         private enum EventThemeType
         {
             None,
@@ -46,6 +59,9 @@ namespace MapMemo.UI.Menu
         private LevelContext levelContext;
         /// <summary> ペンアイコンテキスト</summary>
         [UIComponent("pen-text")] private ClickableText penText = null;
+        private TextMeshProUGUI penDecorationMarker;
+        private Color penDecorationDefaultColor = Color.white;
+        private Color penDecorationHighlightColor = Color.white;
         /// <summary> HotReload 用リソース名</summary>
         public string ResourceName => "MapMemo.Resources.MemoPanel.bsml";
         /// <summary> メモサービスのインスタンス。</summary>
@@ -62,7 +78,22 @@ namespace MapMemo.UI.Menu
         [UIAction("#post-parse")]
         private void OnPostParse()
         {
+            EnsurePenDecoration();
+            EnsurePenDecorationHoverRelay();
             if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanelController: OnPostParse called");
+        }
+
+        /// <summary>
+        /// 毎フレーム、補助マーカーをペンアイコンの描画位置へ追従させます。
+        /// </summary>
+        private void LateUpdate()
+        {
+            if (!IsPenDecorationEnabled())
+            {
+                return;
+            }
+
+            SyncPenDecorationTransform();
         }
 
         /// <summary>
@@ -74,7 +105,6 @@ namespace MapMemo.UI.Menu
         public static MemoPanelController GetInstance(
             MonoBehaviour view, LevelContext levelContext)
         {
-            // if (!isInstance() || Instance.penText == null)
             if (!isInstance())
             {
                 if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanelController.GetInstance: "
@@ -103,8 +133,6 @@ namespace MapMemo.UI.Menu
                 child.sizeDelta = new Vector2(0f, 56f); // 親と同じ高さに
 
                 // ペンパネルの位置調整
-                //child.anchoredPosition = new Vector2(2f, -14f);　//　下の方
-                //child.anchoredPosition = new Vector2(17f, 28f);　//　上の方
                 child.anchoredPosition = new Vector2(14f, 13f); // 中央寄り
 
                 var parentRt = view.transform as RectTransform;
@@ -233,21 +261,9 @@ namespace MapMemo.UI.Menu
                 if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanel: HoverHintController already set, skipping injection");
                 return;
             }
-
-
-            // ペンアイコン上の動作済み HoverHint から Controller を取得する
             HMUI.HoverHintController controller = null;
-            // if (penText != null)
-            // {
-            //     var penHover = penText.GetComponent<HMUI.HoverHint>();
-            //     if (penHover != null)
-            //     {
-            //         if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanel: Found HoverHint on penText");
-            //         controller = _hoverHintControllerField.GetValue(penHover) as HMUI.HoverHintController;
-            //     }
-            // }
 
-            // ペンアイコンにまだない場合はシーン全体から探す
+            // 既存の HoverHintController をシーン全体から探して流用する
             if (controller == null)
             {
                 if (Plugin.VerboseLogs) Plugin.Log?.Info("MemoPanel: HoverHintController searching in scene");
@@ -336,6 +352,8 @@ namespace MapMemo.UI.Menu
                 {
                     parentLayout.childForceExpandWidth = false;
                     parentLayout.childControlWidth = true;
+                    parentLayout.padding.left = PenTextLeftPadding;
+                    parentLayout.padding.top = PenTextTopPadding;
                 }
                 var layout = penText.GetComponent<LayoutElement>();
                 if (layout == null)
@@ -343,15 +361,18 @@ namespace MapMemo.UI.Menu
 
                 layout.preferredWidth = 10f; // 幅を制限
                 layout.flexibleWidth = 0f;    // 自動伸縮を無効に
+                EnsurePenDecoration();
+                EnsurePenDecorationHoverRelay();
                 if (entry == null)
                 {
                     if (Plugin.VerboseLogs) MapMemo.Plugin.Log?.Info("MemoPanel: "
                         + $"No memo entry found for key='" + levelContext.GetLevelId() + "'");
+                    penText.text = GetStyledEventIcon(activeEventTheme, entry);
+                    penText.fontStyle = FontStyles.Bold;
                     penText.color = noEntryColor;
                     penText.DefaultColor = noEntryColor;
                     penText.HighlightColor = noEntryHighlight;
-                    penText.text = GetEventIcon(activeEventTheme, entry);
-                    penText.fontStyle = FontStyles.Bold;
+                    SetPenDecorationColors(noEntryColor, noEntryHighlight);
                     SetHoverHint(penText.gameObject,
                         MakeTooltipLine(entry, beatSaverMap, memoService, activeEventTheme, 40));
                 }
@@ -360,11 +381,11 @@ namespace MapMemo.UI.Menu
                     if (Plugin.VerboseLogs) MapMemo.Plugin.Log?.Info("MemoPanel: "
                         + $"Memo entry found for key='" + levelContext.GetLevelId() + "'");
 
-                    penText.text = GetEventIcon(activeEventTheme, entry);
+                    penText.text = GetStyledEventIcon(activeEventTheme, entry);
                     penText.color = entryColor;
-                    penText.outlineColor = Color.white;
                     penText.DefaultColor = entryColor;
                     penText.HighlightColor = entryHighlight;
+                    SetPenDecorationColors(entryColor, entryHighlight);
                     penText.fontStyle = FontStyles.Bold;
 
                     var button = penText.GetComponentInParent<UnityEngine.UI.Button>();
@@ -393,6 +414,227 @@ namespace MapMemo.UI.Menu
             {
                 Plugin.Log?.Warn($"MemoPanel.Refresh: {ex}");
                 return Task.CompletedTask;
+            }
+        }
+
+        /// <summary>
+        /// ペンアイコン用の装飾マーカー文字を生成します。
+        /// レイアウトには参加させず、penText の子として重ねます。
+        /// </summary>
+        private void EnsurePenDecoration()
+        {
+            if (!IsPenDecorationEnabled())
+            {
+                if (penDecorationMarker != null)
+                {
+                    penDecorationMarker.gameObject.SetActive(false);
+                }
+                return;
+            }
+
+            if (penText == null || penDecorationMarker != null)
+            {
+                return;
+            }
+
+            var penRect = penText.rectTransform;
+            var parentTransform = penRect.parent;
+            if (parentTransform == null)
+            {
+                return;
+            }
+
+            var decorationObject = new GameObject("PenDecorationMarker",
+                typeof(RectTransform), typeof(CanvasRenderer), typeof(TextMeshProUGUI), typeof(LayoutElement));
+            decorationObject.transform.SetParent(parentTransform, false);
+
+            var decorationRect = decorationObject.GetComponent<RectTransform>();
+            decorationRect.anchorMin = penRect.anchorMin;
+            decorationRect.anchorMax = penRect.anchorMax;
+            decorationRect.pivot = penRect.pivot;
+            decorationRect.sizeDelta = penRect.sizeDelta;
+            decorationRect.localScale = Vector3.one;
+
+            penDecorationMarker = decorationObject.GetComponent<TextMeshProUGUI>();
+            penDecorationMarker.text = PenDecorationMarkerText;
+            penDecorationMarker.font = penText.font;
+            penDecorationMarker.fontSize = PenDecorationMarkerFontSize;
+            penDecorationMarker.alignment = TextAlignmentOptions.Center;
+            penDecorationMarker.enableWordWrapping = false;
+            penDecorationMarker.richText = true;
+            penDecorationMarker.raycastTarget = false;
+            penDecorationMarker.fontStyle = FontStyles.Italic;
+            penDecorationMarker.color = penDecorationDefaultColor;
+
+            var decorationLayout = decorationObject.GetComponent<LayoutElement>();
+            decorationLayout.ignoreLayout = true;
+            SyncPenDecorationTransform();
+
+            var penSiblingIndex = penText.transform.GetSiblingIndex();
+            decorationObject.transform.SetSiblingIndex(Mathf.Max(0, penSiblingIndex));
+            decorationObject.SetActive(true);
+        }
+
+        /// <summary>
+        /// ペン装飾マーカー用の通常色とホバー色を更新します。
+        /// </summary>
+        private void SetPenDecorationColors(Color normalColor, Color highlightColor)
+        {
+            if (!IsPenDecorationEnabled() || penDecorationMarker == null)
+            {
+                return;
+            }
+
+            penDecorationDefaultColor = normalColor;
+            penDecorationHighlightColor = highlightColor;
+            ApplyPenDecorationColor(penDecorationDefaultColor);
+        }
+
+        /// <summary>
+        /// ペンアイコンにホバー連動の装飾更新を追加します。
+        /// </summary>
+        private void EnsurePenDecorationHoverRelay()
+        {
+            if (!IsPenDecorationEnabled() || penText == null)
+            {
+                return;
+            }
+
+            var relay = penText.gameObject.GetComponent<PenDecorationHoverRelay>();
+            if (relay == null)
+            {
+                relay = penText.gameObject.AddComponent<PenDecorationHoverRelay>();
+            }
+
+            relay.Owner = this;
+        }
+
+        /// <summary>
+        /// ペンアイコンへのポインター進入時に、補助マーカーをハイライト色へ切り替えます。
+        /// </summary>
+        private void OnPenPointerEnter()
+        {
+            if (!IsPenDecorationEnabled())
+            {
+                return;
+            }
+
+            ApplyPenDecorationColor(penDecorationHighlightColor);
+        }
+
+        /// <summary>
+        /// ペンアイコンからポインターが外れたときに、補助マーカーを通常色へ戻します。
+        /// </summary>
+        private void OnPenPointerExit()
+        {
+            if (!IsPenDecorationEnabled())
+            {
+                return;
+            }
+
+            ApplyPenDecorationColor(penDecorationDefaultColor);
+        }
+
+        /// <summary>
+        /// 補助マーカー文字列へ現在色を埋め込み、表示状態を更新します。
+        /// </summary>
+        /// <param name="color">マーカーに適用する色</param>
+        private void ApplyPenDecorationColor(Color color)
+        {
+            if (!IsPenDecorationEnabled() || penDecorationMarker == null)
+            {
+                return;
+            }
+
+            SyncPenDecorationTransform();
+            penDecorationMarker.text = $"<color=#{ColorUtility.ToHtmlStringRGB(color)}>{PenDecorationMarkerText}</color>";
+            penDecorationMarker.color = Color.white;
+            penDecorationMarker.raycastTarget = false;
+            penDecorationMarker.gameObject.SetActive(true);
+        }
+
+        /// <summary>
+        /// ペンアイコンの実描画位置を基準に、補助マーカーの RectTransform を同期します。
+        /// </summary>
+        private void SyncPenDecorationTransform()
+        {
+            if (!IsPenDecorationEnabled() || penDecorationMarker == null || penText == null)
+            {
+                return;
+            }
+
+            var penRect = penText.rectTransform;
+            var decorationRect = penDecorationMarker.rectTransform;
+            penText.ForceMeshUpdate();
+            var textBounds = penText.textBounds;
+            var renderedCenter = (Vector2)textBounds.center;
+            decorationRect.anchorMin = penRect.anchorMin;
+            decorationRect.anchorMax = penRect.anchorMax;
+            decorationRect.pivot = penRect.pivot;
+            decorationRect.sizeDelta = penRect.sizeDelta;
+            decorationRect.anchoredPosition = penRect.anchoredPosition
+                + renderedCenter
+                + new Vector2(PenDecorationMarkerX, PenDecorationMarkerY);
+        }
+
+        /// <summary>
+        /// Beat Saber 1.42 以降でのみ補助マーカーを有効にします。
+        /// </summary>
+        private static bool IsPenDecorationEnabled()
+        {
+            return TryParseBeatSaberVersion(Application.version, out var currentVersion)
+                && currentVersion >= PenDecorationMinVersion;
+        }
+
+        /// <summary>
+        /// 実行時のバージョン文字列から数値部分を抽出し、比較用の Version へ正規化します。
+        /// </summary>
+        /// <param name="versionText">Unity から取得したバージョン文字列</param>
+        /// <param name="version">正規化後の Version</param>
+        /// <returns>Version へ変換できた場合は true</returns>
+        private static bool TryParseBeatSaberVersion(string versionText, out Version version)
+        {
+            version = null;
+            if (string.IsNullOrWhiteSpace(versionText))
+            {
+                return false;
+            }
+
+            var match = Regex.Match(versionText, @"\d+(?:\.\d+){0,3}");
+            if (!match.Success)
+            {
+                return false;
+            }
+
+            var parts = match.Value.Split('.');
+            if (parts.Length == 1)
+            {
+                return Version.TryParse($"{parts[0]}.0.0", out version);
+            }
+
+            if (parts.Length == 2)
+            {
+                return Version.TryParse($"{parts[0]}.{parts[1]}.0", out version);
+            }
+
+            return Version.TryParse(match.Value, out version);
+        }
+
+        /// <summary>
+        /// ペンアイコンのポインターイベントを横取りして、補助マーカーの色だけを追従させます。
+        /// </summary>
+        private class PenDecorationHoverRelay : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+        {
+            public MemoPanelController Owner { get; set; }
+
+            public void OnPointerEnter(PointerEventData eventData)
+            {
+                Owner?.OnPenPointerEnter();
+            }
+
+            public void OnPointerExit(PointerEventData eventData)
+            {
+                Owner?.OnPenPointerExit();
             }
         }
 
@@ -472,14 +714,6 @@ namespace MapMemo.UI.Menu
                 if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoPanel: Enabling raycastTarget on ImageView '{coverObject.name}'");
                 imageView.raycastTarget = true;
             }
-
-            // imageは不要
-            // var image = coverObject.GetComponent<Image>();
-            // if (image != null)
-            // {
-            //     if (Plugin.VerboseLogs) Plugin.Log?.Info($"MemoPanel: Enabling raycastTarget on Image '{coverObject.name}'");
-            //     image.raycastTarget = true;
-            // }
         }
 
         /// <summary>
@@ -626,9 +860,9 @@ namespace MapMemo.UI.Menu
                 case EventThemeType.Halloween:
                     if (entry == null)
                     {
-                        return "　🎃";
+                        return "🎃";
                     }
-                    return "　🦇";
+                    return "🦇";
                 case EventThemeType.AprilFool:
                     if (entry == null)
                     {
@@ -638,23 +872,32 @@ namespace MapMemo.UI.Menu
                 case EventThemeType.Christmas:
                     if (entry == null)
                     {
-                        return "　🎄";
+                        return "🎄";
                     }
-                    return "　⛄";
+                    return "⛄";
                 case EventThemeType.NewYear:
                     if (entry == null)
                     {
-                        return "　🎍";
+                        return "🎍";
                     }
-                    return "　🎊";
+                    return "🎊";
                 default:
                     if (entry == null)
                     {
-                        return "　🖊";
+                        return "🖊";
                     }
 
-                    return entry.autoCreateEmptyMemo ? "　📑" : "　📝";
+                    return entry.autoCreateEmptyMemo ? "📑" : "📝";
             }
+        }
+
+        /// <summary>
+        /// アイコン文字列を返します。
+        /// 絵文字本体の色変化が見えにくいため、補助記号を含む文字列をそのまま表示します。
+        /// </summary>
+        private static string GetStyledEventIcon(EventThemeType eventTheme, MemoEntry entry)
+        {
+            return GetEventIcon(eventTheme, entry);
         }
 
         /// <summary>
