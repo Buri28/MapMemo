@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace Mapmemo.Models
 {
     public class MemoSettingEntity
@@ -49,16 +51,18 @@ namespace Mapmemo.Models
         /// <summary>
         /// イベント表示を有効にするかどうか
         /// </summary>
-        public bool EventModeEnabled { get; set; } = false;
+        public bool EventModeEnabled { get; set; } = true;
 
         /// <summary>
         /// テスト用にイベントを手動で上書きするかどうか
         /// </summary>
+        [JsonIgnore]
         public bool EventDebugOverrideEnabled { get; set; } = false;
 
         /// <summary>
         /// 選択中のイベント番号
         /// </summary>
+        [JsonIgnore]
         public string EventTheme { get; set; } = "0: Auto";
     }
 }

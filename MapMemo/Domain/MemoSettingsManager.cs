@@ -97,21 +97,21 @@ namespace MapMemo.Domain
         }
 
         /// <summary>
-        /// テスト用のイベント上書きを有効にするかどうかを取得または設定します。設定時は保存も行います。
+        /// テスト用のイベント上書きを有効にするかどうかを取得または設定します。ランタイムのみで保持します。
         /// </summary>
         public bool EventDebugOverrideEnabled
         {
             get => settingsEntity.EventDebugOverrideEnabled;
-            set { settingsEntity.EventDebugOverrideEnabled = value; Save(); }
+            set { settingsEntity.EventDebugOverrideEnabled = value; }
         }
 
         /// <summary>
-        /// 選択中のイベント番号を取得または設定します。設定時は保存も行います。
+        /// 選択中のイベント番号を取得または設定します。ランタイムのみで保持します。
         /// </summary>
         public string EventTheme
         {
             get => settingsEntity.EventTheme;
-            set { settingsEntity.EventTheme = value; Save(); }
+            set { settingsEntity.EventTheme = value; }
         }
 
         /// <summary>
