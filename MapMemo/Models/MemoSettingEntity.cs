@@ -45,5 +45,20 @@ namespace Mapmemo.Models
         /// BeatSaver へのアクセスモード
         /// </summary>
         public string BeatSaverAccessMode { get; set; } = "Semi-Auto";
+
+        /// <summary>
+        /// イベント表示を有効にするかどうか
+        /// </summary>
+        public bool EventModeEnabled { get; set; } = false;
+
+        /// <summary>
+        /// テスト用にイベントを手動で上書きするかどうか
+        /// </summary>
+        public bool EventDebugOverrideEnabled { get; set; } = false;
+
+        /// <summary>
+        /// 選択中のイベント番号
+        /// </summary>
+        public string EventTheme { get; set; } = "0: Auto";
     }
 }
